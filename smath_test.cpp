@@ -1,0 +1,178 @@
+#include <sps/sps_export.h>
+#include <sps/math.h>
+#include <sps/smath.hpp>
+
+#include <float.h>
+
+#include <cstdlib>
+#include <iostream>
+#include <cassert>
+
+#include <stdint.h>
+
+#include <vector>
+
+#include <gtest/gtest.h>
+
+using namespace sps;
+
+TEST(smath_test, test_alignment) {
+  sps::point_t<float> p0 = sps::point_t<float>(1.0f, 2.0f, 3.0f);
+  ASSERT_EQ((uintptr_t)&p0[0] & 0x0F, 0U);
+  sps::point_t<float> p1{1.0f, 2.0f, 3.0f};
+  ASSERT_EQ((uintptr_t)&p1[0] & 0x0F, 0U);
+}
+
+TEST(smath_test, test_basis_vectors_double) {
+  euler_t<double> euler;  //  = { 0.1, 0.2, 0.3, 0.0 }; Not working on _MSC_VER
+  euler.alpha = 0.1;
+  euler.beta  = 0.2;
+  euler.gamma = 0.3;
+  double vec0[4], vec1[4], vec2[4];
+
+  basis_vectors(vec0, vec1, vec2, euler);
+
+  point_t<double> vec = point_t<double>();
+  basis_vectors<double, EulerIntrinsicYXY>(&vec, euler, 0);
+
+  double diff =
+    sqrt(SQUARE(vec[0] - vec0[0]) +
+         SQUARE(vec[1] - vec0[1]) +
+         SQUARE(vec[2] - vec0[2]));
+  ASSERT_LT(diff, FLT_EPSILON);
+  basis_vectors<double, EulerIntrinsicYXY>(&vec, euler, 1);
+  diff =
+    sqrt(SQUARE(vec[0] - vec1[0]) +
+         SQUARE(vec[1] - vec1[1]) +
+         SQUARE(vec[2] - vec1[2]));
+  ASSERT_LT(diff, FLT_EPSILON);
+  basis_vectors<double, EulerIntrinsicYXY>(&vec, euler, 2);
+  diff = sqrt(SQUARE(vec[0] - vec2[0]) +
+              SQUARE(vec[1] - vec2[1]) +
+              SQUARE(vec[2] - vec2[2]));
+  ASSERT_LT(diff, FLT_EPSILON);
+}
+
+TEST(smath_test, test_min_max) {
+  std::vector<float> xs = { 1.0f, 2.0f, 3.0f };
+  std::vector<float> ws = { 0.0f, 1.0f, 0.0f };
+  auto result =
+    sps::minmax_weighted_element<std::vector<float>::const_iterator,
+    std::vector<float>::const_iterator>(xs.begin(), xs.end(), ws.begin());
+  std::cout << "min: " << *(result.first)
+            << "max: " << *(result.second) << std::endl;
+  ASSERT_TRUE(true);
+}
+
+TEST(smath_test, test_point_to_circle) {
+  point_t<float> p = {0.0f, 0.0f, 4.0f};
+  circle_t<float> c;
+  c.center[0] = 0.0f;
+  c.center[1] = 0.0f;
+  c.center[2] = 0.0f;
+  c.radius = 2.0f;
+  c.euler.alpha = 0.0f;
+  c.euler.beta  = 0.0f;
+  c.euler.gamma = 0.0f;
+
+  float dist = dist_point_to_circle<float>(p, c);
+  float diff = fabs(dist - 4.0f);
+  ASSERT_LT(diff, FLT_EPSILON);
+
+  p[1] = 6.0f;
+  dist = dist_point_to_circle<float>(p, c);
+  diff = fabs(dist - sqrt(32.0f));
+  ASSERT_LT(diff, FLT_EPSILON);
+
+  p[0] = 1.0f;
+  p[1] = 0.0f;
+  dist = dist_point_to_circle<float>(p, c);
+  diff = fabs(dist - 4.0f);
+  ASSERT_LT(diff, FLT_EPSILON);
+
+  float r, z, distNear, distFar;
+  dist_point_to_circle_local<float>(p, c, &r, &z, &distNear, &distFar);
+  ASSERT_LT(fabs(distNear-dist), FLT_EPSILON);
+}
+
+TEST(smath_test, test_point_to_circle_local) {
+  point_t<float> p = {0.0f, 0.0f, 4.0f};
+  circle_t<float> c;
+  c.center[0] = 0.0f;
+  c.center[1] = 0.0f;
+  c.center[2] = 0.0f;
+  c.radius = 2.0f;
+  c.euler.alpha = 0.0f;
+  c.euler.beta  = 0.0f;
+  c.euler.gamma = 0.0f;
+
+  float r, z, dist, distFar;
+
+  dist_point_to_circle_local<float>(p, c, &r, &z, &dist, &distFar);
+  float diff = fabs(dist - 4.0f);
+  ASSERT_LT(diff, FLT_EPSILON);
+  ASSERT_LT(dist, distFar);
+
+  p[1] = 6.0f;
+  dist_point_to_circle_local<float>(p, c, &r, &z, &dist, &distFar);
+  diff = fabs(dist - sqrt(32.0f));
+  ASSERT_LT(diff, FLT_EPSILON);
+  ASSERT_LT(dist, distFar);
+
+  p[0] = 1.0f;
+  p[1] = 0.0f;
+  dist_point_to_circle_local<float>(p, c, &r, &z, &dist, &distFar);
+  diff = fabs(dist - 4.0f);
+  ASSERT_LT(diff, FLT_EPSILON);
+  ASSERT_LT(dist, distFar);
+
+  p[0] = 0.1f;
+  dist_point_to_circle_local<float>(p, c, &r, &z, &dist, &distFar);
+  ASSERT_LT(dist, distFar);
+}
+
+TEST(smath_test, test_dists_most_distant_and_closest) {
+  // Overlapping boxes
+  bbox_t<float> box0;
+  bbox_t<float> box1;
+  box0.min[0] = -2.0f;
+  box0.max[0] =  2.0f;
+  box0.min[1] = -2.0f;
+  box0.max[1] =  2.0f;
+  box0.min[2] = -2.0f;
+  box0.max[2] =  2.0f;
+
+  box1.min[0] = -1.0f;
+  box1.max[0] =  3.0f;
+  box1.min[1] = -1.0f;
+  box1.max[1] =  1.0f;
+  box1.min[2] = -1.0f;
+  box1.max[2] =  1.0f;
+
+  float distNear = 0.0f;
+  float distFar = 0.0f;
+  dists_most_distant_and_closest(box0, box1, &distNear, &distFar);
+
+  ASSERT_EQ(distNear, 0.0f);
+  ASSERT_LT(fabs(distFar - sqrtf(43.0f)), FLT_EPSILON);
+}
+
+/*
+// TODO: Use this alternative for testing
+T angle = atan2(v,u);
+nearest[0] = cos(angle)*circle.radius;
+nearest[1] = sin(angle)*circle.radius;
+nearest[2] = T(0.0);
+*/
+
+
+int main(int argc, char** argv) {
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}
+
+/* Local variables: */
+/* indent-tab-mode: nil */
+/* tab-width: 2 */
+/* c-basic-offset: 2 */
+/* End: */
