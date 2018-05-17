@@ -1,0 +1,74 @@
+#pragma once
+
+#ifndef __cplusplus
+# error This header requires C++
+#endif
+
+#include <sps/cenv.h>
+#include <algorithm>
+
+namespace sps {
+
+template <typename T>
+struct wrapped_array {
+  wrapped_array(T* first, T* last) : begin_ {first}, end_ {last} {}
+  wrapped_array(T* first, std::ptrdiff_t size)
+      : wrapped_array {first, first + size} {}
+
+  T*  begin() const noexcept { return begin_; }
+  T*  end() const noexcept { return end_; }
+
+  T* begin_;
+  T* end_;
+};
+
+template <typename T>
+wrapped_array<T> wrap_array(T* first, std::ptrdiff_t size) noexcept {
+  return {first, size};
+}
+
+#if CXX17
+  using std::clamp;
+#else
+  template <typename T>
+  T clamp(T in, const T& low, const T& high) {
+    return std::min<T>(std::max<T>(in, low), high);	
+  }
+#endif
+}
+
+namespace sps {
+
+#ifdef __GNUG__
+
+using std::swap;
+
+#elif defined(_MSC_VER)
+# if (_MSC_VER < 1700)
+  template<typename T> void swap(T& t1, T& t2) {
+    T tmp(t1);
+    t1=t2;
+    t2=tmp;
+  }
+# elif (_MSC_VER == 1700)
+  template<typename T> void swap(T& t1, T& t2) {
+    T temp = std::move(t1);
+    t1 = std::move(t2);
+    t2 = std::move(temp);
+  }
+# elif (_MSC_VER >= 1800)
+  // Why can't we say using std::swap or template <typename T> using swap = std::swap<T>
+    template<typename T> void swap(T& t1,T& t2) {
+        T temp = std::move(t1);
+        t1 = std::move(t2);
+        t2 = std::move(temp);
+    }
+# endif
+#endif
+}  // namespace sps
+
+/* Local variables: */
+/* tab-width: 2 */
+/* c-basic-offset: 2 */
+/* indent-tabs-mode: nil */
+/* End: */

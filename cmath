@@ -1,0 +1,124 @@
+/**
+ * @file   cmath
+ * @author Jens Munk Hansen <jmh@debian9laptop.parknet.dk>
+ * @date   Tue Mar 27 21:49:58 2018
+ *
+ * @brief
+ *
+ * Copyright 2018 Jens Munk Hansen
+ */
+
+#pragma once
+
+#include <sps/cenv.h>
+
+#include <cmath>
+#include <type_traits>   // std::enable_if
+#include <limits>        // std::numeric_limits
+
+/*
+template <typename T> int sgn(T val) {
+    return (T(0) < val) - (val < T(0));
+}
+
+template <typename T> inline constexpr
+int signum(T x, std::false_type is_signed) {
+    return T(0) < x;
+}
+
+template <typename T> inline constexpr
+int signum(T x, std::true_type is_signed) {
+    return (T(0) < x) - (x < T(0));
+}
+
+template <typename T> inline constexpr
+int signum(T x) {
+    return signum(x, std::is_signed<T>());
+}
+
+*/
+
+namespace sps {
+#ifdef CXX11
+template<class T>
+typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
+almost_equal(T x, T y, int ulp) {
+  // the machine epsilon has to be scaled to the magnitude of the values used
+  // and multiplied by the desired precision in ULPs (units in the last place)
+  return (std::abs(x-y) < std::numeric_limits<T>::epsilon() * std::abs(x+y) * ulp)
+                         // unless the result is subnormal
+                         || std::abs(x-y) < std::numeric_limits<T>::min();
+}
+#endif
+/** @name Templated trigonometric functions. A way to enforce precission
+ *
+ */
+///@{
+
+template <typename T>
+inline T sin(const T& v) { return std::sin(v); }
+
+template <typename T>
+inline T cos(const T& v) { return std::cos(v); }
+
+template <typename T>
+inline T tan(const T& v) { return std::tan(v); }
+
+template <typename T>
+inline T asin(const T& v) { return std::asin(v); }
+
+template <typename T>
+inline T acos(const T& v) { return std::acos(v); }
+
+template <>
+inline float sin<float>(const float& v) { return sinf(v); }
+
+template <>
+inline float cos<float>(const float& v) { return cosf(v); }
+
+template <>
+inline float asin<float>(const float& v) { return asinf(v); }
+
+template <>
+inline float acos<float>(const float& v) { return acosf(v); }
+
+template <>
+inline float tan<float>(const float& v) { return tanf(v); }
+
+template <>
+inline double sin<double>(const double& v) { return std::sin(v); }
+
+template <>
+inline double cos<double>(const double& v) { return std::cos(v); }
+
+template <>
+inline double asin<double>(const double& v) { return std::asin(v); }
+
+template <>
+inline double acos<double>(const double& v) { return std::acos(v); }
+
+template <>
+inline double tan<double>(const double& v) { return std::tan(v); }
+
+}  // namespace sps
+///@}
+
+template float sps::sin(const float& v);
+template float sps::cos(const float& v);
+template float sps::acos(const float& v);
+template float sps::acos(const float& v);
+template float sps::tan(const float& v);
+template double sps::sin(const double& v);
+template double sps::cos(const double& v);
+template double sps::asin(const double& v);
+template double sps::acos(const double& v);
+template double sps::tan(const double& v);
+
+
+/* Local variables: */
+/* mode: c++ */
+/* indent-tab-mode: nil */
+/* tab-width: 2 */
+/* c-basic-offset: 2 */
+/* indent-tabs-mode: nil */
+/* End: */
