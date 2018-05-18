@@ -28,8 +28,7 @@ STATIC_INLINE_BEGIN void multi_free(void *r, size_t d) STATIC_INLINE_END;
  *
  * @return
  */
-STATIC_INLINE_BEGIN void* multi_malloc(size_t s, size_t d, ...)
-{
+STATIC_INLINE_BEGIN void* multi_malloc(size_t s, size_t d, ...) {
 
   char* tree;
 
@@ -44,6 +43,9 @@ STATIC_INLINE_BEGIN void* multi_malloc(size_t s, size_t d, ...)
 
   va_start(ap,d);
   d1 = (size_t *) malloc(d*sizeof(size_t));
+
+  if (d1 == NULL)
+    return NULL;
 
   for(i=0; i<d; i++)
     d1[i] = va_arg(ap,size_t);
