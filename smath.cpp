@@ -169,7 +169,6 @@ void basis_vectors<float, sps::EulerIntrinsicYXY>(
 template <>
 void basis_vectors<double, sps::EulerIntrinsicYXY>(
   sps::point_t<double>* output, const euler_t<double>& euler, size_t index) {
-
   const double alpha = euler.alpha;
   const double beta  = euler.beta;
   const double gamma = euler.gamma;
@@ -206,7 +205,6 @@ template <typename T, RotationConvention conv>
 void basis_rotate(
   const sps::point_t<T>& input,
   const euler_t<T>& euler, sps::point_t<T>* output) {
-
   sps::point_t<T> vec0, vec1, vec2;
   basis_vectors<T, conv>(&vec0, euler, 0);
   basis_vectors<T, conv>(&vec1, euler, 1);
