@@ -252,9 +252,10 @@ if (BUILD_SPS_TEST)
   add_executable(thread_test thread_test.cpp)
   add_gtest_dependencies(thread_test)
 
-  add_executable(weak_binder_test weak_binder_test.cpp)
-  add_gtest_dependencies(weak_binder_test)
-
+  if (UNIX)
+    add_executable(weak_binder_test weak_binder_test.cpp)
+    add_gtest_dependencies(weak_binder_test)
+  endif()
   set(sgc_test_SOURCES
     sgc.cpp
     )
