@@ -81,7 +81,16 @@ SPS_EXPORT point_t : public std::array<T, 4>
     std::array<T, 4>(reinterpret_cast<std::array<T, 4> const&>(
                        *(args.begin()))) {}
 #endif
+  /*
+  point_t<T>& operator=(point_t<T>&& other) noexcept {
+    if(this != &other) {
+    }
+    return *this;
+  }
+  */
 };
+
+
 
 template <typename T>
 const point_t<T> point_t<T>::xaxis = point_t<T>(T(1.0), T(0.0), T(0.0));

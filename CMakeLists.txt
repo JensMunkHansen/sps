@@ -110,10 +110,16 @@ if (MSVC)
 endif()
 
 set(sps_HEADERS
+  debug.h
+  stdio.h
+  stdlib.h
   cenv.h
+  cerr.h
   math.h
+  malloc.h
   mm_malloc.h
   zip
+  functional.hpp
   smath_types.hpp
   smath.hpp
   sps_threads.hpp
@@ -122,6 +128,9 @@ set(sps_HEADERS
   memory
   threadpool.hpp
   indexed_types.hpp
+  context.hpp
+  contextif.hpp
+  resource.hpp
   win32/memory
   unix/memory
 )
