@@ -70,7 +70,8 @@ class GarbageCollected : public CRTP<T, GarbageCollected> {
     delete obj;
   }
 
-  static GarbageCollected* FromIndex(const indexed_type_index index ) throw(std::runtime_error);
+  static GarbageCollected* FromIndex(const indexed_type_index index)
+      throw(std::runtime_error);
 
   indexed_type_index ToIndex();
 
@@ -254,13 +255,14 @@ indexed_type_index GarbageCollected<T>::ToIndex() {
 
 }  // namespace sps
 
-class GCTestObject : public sps::GarbageCollected<GCTestObject>, public sps::Shared<GCTestObject> {
+class GCTestObject :
+    public sps::GarbageCollected<GCTestObject>,
+    public sps::Shared<GCTestObject> {
  public:
   GCTestObject() {
     std::cout << "GCTestObject" << std::endl;
     // GarbageCollected called before shared
   }
   ~GCTestObject() {
-    // ~Shared called before garbage collected. Refcount should be contained in descendant
   }
 };
