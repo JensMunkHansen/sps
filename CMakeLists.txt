@@ -391,7 +391,11 @@ if (SPS_Signals)
   set(swig_signals_SOURCES
     )
 
+if(${CMAKE_VERSION} VERSION_LESS "3.8.0")
   swig_add_module(swig_signals python swig_signals.i ${swig_signals_HEADERS} ${swig_signals_SOURCES})
+else()
+  swig_add_library(swig_signals LANGUAGE python SOURCES swig_signals.i ${swig_signals_HEADERS} ${swig_signals_SOURCES})
+endif()
 
   if (MSVC)
     # Potential uninitialized variable in SWIG_AsVal_
