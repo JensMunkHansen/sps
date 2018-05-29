@@ -56,14 +56,18 @@ class GarbageCollected : public CRTP<T, GarbageCollected> {
     // Zero-out signature
     signature = NULL;
 
-    indexed_type_index index = this->ToIndex();
+    indexed_type_index index;
+    this->ToIndex(&index);
     GarbageCollector<T>::objvector[index] = nullptr;
   }
 
   static indexed_type_index Create(T** obj) {
     *obj = new T();
+
     // TODO(JMH): Move the indexing to another parent
-    return (*obj)->ToIndex();
+    indexed_type_index index;
+    (*obj)->ToIndex(&index);
+    return index;
   }
 
   static void Destroy(T* obj) {
@@ -73,7 +77,7 @@ class GarbageCollected : public CRTP<T, GarbageCollected> {
   static GarbageCollected* FromIndex(const indexed_type_index index)
       throw(std::runtime_error);
 
-  indexed_type_index ToIndex();
+  int ToIndex(indexed_type_index* index);
 
   void test() {
     const T& t = this->underlying();
@@ -237,18 +241,20 @@ throw(std::runtime_error) {
 }
 
 template <typename T>
-indexed_type_index GarbageCollected<T>::ToIndex() {
+int GarbageCollected<T>::ToIndex(indexed_type_index* index) {
   // Find pointer in vector
   auto it = find(GarbageCollector<T>::objvector.begin(),
                  GarbageCollector<T>::objvector.end(), this);
   if (it != GarbageCollector<T>::objvector.end()) {
-    return indexed_type_index(
-             std::distance(
-               GarbageCollector<T>::objvector.begin(),
-               it));
+    *index =
+        indexed_type_index(
+            std::distance(
+            GarbageCollector<T>::objvector.begin(),
+            it));
+    return 0;
   } else {
     fprintf(stderr, "Invalid index.\n");
-    throw std::runtime_error("GarbageCollected<T>::ToIndex");
+    return -1;
   }
 }
 
