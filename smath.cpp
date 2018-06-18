@@ -414,12 +414,12 @@ SPS_EXPORT dists_most_distant_and_closest(const sps::bbox_t<float> &box0,
 // Is this a problem, when it is exported (it must be export using SOFUS_EXPORT when used in SOFUS)
 template std::pair<float,float> minmax_delay<float,float>(const float* xs, const float* ws, size_t nData);
 
-template float dist_point_to_circle<float>(const sps::point_t<float>& point, const sps::circle_t<float>& circle);
-template void dist_point_to_circle_local<float>(
+template float SPS_EXPORT dist_point_to_circle<float>(const sps::point_t<float>& point, const sps::circle_t<float>& circle);
+template void SPS_EXPORT dist_point_to_circle_local<float>(
   const sps::point_t<float>& point,
   const sps::circle_t<float>& circle,
   float *r, float *z, float *distNear, float *distFar);
-template void dist_point_to_circle_local<float>(
+template void SPS_EXPORT dist_point_to_circle_local<float>(
   const sps::point_t<float>& point,
   const sps::circle_t<float>& circle, float *r, float *z, float *distNear);
 
