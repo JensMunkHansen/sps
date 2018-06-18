@@ -276,15 +276,15 @@ T sgn_dist_to_plane(const point_t<T>& point, const point_t<T>& pointOnPlane,
  * @return
  */
 template <typename T>
-T dist_point_to_circle(const point_t<T>& point, const circle_t<T>& circle);
+T SPS_EXPORT dist_point_to_circle(const point_t<T>& point, const circle_t<T>& circle);
 
 template <typename T>
-void dist_point_to_circle_local(const point_t<T>& point,
+void SPS_EXPORT dist_point_to_circle_local(const point_t<T>& point,
                                 const circle_t<T>& circle,
                                 T* r, T* z, T* distNear);
 
 template <typename T>
-void dist_point_to_circle_local(const point_t<T>& point,
+void SPS_EXPORT dist_point_to_circle_local(const point_t<T>& point,
                                 const circle_t<T>& circle,
                                 T* r, T* z, T* distNear, T* distFar);
 

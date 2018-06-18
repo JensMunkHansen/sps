@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file   smath.cpp
  * @author Jens Munk Hansen <jmh@jmhlaptop>
  * @date   Sun Apr 30 22:52:50 2017
@@ -22,7 +22,7 @@ template struct SPS_EXPORT std::pair<double, double>;
 namespace sps {
 
 template <typename T, typename U>
-std::pair<T, T> SPS_EXPORT
+std::pair<T, T>
 minmax_delay(const T* xs, const U* ws, size_t nData) {
   std::pair<T, T> result = std::make_pair(T(0.0), T(0.0));
   bool bFirst = true;
@@ -452,12 +452,12 @@ template void SPS_EXPORT dists_most_distant_and_closest(const sps::bbox_t<double
     double* distNear,
     double* distFar);
 
-template double dist_point_to_circle<double>(const sps::point_t<double>& point,
+template double SPS_EXPORT dist_point_to_circle<double>(const sps::point_t<double>& point,
     const sps::circle_t<double>& circle);
-template void dist_point_to_circle_local<double>(
+template void SPS_EXPORT dist_point_to_circle_local<double>(
   const sps::point_t<double>& point, const sps::circle_t<double>& circle,
   double *r, double *z, double *distNear, double *distFar);
-template void dist_point_to_circle_local<double>(
+template void SPS_EXPORT dist_point_to_circle_local<double>(
   const sps::point_t<double>& point, const sps::circle_t<double>& circle,
   double *r, double *z, double *distNear);
 
