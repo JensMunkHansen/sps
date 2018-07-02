@@ -261,6 +261,9 @@ int GarbageCollected<T>::ToIndex(indexed_type_index* index) {
 
 }  // namespace sps
 
+
+//  TODO(JEM): introduce indexed after garbage collected
+//  If an object is typed (using typename) gc is using it
 class GCTestObject :
     public sps::GarbageCollected<GCTestObject>,
     public sps::Shared<GCTestObject> {
