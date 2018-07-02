@@ -246,7 +246,7 @@ if (BUILD_SPS_TEST)
   add_executable(semaphore_test semaphore_test.cpp)
   add_gtest_dependencies(semaphore_test)
 
-  add_executable(threadpool_test threadpool_test.cpp)
+  add_executable(threadpool_test threadpool_test.cpp threadpool.cpp)
   add_gtest_dependencies(threadpool_test)
 
   add_executable(thread_test thread_test.cpp)
