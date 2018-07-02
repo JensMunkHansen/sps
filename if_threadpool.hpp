@@ -9,13 +9,14 @@
  */
 
 #pragma once
+
+#include <sps/sps_export.h>
 #include <cstddef>
-#include <iostream>
 
 namespace sps {
 typedef void (*SimpleCallback)(void*);
 
-class IThreadPool {
+class SPS_EXPORT IThreadPool {
  public:
   virtual int Initialize() = 0;
   virtual int SubmitJob(SimpleCallback cb, void* pUserData) = 0;
@@ -36,7 +37,7 @@ class IThreadPool {
   // IThreadPool& operator=(const IThreadPool& other) = delete;
 };
 
-int ThreadPoolCreate(IThreadPool** ppObj);
-int ThreadPoolDestroy(IThreadPool* pObj);
+SPS_EXPORT int ThreadPoolCreate(IThreadPool** ppObj);
+SPS_EXPORT int ThreadPoolDestroy(IThreadPool* pObj);
 
 }  // namespace sps
