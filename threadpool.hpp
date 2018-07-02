@@ -26,7 +26,7 @@
 #include <sps/mimo.hpp>
 
 // TESTING
-#include <iostream>
+// #include <iostream>
 
 // std::result_of can be implemented using decltype
 
@@ -173,7 +173,6 @@ class ThreadPool {
      * subtracting one would turn it to UINT_MAX, so get the maximum of
      * hardware_concurrency() and 2 before subtracting 1.
      */
-    std::cout << "Initialize: ThreadPool" << std::endl;
   }
 
   /**
