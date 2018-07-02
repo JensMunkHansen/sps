@@ -30,7 +30,7 @@ class ThreadPoolImpl : public IThreadPool, public ThreadPool {
 };
 
 int ThreadPoolCreate(IThreadPool** ppObj) {
-  *ppObj = (IThreadPool*) new ThreadPoolImpl(2);
+  *ppObj = reinterpret_cast<IThreadPool*>(new ThreadPoolImpl(2));
   return 0;
 }
 int ThreadPoolDestroy(IThreadPool* pObj) {
