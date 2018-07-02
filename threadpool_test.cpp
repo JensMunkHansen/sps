@@ -10,6 +10,8 @@
 
 #include <sps/threadpool.hpp>
 
+#include <sps/if_threadpool.hpp>
+
 TEST(threadpool_test, test_nothing) {
   EXPECT_EQ(1, 1);
 }
@@ -263,6 +265,15 @@ TEST(threadpool_test, two_threads_pushing_tasks) {
 }
 //}
 
+TEST(threadpool_test, interface_test) {
+  MyUserData myData;
+  strncpy(myData.msg, "Hello World\0", 12);
+
+  sps::IThreadPool* pThreadPool;
+  sps::ThreadPoolCreate(&pThreadPool);
+  pThreadPool->SubmitJob(&MyCallbackFunction, &myData);
+  sps::ThreadPoolDestroy(pThreadPool);
+}
 
 
 int main(int argc, char* argv[]) {
