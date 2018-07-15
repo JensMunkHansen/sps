@@ -37,7 +37,7 @@ using deleted_aligned_array = std::unique_ptr<T[], std::function<void(T*)> >;
  */
 template<typename T>
 deleted_aligned_array<T> deleted_aligned_array_create(size_t n) {
-  return deleted_aligned_array<T>( static_cast<T*>(SPS_MM_MALLOC(n*sizeof(T), 32)),
+  return deleted_aligned_array<T>( static_cast<T*>(SPS_MM_MALLOC(n*sizeof(T), 4*sizeof(T))),
                                   [](T* f)->void { _mm_free(f);});
 }
 
@@ -51,7 +51,7 @@ template <class T>
 class deleted_aligned_multi_array<T, 1> : public std::unique_ptr<T[], std::function<void(T*)> >{
   deleted_aligned_multi_array(size_t n) :
       // 32-byte aligned to allow 4-vectors of doubles
-      std::unique_ptr<T[], std::function<void(T*)> >(static_cast<T*>(SPS_MM_MALLOC(n*sizeof(T),32)), // Used for other objects
+      std::unique_ptr<T[], std::function<void(T*)> >(static_cast<T*>(SPS_MM_MALLOC(n*sizeof(T), 4*sizeof(T))), // Used for other objects
                                                    [](T* f)->void { _mm_free(f);}) {}
 };
 

@@ -6,6 +6,7 @@
  * @brief
  *
  * Copyright 2017 Jens Munk Hansen
+ *
  */
 
 #pragma once
@@ -29,6 +30,8 @@
 // #include <iostream>
 
 // std::result_of can be implemented using decltype
+
+// It is a dispatch queue
 
 namespace sps {
 
