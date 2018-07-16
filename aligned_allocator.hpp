@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file   aligned_allocator.hpp
  * @author Jens Munk Hansen <jens.munk.hansen@gmail.com>
  * @date   Wed Jul 22 23:18:58 2011
@@ -156,7 +156,9 @@ public:
    *
    * @param other
    */
-  template <typename U> aligned_allocator(const aligned_allocator<U,Alignment>& other) { }
+  template <typename U> aligned_allocator(const aligned_allocator<U,Alignment>& other) {
+    SPS_UNREFERENCED_PARAMETER(other);
+  }
 
   /**
    * Destructor

@@ -100,6 +100,27 @@ inline double acos<double>(const double& v) { return std::acos(v); }
 template <>
 inline double tan<double>(const double& v) { return std::tan(v); }
 
+// Consider using traits and using traits = sps::trig_traits<float>
+template <typename T>
+struct trig_traits {
+  static constexpr T pi() { return T(M_PI);}
+  static inline auto sin(const T& v) { return std::sin(v); }
+  static inline auto cos(const T& v) { return std::cos(v); }
+  static inline auto tan(const T& v) { return std::tan(v); }
+  static inline auto asin(const T& v) { return std::asin(v); }
+  static inline auto acos(const T& v) { return std::acos(v); }
+};
+
+template <>
+struct trig_traits<float> {
+  static constexpr float pi() { return float(M_PI); }
+  static inline auto sin(const float& v) { return sinf(v); }
+  static inline auto cos(const float& v) { return cosf(v); }
+  static inline auto tan(const float& v) { return tanf(v); }
+  static inline auto asin(const float& v) { return asinf(v); }
+  static inline auto acos(const float& v) { return acosf(v); }
+};
+
 }  // namespace sps
 ///@}
 
@@ -114,6 +135,8 @@ template double sps::asin(const double& v);
 template double sps::acos(const double& v);
 template double sps::tan(const double& v);
 
+template struct sps::trig_traits<float>;
+template struct sps::trig_traits<double>;
 
 /* Local variables: */
 /* mode: c++ */
