@@ -1,4 +1,4 @@
-#include <sps/cenv.h>
+﻿#include <sps/cenv.h>
 #include <gtest/gtest.h>
 
 #include <iostream>
@@ -29,6 +29,7 @@ class SomeObject {
 };
 
 void FunctionReadingObject(const SomeObject& object) {
+  SPS_UNREFERENCED_PARAMETER(object);
 }
 
 int FunctionReadingAndReturningVariables(int a, float b) {
