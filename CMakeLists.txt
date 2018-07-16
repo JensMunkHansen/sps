@@ -10,6 +10,12 @@ set(CMAKE_MODULE_PATH
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
   )
 
+option (SPS_SHARED_LIBS "Build Shared Libraries" OFF)
+set(SPS_LIB_TYPE STATIC)
+if (SPS_SHARED_LIBS)
+  set(SPS_LIB_TYPE SHARED)
+endif()
+
 include(CheckIncludeFile)
 include(CheckSymbolExists)
 #include(ValidateHeaders)
@@ -164,7 +170,7 @@ if (UNIX AND NOT WIN32 AND NOT CYGWIN)
   set(sps_SOURCES "${sps_SOURCES}" "strace.cpp")
 endif()
 
-add_library(sps ${LIB_TYPE} ${sps_HEADERS} ${sps_SOURCES})
+add_library(sps ${SPS_LIB_TYPE} ${sps_HEADERS} ${sps_SOURCES})
 
 if (0) #UNIX AND NOT WIN32 AND NOT CYGWIN)
   set(bum)
