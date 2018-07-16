@@ -140,7 +140,7 @@ int SSE2LinearSearch<int32_t,0>::operator=(const int32_t& key) const {
 template <>
 int SSE2LinearSearch<float, 0>::operator>=(const float& key) const {
   const __m128 keys = _mm_set1_ps(key);
-  const int n = m_nData;
+  const int n = static_cast<int>(m_nData);
   const int rounded = 8 * (n/8);
 
   for (int i=0; i < rounded; i += 8) {
@@ -179,7 +179,7 @@ int SSE2LinearSearch<uint32_t, 0>::operator>=(const uint32_t& key) const {
 template <>
 int SSE2LinearSearch<uint32_t, 0>::operator=(const uint32_t& key) const {
   const __m128i keys = _mm_set1_epi32(key);
-  const int n = m_nData;
+  const int n = static_cast<int>(m_nData);
   const int rounded = 8 * (n/8);
 
   for (int i=0; i < rounded; i += 8) {
