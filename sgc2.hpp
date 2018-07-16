@@ -1,4 +1,4 @@
-#include <sps/typeinfo>
+﻿#include <sps/typeinfo>
 
 #include <iostream>
 #include <vector>
@@ -81,6 +81,7 @@ class GarbageCollected : public CRTP<T, GarbageCollected> {
 
   void test() {
     const T& t = this->underlying();
+    SPS_UNREFERENCED_PARAMETER(t);
   }
   /// Collector
   friend class GarbageCollector<T>;
