@@ -1,4 +1,4 @@
-#include <sps/config.h>
+﻿#include <sps/config.h>
 #include <sps/stdlib.h>
 #include <sps/cstdio>
 
@@ -37,8 +37,8 @@ class A {
 
 using namespace sps;
 
-int main(const int argc, const char* argv[])
-{
+int main(const int argc, const char* argv[]) {
+  SPS_UNREFERENCED_PARAMETERS(argc, argv);
   std::vector<int,aligned_allocator<int> > vec = std::vector<int, aligned_allocator<int> >(4);
 
   A* pA = new A();
