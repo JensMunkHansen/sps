@@ -28,6 +28,11 @@
  */
 
 #include <atomic>
+#include <mutex>
+#include <iostream>
+
+
+// #include <sps/crtp_helper.hpp>
 
 namespace sps {
 /*
@@ -65,6 +70,52 @@ template <typename T> class global {
   global(const global& rhs) = delete;
   void operator=(const global& rhs) = delete;
 };
+
+template <class T>
+class Singleton {
+ public:
+  /**
+   * InstanceGet
+   *
+   * Acquire the (non-static) singleton instance
+   *
+   * @return Pointer to singleton instance
+   */
+  static T* InstanceGet() {
+    T* pInstance = g_instance.load(std::memory_order_acquire);
+    if (!pInstance) {
+      std::lock_guard<std::mutex> guard(g_mutex);
+      pInstance = g_instance.load(std::memory_order_relaxed);
+      if (!pInstance) {
+        pInstance = new T;
+        g_instance.store(pInstance, std::memory_order_release);
+      }
+    }
+    return pInstance;
+  }
+  static void InstanceDestroy() __attribute__((destructor)) {
+    std::lock_guard<std::mutex> guard(g_mutex);
+    if (g_instance) {
+      delete g_instance;
+      g_instance = nullptr;
+    }
+  }
+
+ protected:
+  Singleton() {}
+  Singleton(Singleton const &);
+  Singleton& operator = (Singleton const &);
+ private:
+  static std::atomic<T*> g_instance;
+  static std::mutex g_mutex;
+};
+
+template <class T>
+std::atomic<T*> Singleton<T>::g_instance{nullptr};
+
+template <class T>
+std::mutex Singleton<T>::g_mutex;
+
 }  // namespace sps
 
 /* Local variables: */
