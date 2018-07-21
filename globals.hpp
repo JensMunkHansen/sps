@@ -81,7 +81,7 @@ class Singleton {
    *
    * @return Pointer to singleton instance
    */
-  static T* InstanceGet() {
+  static const T& InstanceGet() {
     T* pInstance = g_instance.load(std::memory_order_acquire);
     if (!pInstance) {
       std::lock_guard<std::mutex> guard(g_mutex);
@@ -91,7 +91,7 @@ class Singleton {
         g_instance.store(pInstance, std::memory_order_release);
       }
     }
-    return pInstance;
+    return *pInstance;
   }
 
   static void InstanceDestroy() __attribute__((destructor(101)));

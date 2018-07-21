@@ -16,8 +16,8 @@ class Test : public sps::Singleton<Test> {
 template void sps::Singleton<Test>::InstanceDestroy();
 
 int main(int argc, char* argv[]) {
-  Test* pTest = Test::InstanceGet();
-  //Test::InstanceDestroy();
+  const Test& pTest = Test::InstanceGet();
+  Test::InstanceDestroy();
   return 0;
 }
 
