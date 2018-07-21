@@ -1,6 +1,7 @@
-#include <cstdio>
+﻿#include <cstdio>
 #include <cstdlib>
 #include <sps/trigintrin.h>
+#include <sps/cmath>
 #include <cstring>
 #include <algorithm> // std::min, std::max
 #include <cassert>
@@ -155,8 +156,7 @@ TEST(trigintrin_test, arcsin_arccos_arctan2)
   //  printf("arctan error: %f\n",max_diff[2]);
 }
 
-TEST(trigintrin_test, test_exp)
-{
+TEST(trigintrin_test, test_exp) {
   ALIGN16_BEGIN float vout[4] ALIGN16_END;
 
   float max_diff[] = {0.0f};
@@ -176,6 +176,11 @@ TEST(trigintrin_test, test_exp)
   ASSERT_LT( max_diff[0], 2.1e-3);
 
   //  printf("exp error: %f\n",max_diff[0]);
+}
+
+TEST(trigintrin_test, test_trig_traits) {
+  using traits = sps::trig_traits<float>;
+  ASSERT_EQ(traits::sin(2.0f), sinf(2.0f));
 }
 
 int main(int argc, char* argv[])

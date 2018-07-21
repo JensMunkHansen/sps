@@ -129,6 +129,7 @@ class EventListener : public IEventListener {
   };
 
   bool Signal(IDispatcherEvent* pEvent) SPS_OVERRIDE {
+    SPS_UNREFERENCED_PARAMETER(pEvent);
     bool bWasSignalled;
     m_mutex.lock();
     bWasSignalled = m_bSignaled;
