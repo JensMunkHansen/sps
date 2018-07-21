@@ -1,3 +1,4 @@
+﻿#include <sps/cenv.h>
 #include <sps/sgc2.hpp>
 
 #if defined(__GNUC__) && !defined(__CYGWIN__)
@@ -22,6 +23,7 @@ int main() {
   try {
     GCTestObject* pObj;
     uintptr_t index = GCTestObject::Create(&pObj);
+    SPS_UNREFERENCED_PARAMETER(index);
     pObj->test();
     //GCTestObject::Destroy(pObj); // invalid read of size ptr_size
     //sps::Destroy<GCTestObject>(index);
