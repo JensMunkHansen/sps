@@ -12,8 +12,12 @@ class Test : public sps::Singleton<Test> {
   friend class sps::Singleton<Test>;
 };
 
+// Explicit instantiate destructor (otherwise not called)
+template void sps::Singleton<Test>::InstanceDestroy();
+
 int main(int argc, char* argv[]) {
   Test* pTest = Test::InstanceGet();
-  Test::InstanceDestroy();
+  //Test::InstanceDestroy();
   return 0;
 }
+
