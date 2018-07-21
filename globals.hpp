@@ -93,13 +93,8 @@ class Singleton {
     }
     return pInstance;
   }
-  static void InstanceDestroy() __attribute__((destructor)) {
-    std::lock_guard<std::mutex> guard(g_mutex);
-    if (g_instance) {
-      delete g_instance;
-      g_instance = nullptr;
-    }
-  }
+
+  static void InstanceDestroy() __attribute__((destructor(101)));
 
  protected:
   Singleton() {}
@@ -109,6 +104,15 @@ class Singleton {
   static std::atomic<T*> g_instance;
   static std::mutex g_mutex;
 };
+
+template <class T>
+void Singleton<T>::InstanceDestroy() {
+  std::lock_guard<std::mutex> guard(g_mutex);
+  if (g_instance) {
+    delete g_instance;
+    g_instance = nullptr;
+  }
+}
 
 template <class T>
 std::atomic<T*> Singleton<T>::g_instance{nullptr};
