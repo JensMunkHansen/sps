@@ -97,9 +97,9 @@ class Singleton {
   static void InstanceDestroy() __attribute__((destructor(101)));
 
  protected:
-  Singleton() {}
-  Singleton(Singleton const &);
-  Singleton& operator = (Singleton const &);
+  Singleton() = default;
+  Singleton(Singleton const &) = delete;
+  Singleton& operator=(Singleton const &) = delete;
  private:
   static std::atomic<T*> g_instance;
   static std::mutex g_mutex;
