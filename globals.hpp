@@ -27,6 +27,8 @@
  *  along with SOFUS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <sps/cenv.h>
+
 #include <atomic>
 #include <mutex>
 #include <iostream>
@@ -94,7 +96,7 @@ class Singleton {
     return *pInstance;
   }
 
-  static void InstanceDestroy() __attribute__((destructor(101)));
+  static void InstanceDestroy() SPS_ATTR_DESTRUCTOR;
 
  protected:
   Singleton() = default;

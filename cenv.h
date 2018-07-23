@@ -355,6 +355,12 @@ EC++  __embedded_cplusplus  Embedded C++
 # define SPS_UNREFERENCED_PARAMETERS(...) FOR_EACH( SPS_UNREFERENCED_PARAMETER, __VA_ARGS__)
 #endif
 
+#ifdef _MSC_VER
+# define SPS_ATTR_DESTRUCTOR
+#else
+# define SPS_ATTR_DESTRUCTOR __attribute__((destructor(101)))
+#endif
+
 /* Local variables: */
 /* indent-tabs-mode: nil */
 /* tab-width: 2 */
