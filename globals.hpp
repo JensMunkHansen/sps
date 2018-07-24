@@ -26,15 +26,15 @@
  *  You should have received a copy of the GNU General Public License
  *  along with SOFUS.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 #include <sps/cenv.h>
+
+#ifdef _MSC_VER
+# include <cstdlib> // atexit
+#endif
 
 #include <atomic>
 #include <mutex>
 #include <iostream>
-
-
-// #include <sps/crtp_helper.hpp>
 
 namespace sps {
 /*
@@ -96,24 +96,37 @@ class Singleton {
     return *pInstance;
   }
 
-  static void InstanceDestroy() SPS_ATTR_DESTRUCTOR;
+  static int InstanceDestroy() SPS_ATTR_DESTRUCTOR;
 
  protected:
-  Singleton() = default;
+  Singleton() {
+#ifdef _MSC_VER
+    // If we never include this in a DLL, which is loaded
+    // dynamically, we can use the standard atexit handler
+    std::atexit([]()->void { Singleton<T>::InstanceDestroy();});
+#endif
+  }
   Singleton(Singleton const &) = delete;
   Singleton& operator=(Singleton const &) = delete;
  private:
   static std::atomic<T*> g_instance;
   static std::mutex g_mutex;
+#if 0
+  // Ugly hack to enforce generation of InstanceDestroy
+  const int atexit = Singleton<T>::InstanceDestroy();
+#endif
 };
 
 template <class T>
-void Singleton<T>::InstanceDestroy() {
+int Singleton<T>::InstanceDestroy() {
+  int retval = -1;
   std::lock_guard<std::mutex> guard(g_mutex);
   if (g_instance) {
     delete g_instance;
     g_instance = nullptr;
+    retval = 0;
   }
+  return retval;
 }
 
 template <class T>
