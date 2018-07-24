@@ -258,6 +258,9 @@ if (BUILD_SPS_TEST)
   add_executable(thread_test thread_test.cpp)
   add_gtest_dependencies(thread_test)
 
+  add_executable(globals_test globals_test.cpp)
+  add_gtest_dependencies(globals_test)
+
   if (UNIX)
     add_executable(weak_binder_test weak_binder_test.cpp)
     add_gtest_dependencies(weak_binder_test)
@@ -343,6 +346,9 @@ if (BUILD_SPS_TEST)
 
   add_test(NAME    mimo_test
            COMMAND mimo_test)
+
+  add_test(NAME    globals_test
+           COMMAND globals_test)
 
   if (SPS_Signals)
     add_test(NAME    signals_test
