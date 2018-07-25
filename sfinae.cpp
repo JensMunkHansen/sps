@@ -43,6 +43,28 @@ class ExtraFeature2 {
   }
 };
 
+template<typename Derived>
+class ExtraFeature3 {
+ public:
+  void extraMethod3() {
+    auto derived = static_cast<Derived&>(*this);
+  }
+};
+
+template<typename Derived>
+class ExtraFeature4 {
+ public:
+  void extraMethod4() {
+    auto derived = static_cast<Derived&>(*this);
+  }
+};
+
+template<typename Derived>
+struct FeaturePack1 : ExtraFeature1<Derived>, ExtraFeature2<Derived> {};
+
+template<typename Derived>
+struct FeaturePack2 : ExtraFeature3<Derived>, ExtraFeature4<Derived> {};
+
 int main() {
   Foo<float> a;
   // A<std::unique_ptr<float> > b;
@@ -51,5 +73,14 @@ int main() {
   X12 x;
   x.extraMethod1();
   x.extraMethod2();
+
+  using X1234 = X<FeaturePack1, FeaturePack2>;
+  X1234 y;
+  y.extraMethod1();
+  y.extraMethod2();
+  y.extraMethod3();
+  y.extraMethod4();
+
+
   return 0;
 }
