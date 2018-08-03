@@ -444,7 +444,7 @@ STATIC_INLINE_BEGIN __m128 _mm_rcp_nr_ps(const __m128& x) {
 }
 
 // AVX-512 (HACK)
-#if defined(_MSC_VER) && (_MSC_VER <= 2000)
+#if defined(_MSC_VER) && (_MSC_VER < 1914)
 STATIC_INLINE_BEGIN __m256d _mm256_rcp14_pd(__m256d x) {
   __m128 x1 = _mm256_cvtpd_ps(x);
   x1 = _mm_rcp_ps(x1);
@@ -454,7 +454,7 @@ STATIC_INLINE_BEGIN __m256d _mm256_rcp14_pd(__m256d x) {
 
 // SVML (Intel) provides _mm256_exp_pd in ia32intrin.h
 
-#ifndef INTEL_COMPILER
+#if !defined(INTEL_COMPILER) && !(defined(_MSC_VER) && (_MSC_VER >= 1914))
 STATIC_INLINE_BEGIN double
 _mm256_cvtsd_f64(__m256d d) {
   // TODO: Keep input argument in register
