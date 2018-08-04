@@ -168,8 +168,8 @@ EC++  __embedded_cplusplus  Embedded C++
 #endif
 
 #ifdef __GNUG__
-# define SPS_LIKELY(x)       __builtin_expect((x),1)
-# define SPS_UNLIKELY(x)     __builtin_expect((x),0)
+# define SPS_LIKELY(x)         __builtin_expect((x),1)
+# define SPS_UNLIKELY(x)       __builtin_expect((x),0)
 # define SPS_ASS_ALIGNED(x,y)  __builtin_assume_aligned((x),(y))
 #else
 # define SPS_LIKELY(x)       (x)
@@ -192,7 +192,7 @@ EC++  __embedded_cplusplus  Embedded C++
 
 #ifdef __GNUG__
 # define GCC_VERSION (__GNUC__ * 10000 \
-              + __GNUC_MINOR__ * 100        \
+              + __GNUC_MINOR__ * 100   \
               + __GNUC_PATCHLEVEL__)
 #endif
 
@@ -267,8 +267,8 @@ EC++  __embedded_cplusplus  Embedded C++
 # define FOR_EACH_12(what, x, ...)\
   what(x);\
   EXPAND(FOR_EACH_11(what,  __VA_ARGS__))
-# define FOR_EACH_13(what, x, ...)               \
-  what(x);                                      \
+# define FOR_EACH_13(what, x, ...)\
+  what(x);\
   EXPAND(FOR_EACH_12(what,  __VA_ARGS__))
 # define FOR_EACH_NARG(...) FOR_EACH_NARG_(__VA_ARGS__, FOR_EACH_RSEQ_N())
 # define FOR_EACH_NARG_(...) EXPAND(FOR_EACH_ARG_N(__VA_ARGS__))
@@ -286,54 +286,54 @@ EC++  __embedded_cplusplus  Embedded C++
 # define CONCATENATE1(arg1, arg2)  CONCATENATE2(arg1, arg2)
 # define CONCATENATE2(arg1, arg2)  arg1##arg2
 
-# define FOR_EACH_1(what, x)         \
+# define FOR_EACH_1(what, x)        \
     what(x)
 
-# define FOR_EACH_2(what, x, ...)    \
+# define FOR_EACH_2(what, x, ...)   \
     what(x);                        \
     FOR_EACH_1(what, __VA_ARGS__);
 
-# define FOR_EACH_3(what, x, ...)    \
+# define FOR_EACH_3(what, x, ...)   \
     what(x);                        \
     FOR_EACH_2(what, __VA_ARGS__);
 
-# define FOR_EACH_4(what, x, ...)    \
+# define FOR_EACH_4(what, x, ...)   \
     what(x);                        \
     FOR_EACH_3(what,  __VA_ARGS__);
 
-# define FOR_EACH_5(what, x, ...)    \
+# define FOR_EACH_5(what, x, ...)   \
     what(x);                        \
     FOR_EACH_4(what,  __VA_ARGS__);
 
-# define FOR_EACH_6(what, x, ...)    \
+# define FOR_EACH_6(what, x, ...)   \
   what(x);                          \
   FOR_EACH_5(what,  __VA_ARGS__);
 
-# define FOR_EACH_7(what, x, ...)    \
+# define FOR_EACH_7(what, x, ...)   \
     what(x);                        \
     FOR_EACH_6(what,  __VA_ARGS__);
 
-# define FOR_EACH_8(what, x, ...)    \
+# define FOR_EACH_8(what, x, ...)   \
     what(x);                        \
     FOR_EACH_7(what,  __VA_ARGS__);
 
-# define FOR_EACH_9(what, x, ...)    \
+# define FOR_EACH_9(what, x, ...)   \
     what(x);                        \
     FOR_EACH_8(what,  __VA_ARGS__);
 
-# define FOR_EACH_10(what, x, ...)   \
+# define FOR_EACH_10(what, x, ...)  \
     what(x);                        \
     FOR_EACH_9(what,  __VA_ARGS__);
 
-# define FOR_EACH_11(what, x, ...)   \
+# define FOR_EACH_11(what, x, ...)  \
     what(x);                        \
     FOR_EACH_10(what,  __VA_ARGS__);
 
-# define FOR_EACH_12(what, x, ...)   \
+# define FOR_EACH_12(what, x, ...)  \
     what(x);                        \
     FOR_EACH_11(what,  __VA_ARGS__);
 
-# define FOR_EACH_13(what, x, ...)   \
+# define FOR_EACH_13(what, x, ...)  \
     what(x);                        \
     FOR_EACH_12(what,  __VA_ARGS__);
 
