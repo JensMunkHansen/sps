@@ -26,7 +26,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with SOFUS.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <sps/cenv.h>
+#include <sps/cenv.h>  // SPS_ATTR_DESTRUCTOR
 
 #ifdef _MSC_VER
 # include <cstdlib> // atexit
@@ -102,12 +102,16 @@ class Singleton {
   Singleton() {
 #ifdef _MSC_VER
     // If we never include this in a DLL, which is loaded
-    // dynamically, we can use the standard atexit handler
+    // dynamically, we can use the standard atexit handler.
+    //
+    // TODO(JMH): Figure out to add function pointer
+    // to a list called on DLL_PROCESS_DETACH
     std::atexit([]()->void { Singleton<T>::InstanceDestroy();});
 #endif
   }
   Singleton(Singleton const &) = delete;
   Singleton& operator=(Singleton const &) = delete;
+
  private:
   static std::atomic<T*> g_instance;
   static std::mutex g_mutex;
