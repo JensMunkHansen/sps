@@ -104,6 +104,9 @@ MSVC++ 5.0  _MSC_VER == 1100
 # if (__cplusplus >= 201402L)
 #  define CXX14
 # endif
+# if (__cplusplus >= 201703L)
+#  define CXX17 1
+# endif
 #endif
 
 
