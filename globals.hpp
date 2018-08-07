@@ -73,6 +73,10 @@ template <typename T> class global {
   void operator=(const global& rhs) = delete;
 };
 
+// TODO(JMH): Consider requiring descendant to be non-copyconstructible
+template<bool B, typename T = void> using disable_if = std::enable_if<!B, T>;
+
+
 template <class T>
 class Singleton {
  public:
@@ -109,6 +113,10 @@ class Singleton {
     std::atexit([]()->void { Singleton<T>::InstanceDestroy();});
 #endif
   }
+  /**
+   * Copy-ctor is deleted. We do not allow copying the singleton
+   *
+   */
   Singleton(Singleton const &) = delete;
   Singleton& operator=(Singleton const &) = delete;
 

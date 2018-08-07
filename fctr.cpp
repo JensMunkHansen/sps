@@ -1,14 +1,12 @@
-﻿
-// Hello
-#include <cstdlib>
+﻿#include <cstdlib>
 
 
-// #include <utility>
-﻿#include <iostream>
+#include <iostream>
 #include <vector>
 #include <string>
 #include <set>
 #include <algorithm>
+#include <utility>
 
 void f(int& i) {
   ++i;
@@ -103,6 +101,7 @@ int main() {
   Merged<decltype(l1), decltype(l2)> merged(l1,l2);
 
   std::cout << merged(2) << std::endl;
+
 #if 0
   Merged2 merged2(l1, l2, [](const double d) { return d*3.2; },
                   [i = std::make_unique<int>(5)](char c){} );

@@ -11,6 +11,7 @@ class Test : public sps::Singleton<Test> {
     m_float = 2.0f;
   }
   float m_float;
+  Test& operator=(const Test& rhs) = delete;
 
   friend class sps::Singleton<Test>;
 };
