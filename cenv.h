@@ -102,7 +102,7 @@ MSVC++ 5.0  _MSC_VER == 1100
 #  define SPS_OVERRIDE
 # endif
 # if (__cplusplus >= 201402L)
-#  define CXX14
+#  define CXX14 1
 # endif
 # if (__cplusplus >= 201703L)
 #  define CXX17 1
