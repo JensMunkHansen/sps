@@ -9,25 +9,32 @@
  */
 #pragma once
 
+#include <sps/cenv.h>
+
 #include <iostream>
+
 
 #ifdef _MSC_VER
 # include <string_view>
 using string_view    = std::basic_string_view<char>;
 #else
-# include <experimental/string_view>
+# if __cplusplus >= 201402
+#  include <experimental/string_view>
 using std::experimental::string_view;
+# endif
 #endif
 
 namespace sps {
 template <class T>
+// TODO(JMH): Make work using C++11
 constexpr string_view type_name() {
 #ifdef __clang__
   string_view p = __PRETTY_FUNCTION__;
   return experimental::string_view(p.data() + 34, p.size() - 34 - 1);
 #elif defined(__GNUC__)
   string_view p = __PRETTY_FUNCTION__;
-#  if __cplusplus < 201402
+#  if __cplusplus <= 201402
+  // C++14 - TODO(JMH): Filter out encapsulating stuff
   return string_view(p.data() + 36, p.size() - 36 - 1);
 #  else
   //  return string_view(p.data() + 46, p.size() - 46 - 1);
@@ -45,6 +52,7 @@ constexpr string_view type_name() {
 
 
 #if 0
+
 #include <cstddef>
 #include <stdexcept>
 #include <cstring>
