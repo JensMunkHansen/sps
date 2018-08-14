@@ -39,5 +39,4 @@ int ThreadPoolDestroy(IThreadPool* pObj) {
   }
   return 0;
 }
-
 }  // namespace sps
