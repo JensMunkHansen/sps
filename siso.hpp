@@ -5,10 +5,12 @@
  *
  * @brief
  *
- *
+ * Copyright 2018 Jens Munk Hansen
  */
 
+#pragma once
 #include <sps/cenv.h>
+
 #include <cstddef>  // std::size_t
 #include <cstdint>  // std::int32_t
 #include <type_traits>  // std::is_copy_constructible
