@@ -40,7 +40,7 @@
 #include <memory>
 
 // TODO(JMH): Create instead an interface for a threadpool to be used
-// with a fixed signature. Crazy difficult to instantiate all well-formed function needed
+// with a fixed signature. Crazy difficult to instantiate all well-formed functions needed
 
 /*
   An explicit instantiation that names a class template specialization is also an explicit instantiation of the same kind (declaration or definition) of each of its members (not including members inherited from base classes) that has not been previously explicitly specialized in the translation unit containing the explicit instantiation, except as described below.

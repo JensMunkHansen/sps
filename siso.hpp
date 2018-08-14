@@ -79,25 +79,6 @@ class ISRSWRingBuffer {
   virtual void push(T source) = 0;
 #endif
 
-  //virtual void invalidate() = 0;
-  /**
-   * Is the ring buffer valid
-   *
-   * @return
-   */
-  //  virtual bool valid() const = 0;
-  /**
-   * Clear the ring buffer. All readers are notified
-   *
-   */
-  //  virtual void clear() = 0;
-  /**
-   * Is the ring buffer empty
-   *
-   * @return
-   */
-  //  virtual bool empty() const = 0;
-
  protected:
   ISRSWRingBuffer() = default;
 
