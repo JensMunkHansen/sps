@@ -174,22 +174,22 @@ template <typename T>
 struct __attribute__((aligned(4*sizeof(T)))) SPS_EXPORT element_rect_t
 #endif
 {
-  alignas(sizeof(T)*4) sps::point_t<T> center;  ///< Center position
-  alignas(sizeof(T)*4) sps::euler_t<T> euler;   ///< Euler angles
+  SPS_ALIGNAS(sizeof(T) * 4) sps::point_t<T> center;  ///< Center position
+  SPS_ALIGNAS(sizeof(T) * 4) sps::euler_t<T> euler;   ///< Euler angles
   /** @name Cached variables (careful with alignment)
    *
    */
   ///@{
 
   /// Normal vector
-  alignas(sizeof(T)*4) T normal[4] ALIGN32_END;
+  SPS_ALIGNAS(sizeof(T) * 4) T normal[4] ALIGN32_END;
   /// First basis vector
-  alignas(sizeof(T)*4) T uvector[4] ALIGN32_END;
+  SPS_ALIGNAS(sizeof(T) * 4) T uvector[4] ALIGN32_END;
   /// Second basis vector
-  alignas(sizeof(T)*4) T vvector[4] ALIGN32_END;
+  SPS_ALIGNAS(sizeof(T) * 4) T vvector[4] ALIGN32_END;
 
   /// Four vertices, xyz major-order
-  alignas(sizeof(T)*4) T vertices[3][4] ALIGN32_END;
+  SPS_ALIGNAS(sizeof(T) * 4) T vertices[3][4] ALIGN32_END;
 
   ///@}
   T hw;        ///< Half width
