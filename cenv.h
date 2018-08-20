@@ -93,6 +93,15 @@ MSVC++ 5.0  _MSC_VER == 1100
 # if defined(_MSC_VER) && (_MSC_VER >= 1900)
 #  define CXX11 1
 # endif
+
+# if defined(_MSC_VER) && (_MSC_VER <= 1900)
+#  define SPS_NOEXCEPT
+#  define SPS_ALIGNAS(x) __declspec(align(32))
+# else
+#  define SPS_NOEXCEPT noexcept
+#  define SPS_ALIGNAS(x) alignas(x)
+# endif
+
 # if CXX11
 // Deprecated in C++11.
 #  define SPS_REGISTER
