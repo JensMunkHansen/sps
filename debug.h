@@ -82,49 +82,67 @@
 // Compiler bug in MSVC. Disabling C4127 is not working for a do { } while (0)
 #if defined(_WIN32)
 # if (__SPS_DEBUG_FUNCTION__) && (__SPS_DEBUG_LINE__) && (__SPS_DEBUG_FILE__)
-#  define debug_print(fmt, ...) \
+
+#  define debug_print(fmt, ...)                 \
 __pragma(warning(push)) \
 __pragma(warning(disable: 4127)) \
 for(;;) { \
   if (SPS_DEBUG) fprintf(stderr, "%s:%s():%d: " fmt, __FILE__, __SPS_FUNCTION__, __LINE__,  __VA_ARGS__); \
 } break; } \
 __pragma(warning(pop))
+
 # else
-#  define debug_print(fmt,...) \
+
+#  define debug_print(fmt,...)                  \
    __pragma(warning(push)) \
    __pragma(warning(disable: 4127)) \
    __pragma(warning(disable: 6271)) \
    for(;;) { if (SPS_DEBUG) { fprintf(stderr, "%s(): " fmt, __SPS_FUNCTION__,  __VA_ARGS__);} break; } \
    __pragma(warning(pop))
+
 # endif
-# define debug_cond_print(cond, fmt,...) \
+
+# define debug_cond_print(cond, fmt,...)        \
   __pragma(warning(push)) \
   __pragma(warning(disable: 4127)) \
   for(;;) { if (cond) { fprintf(stdout, "%s(): " fmt, __SPS_FUNCTION__, __VA_ARGS__);} break; } \
   __pragma(warning(pop))
+
 #elif defined(C99)
+
 // C99 is more stricht and do not allow ## __VA_ARGS__
 # if (__SPS_DEBUG_FUNCTION__) && (__SPS_DEBUG_LINE__) && (__SPS_DEBUG_FILE__)
-#  define debug_print(...) \
+
+#  define debug_print(...)                                              \
   do { if (SPS_DEBUG) fprintf(stderr, "%s:%d:%s(): " FIRST(__VA_ARGS__), __FILE__, \
                               __SPS_FUNCTION__, __LINE__  REST(__VA_ARGS__)); } while (0)
 # else
-#  define debug_print(...) \
+
+#  define debug_print(...)                                              \
    do { if (SPS_DEBUG) fprintf(stderr, "%s(): " FIRST(__VA_ARGS__), __SPS_FUNCTION__ REST(__VA_ARGS__)); } while (0)
+
 # endif
-# define debug_cond_print(cond, ...) \
+
+# define debug_cond_print(cond, ...)                                    \
   do { if (cond) fprintf(stdout, "%s(): " FIRST(__VA_ARGS__), __SPS_FUNCTION__  REST(__VA_ARGS__)); } while (0)
+
 #else
 # if (__SPS_DEBUG_FUNCTION__) && (__SPS_DEBUG_LINE__) && (__SPS_DEBUG_FILE__)
-#  define debug_print(fmt, ...) \
+
+#  define debug_print(fmt, ...)                                     \
   do { if (SPS_DEBUG) fprintf(stderr, "%s:%s():%d: " fmt, __FILE__, \
                               __SPS_FUNCTION__, __LINE__,  ## __VA_ARGS__); } while (0)
+
 # else
-#  define debug_print(fmt, ...) \
+
+#  define debug_print(fmt, ...)                                         \
   do { if (SPS_DEBUG) fprintf(stderr, "%s(): " fmt, __SPS_FUNCTION__, ## __VA_ARGS__); } while (0)
+
 # endif
-#  define debug_cond_print(cond, fmt, ...) \
+
+#  define debug_cond_print(cond, fmt, ...)                              \
   do { if (cond) fprintf(stdout, "%s:%d " fmt, __FILE__, __LINE__, ## __VA_ARGS__); } while (0)
+
 #endif
 
 // Alternative way
