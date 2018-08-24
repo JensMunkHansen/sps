@@ -28,6 +28,7 @@
 #include <sps/cenv.h>
 #include <sps/cerr.h>
 #include <sps/config.h>
+#include <stdint.h>
 
 #ifdef _WIN32
 # ifndef NOMINMAX
@@ -124,6 +125,20 @@ STATIC_INLINE_BEGIN unsigned int controlfp(unsigned int newCtrlWordBits = EM_INE
 #endif
   // Using MSVC you need to:
   //   C/C++ -> Code Generation -> Modify the Enable C++ Exceptions to "Yes With SEH Exceptions"
+}
+
+STATIC_INLINE_BEGIN uint64_t sps_rdtsc() {
+#ifdef _MSC_VER
+  return __rdtsc();
+#elif defined(__GNUC__)
+  uint32_t lo, hi;
+  /*
+    We cannot use "=A", since this would use %rax on x86_64 and return
+    only the lower 32bits of the TSC
+  */
+  __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
+  return (uint64_t)hi << 32 | lo;
+#endif
 }
 
 STATIC_INLINE_BEGIN int getncpus() {
