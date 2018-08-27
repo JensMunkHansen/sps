@@ -5,6 +5,8 @@ include(cmake/simd.cmake)
 include(cmake/gtest_macros.cmake)
 include(GenerateExportHeader)
 
+set(CMAKE_DEBUG_POSTFIX d)
+
 set(CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake"

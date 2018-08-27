@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file   mimo.hpp
  * @author Jens Munk Hansen <jens.munk.hansen@gmail.com>
  * @date   Thu Oct 19 01:34:56 2017
@@ -536,6 +536,7 @@ class MRMWCircularBuffer :
       return false;
     }
     destination = std::move(m_container.front());
+    m_container.pop();
     m_unread--;
     m_cond_not_full.notify_one();
     return true;
