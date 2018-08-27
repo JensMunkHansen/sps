@@ -5,3 +5,90 @@
 # pragma warning( disable : 4996 ) // suppress warning: 'sprintf' was declared deprecated
 # define _CRT_SECURE_NO_WARNINGS
 #endif
+
+#include <cstdarg>
+
+#if 0
+// TODO: Include sps/stdio.h from this
+
+namespace sps {
+char* convert(unsigned int, int);
+
+void printf(char* format,...) {
+  char *traverse;
+  unsigned int i = 0;
+  char *s = NULL;
+  float *f = NULL;
+  double *d = NULL;
+
+  va_list arg;
+  va_start(arg, format);
+
+  for(traverse = format; *traverse != '\0'; traverse++) {
+    while( *traverse != '%' ) {
+      putchar(*traverse);
+      traverse++;
+    }
+
+    traverse++;
+
+    switch(*traverse) {
+      case 'c' : i = va_arg(arg,int);     //Fetch char argument
+        putchar(i);
+        break;
+
+      case 'd' : i = va_arg(arg,int);         //Fetch Decimal/Integer argument
+        if(i<0) {
+          i = -i;
+          putchar('-');
+        }
+        puts(convert(i, 10));
+        break;
+
+      case 'o': i = va_arg(arg,unsigned int); //Fetch Octal representation
+        puts(convert(i, 8));
+        break;
+
+      case 's': s = va_arg(arg,char *);       //Fetch string
+        puts(s);
+        break;
+
+      case 'x': i = va_arg(arg,unsigned int); //Fetch Hexadecimal representation
+        puts(convert(i, 16));
+        break;
+      case 'a': f = va_arg(arg, float);
+        puts('N/A');
+        // Divde hex by 0xFFFFFF + 1 and multiply by 2**p
+    }
+  }
+
+  fflush(stdout);
+  va_end(arg);
+}
+
+char *convert(unsigned int num, int base) {
+  static char Representation[]= "0123456789ABCDEF";
+  static char buffer[50] = {0};
+  char *ptr;
+
+  ptr = &buffer[49];
+  *ptr = '\0';
+
+  do {
+    *--ptr = Representation[num%base];
+    num /= base;
+  }
+  while(num != 0);
+
+  return(ptr);
+}
+
+}  // namespace sps
+
+#endif
+
+/* Local variables: */
+/* indent-tabs-mode: nil */
+/* tab-width: 2 */
+/* c-basic-offset: 2 */
+/* End: */
