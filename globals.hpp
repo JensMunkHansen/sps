@@ -27,6 +27,7 @@
  *  along with SOFUS.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <sps/cenv.h>  // SPS_ATTR_DESTRUCTOR
+#include <sps/debug.h>
 
 #ifdef _MSC_VER
 # include <cstdlib> // atexit
@@ -134,6 +135,7 @@ int Singleton<T>::InstanceDestroy() {
   int retval = -1;
   std::lock_guard<std::mutex> guard(g_mutex);
   if (g_instance) {
+    debug_print("Singleton destroyed");
     delete g_instance;
     g_instance = nullptr;
     retval = 0;
