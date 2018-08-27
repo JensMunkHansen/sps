@@ -16,16 +16,18 @@ class Test : public sps::Singleton<Test> {
   friend class sps::Singleton<Test>;
 };
 
-/*
-template <class T>
-class TTest : public sps::Singleton<TTest<typename T>> {
-
-};
-*/
-
 // Explicit instantiate destructor (otherwise not called)
 template int sps::Singleton<Test>::InstanceDestroy();
 
+template <class T>
+class TTest : public sps::Singleton<TTest<T> > {
+ public:
+ private:
+  friend class sps::Singleton<TTest<T> >;
+};
+
+// Explicit instantiate destructor (otherwise not called)
+template int sps::Singleton<TTest<float> >::InstanceDestroy();
 
 // Some templated gtest stuff
 template <typename T, size_t SIZE>
@@ -71,6 +73,16 @@ void fun() {
 TEST(globals_test, singleton_test) {
   // We cannot instantiate templates here
   fun();
+}
+
+void fun0() {
+  const TTest<float>& test = TTest<float>::InstanceGet();
+  SPS_UNREFERENCED_PARAMETER(test);
+}
+
+TEST(globals_test, singleton_ttest) {
+  // We cannot instantiate templates here
+  fun0();
 }
 
 int main(int argc, char* argv[]) {
