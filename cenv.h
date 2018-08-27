@@ -368,9 +368,13 @@ EC++  __embedded_cplusplus  Embedded C++
 #endif
 
 #ifdef _MSC_VER
-# define SPS_ATTR_DESTRUCTOR
+# ifndef SPS_ATTR_DESTRUCTOR
+#  define SPS_ATTR_DESTRUCTOR
+# endif
 #else
-# define SPS_ATTR_DESTRUCTOR __attribute__((destructor(101)))
+# ifndef SPS_ATTR_DESTRUCTOR
+#  define SPS_ATTR_DESTRUCTOR __attribute__((destructor(101)))
+# endif
 #endif
 
 /* Local variables: */

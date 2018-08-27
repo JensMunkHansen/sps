@@ -64,13 +64,13 @@ template <typename T, template <typename> class V> class globalstruct {
 # pragma clang diagnostic pop
 #endif
 
-template <typename T> class global {
+template <typename T> class _global {
  public:
   static std::atomic<T*> pVar;
  private:
-  global() = delete;
-  global(const global& rhs) = delete;
-  void operator=(const global& rhs) = delete;
+  _global() = delete;
+  _global(const _global& rhs) = delete;
+  void operator=(const _global& rhs) = delete;
 };
 
 // TODO(JMH): Consider requiring descendant to be non-copyconstructible
