@@ -22,6 +22,10 @@ template int sps::Singleton<Test>::InstanceDestroy();
 template <class T>
 class TTest : public sps::Singleton<TTest<T> > {
  public:
+  T m_value;
+  TTest() {
+    m_value = T(1.0);
+  }
  private:
   friend class sps::Singleton<TTest<T> >;
 };
@@ -77,6 +81,8 @@ TEST(globals_test, singleton_test) {
 
 void fun0() {
   const TTest<float>& test = TTest<float>::InstanceGet();
+  // If you make ctor public
+  TTest<float> object();
   SPS_UNREFERENCED_PARAMETER(test);
 }
 
