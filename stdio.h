@@ -32,6 +32,7 @@
 #include <stdio.h>
 
 #ifndef C99
+
 #include <stdarg.h>
 
 #define snprintf c99_snprintf
