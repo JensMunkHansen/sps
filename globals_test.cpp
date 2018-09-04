@@ -70,7 +70,7 @@ INSTANTIATE_TEST_CASE_P(
 // My stuff
 
 void fun() {
-  const Test& test = Test::InstanceGet();
+  Test* test = Test::InstanceGet();
   SPS_UNREFERENCED_PARAMETER(test);
 }
 
@@ -80,7 +80,7 @@ TEST(globals_test, singleton_test) {
 }
 
 void fun0() {
-  const TTest<float>& test = TTest<float>::InstanceGet();
+  const TTest<float>* test = TTest<float>::InstanceGet();
   // If you make ctor public
   TTest<float> object();
   SPS_UNREFERENCED_PARAMETER(test);
