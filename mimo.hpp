@@ -43,15 +43,23 @@
 // with a fixed signature. Crazy difficult to instantiate all well-formed functions needed
 
 /*
-  An explicit instantiation that names a class template specialization is also an explicit instantiation of the same kind (declaration or definition) of each of its members (not including members inherited from base classes) that has not been previously explicitly specialized in the translation unit containing the explicit instantiation, except as described below.
+  An explicit instantiation that names a class template specialization
+  is also an explicit instantiation of the same kind (declaration or
+  definition) of each of its members (not including members inherited
+  from base classes) that has not been previously explicitly
+  specialized in the translation unit containing the explicit
+  instantiation, except as described below.
 
-Since some of the members of std::deque<foo> require a copyable type foo - at the very least, the copy constructor - instantiating them is ill-formed. This is the cause of the errors you observe.
+  Since some of the members of std::deque<foo> require a copyable type
+  foo - at the very least, the copy constructor - instantiating them
+  is ill-formed. This is the cause of the errors you observe.
 
-The workaround for this is to explicitly instantiate only the well-formed members that your program uses, something like:
+  The workaround for this is to explicitly instantiate only the
+  well-formed members that your program uses, something like:
 
-typedef void (*DummyCallback)(void*);
-template std::deque<DummyCallback>::deque();
-template class SPS_EXPORT std::queue<DummyCallback, std::deque<DummyCallback> >;
+  typedef void (*DummyCallback)(void*);
+  template std::deque<DummyCallback>::deque();
+  template class SPS_EXPORT std::queue<DummyCallback, std::deque<DummyCallback> >;
 
 */
 
