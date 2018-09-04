@@ -114,13 +114,14 @@ class Singleton {
     std::atexit([]()->void { Singleton<T>::InstanceDestroy();});
 #endif
   }
+#if 0
   /**
-   * Copy-ctor is deleted. We do not allow copying the singleton
+   * Copy-ctor and assignment could be deleted such that we do not allow copying the singleton
    *
    */
   Singleton(Singleton const &) = delete;
   Singleton& operator=(Singleton const &) = delete;
-
+#endif
  private:
   static std::atomic<T*> g_instance;
   static std::mutex g_mutex;
