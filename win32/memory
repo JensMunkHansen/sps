@@ -151,18 +151,15 @@ class deleted_aligned_multi_array<T, 2> {
     m_data(new T*[m](),
            [](T** x) {
 # ifndef _DEBUG
-              // TODO: Check using msize(x[0])
-              if (msize(x) > sizeof(intptr_t))
-              {
+              if (msize(x) > sizeof(intptr_t)) {
                 _mm_free(&(x[0][0]));
               }
 # else
-             if (msize(x) > 0)
-             {
+             if (msize(x) > 0) {
                _mm_free(&(x[0][0]));
              }
 # endif
-              delete[] x;}), m_m(m), m_n(n) {
+             delete[] x;}), m_m(m), m_n(n) {
     // Allocate
     if (m_m*m_n > 0) {
       // 32-byte aligned to allow 4-vectors of doubles
@@ -178,8 +175,7 @@ class deleted_aligned_multi_array<T, 2> {
     m_data(std::move(other.m_data)), m_m(other.m_m), m_n(other.m_n) {}
 
   // Dangerous
-  deleted_aligned_multi_array& operator=( deleted_aligned_multi_array&& other )
-  {
+  deleted_aligned_multi_array& operator=( deleted_aligned_multi_array&& other) {
     if (this != &other) {
       m_data = std::move( other.m_data );
       m_m    = other.m_m;
