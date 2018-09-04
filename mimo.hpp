@@ -65,6 +65,12 @@
 
 namespace sps {
 
+#ifdef CXX11
+using std::is_copy_constructible;
+#else
+# error Implement sps::is_copy_constructible in c98.hpp
+#endif
+
 /*! \brief Multi-Reader-Multi-Writer Queue interface
  *
  * @tparam T type of objects administered
@@ -76,7 +82,7 @@ namespace sps {
  * There is no need for the variable \p m_valid to be atomic
  *
  */
-template <typename T, bool = std::is_copy_constructible<T>::value>
+template <typename T, bool = is_copy_constructible<T>::value>
 class IMRMWQueue {
  public:
   /**
@@ -178,8 +184,8 @@ class IMRMWQueue<T, true> : IMRMWQueue<T, false> {
 };
 
 
-template <typename T, bool = std::is_copy_constructible<T>::value >
-class MRMWQueue : public IMRMWQueue<T, std::is_copy_constructible<T>::value> {
+template <typename T, bool = is_copy_constructible<T>::value >
+class MRMWQueue : public IMRMWQueue<T, is_copy_constructible<T>::value> {
  public:
   /**
    * Ctor
@@ -358,7 +364,7 @@ class MRMWQueue <T, true> : public MRMWQueue<T, false> {
  *
  */
 template <typename T, size_t Size, bool overwrite = false,
-          bool = std::is_copy_constructible<T>::value>
+          bool = is_copy_constructible<T>::value>
 class IMRMWCircularBuffer {
  public:
   /**
@@ -449,10 +455,10 @@ class IMRMWCircularBuffer<T, Size, overwrite, true> :
 
 
 template <typename T, size_t Size,
-          bool overwrite = false, bool = std::is_copy_constructible<T>::value>
+          bool overwrite = false, bool = is_copy_constructible<T>::value>
 class MRMWCircularBuffer :
   public IMRMWCircularBuffer<T, Size, overwrite,
-  std::is_copy_constructible<T>::value> {
+  is_copy_constructible<T>::value> {
  protected:
   typedef std::queue<T> container_type;
   typedef typename container_type::size_type size_type;
