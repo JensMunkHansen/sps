@@ -93,7 +93,7 @@ public:
 
   /*! Structure for rebinding */
   template <typename U> struct rebind {
-    typedef aligned_allocator<U,Alignment> other;
+    typedef aligned_allocator<U, Alignment> other;
   };
 
   /**
@@ -103,8 +103,7 @@ public:
    *
    * @return The other
    */
-  bool operator!=(const aligned_allocator& other) const
-  {
+  bool operator!=(const aligned_allocator& other) const {
     return !(*this == other);
   }
 
@@ -114,8 +113,7 @@ public:
    * @param p [in] If non-null, the T* p is the address used for construction.
    * @param t The object to displace.
    */
-  void construct(T* const p, const T& t) const
-  {
+  void construct(T* const p, const T& t) const {
     void* const pv = static_cast<void*>(p);
     new (pv) T(t);
   }
@@ -134,8 +132,7 @@ public:
    *
    * @return true for stateless allocators.
    */
-  bool operator==(const aligned_allocator& other) const
-  {
+  bool operator==(const aligned_allocator& other) const {
     return true;
   }
 
@@ -156,8 +153,8 @@ public:
    *
    * @param other
    */
-  template <typename U> aligned_allocator(const aligned_allocator<U,Alignment>& other) {
-    SPS_UNREFERENCED_PARAMETER(other);
+  template <typename U> aligned_allocator(const aligned_allocator<U, Alignment>& other) {
+    UNUSED(other);
   }
 
   /**
@@ -179,8 +176,7 @@ public:
    *
    * @return null if it fails, else a reference pointer.
    */
-  T* allocate(const size_t n) const
-  {
+  T* allocate(const size_t n) const {
     // The return value of allocate(0) is unspecified.
     // aligned_allocator returns NULL in order to avoid depending
     // on malloc(0)'s implementation-defined behavior
