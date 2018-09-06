@@ -53,14 +53,23 @@ namespace sps {
  *  Point as an aligned array
  */
 #ifdef _MSC_VER
+
 template <typename T>
 struct SPS_EXPORT point_t : public std::aligned_array<T, 4>
+
+// Microsoft VS2013 does not allow mxing declspec(align()) with template
+
 #else
+
 template <typename T>
 struct __attribute__((aligned(4*sizeof(T))))
 SPS_EXPORT point_t : public std::array<T, 4>
+
 #endif
 {
+  // Can I in C++14 do
+  using std::array<T, 4>::array;
+
   static const point_t xaxis;   ///< x-axis
   static const point_t yaxis;   ///< y-axis
   static const point_t zaxis;   ///< z-axis
@@ -77,17 +86,12 @@ SPS_EXPORT point_t : public std::array<T, 4>
     std::aligned_array<T, 4>(reinterpret_cast<std::aligned_array<T, 4> const&>(
                                *(args.begin()))) {}
 #else
+  /*
   point_t(std::initializer_list<T> args) :
     std::array<T, 4>(reinterpret_cast<std::array<T, 4> const&>(
                        *(args.begin()))) {}
+   */
 #endif
-  /*
-  point_t<T>& operator=(point_t<T>&& other) noexcept {
-    if(this != &other) {
-    }
-    return *this;
-  }
-  */
 };
 
 
