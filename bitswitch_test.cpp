@@ -1,5 +1,7 @@
-#include "bitswitch.hpp"
+#include <sps/bitswitch.hpp>
 #include <iostream>
+
+#include <gtest/gtest.h>
 
 using std::cout;
 using std::endl;
@@ -8,12 +10,17 @@ using std::cin;
 using sps::bool2int;
 using sps::operator "" _bin2int;
 
-int main() {
+TEST(bitswitch_test, switch_case) {
   const size_t kBooleans = 2;
   bool bArray[kBooleans];
+  /*
   for (size_t i = 0 ; i < kBooleans ; i++) {
     cin >> bArray[i];
   }
+  */
+
+  bArray[0] = true;
+  bArray[1] = false;
 
   uint32_t mask = bool2int(2, bArray[0], bArray[1]);
 
@@ -33,8 +40,11 @@ int main() {
   default:
     break;
   }
-
   uint32_t basis = 0;
   cout << basis << endl;
-  return 0;
+}
+
+int main(int argc, char** argv) {
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }
