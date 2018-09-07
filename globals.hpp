@@ -77,6 +77,8 @@ template <typename T> class _global {
 // TODO(JMH): Consider requiring descendant to be non-copyconstructible
 template<bool B, typename T = void> using disable_if = std::enable_if<!B, T>;
 
+// Use this for InstanceGet
+// noexcept(std::is_nothrow_constructible<T>::value)
 
 template <class T>
 class Singleton {
