@@ -1,21 +1,19 @@
+/**
+ * @file   bitswitch.hpp
+ * @author Jens Munk Hansen <jmh@debian9laptop.parknet.dk>
+ * @date   Fri Sep  7 19:52:05 2018
+ *
+ * @brief
+ *
+ * Copyright 2016 Jens Munk Hansen
+ */
+
+#include <sps/malloc.h>
+
 #include <cstdlib>
 #include <cstdarg>
 #include <cstdint>
 #include <cstring>
-
-/* a=target variable, b=bit number to act upon 0-n */
-#define BIT_SET(a,b) ((a) |= (1ULL<<(b)))
-#define BIT_CLEAR(a,b) ((a) &= ~(1ULL<<(b)))
-#define BIT_FLIP(a,b) ((a) ^= (1ULL<<(b)))
-#define BIT_CHECK(a,b) ((a) & (1ULL<<(b)))
-
-/* x=target variable, y=mask */
-#define BITMASK_SET(x,y) ((x) |= (y))
-#define BITMASK_CLEAR(x,y) ((x) &= (~(y)))
-#define BITMASK_FLIP(x,y) ((x) ^= (y))
-#define BITMASK_CHECK_ALL(x,y) (((x) & (y)) == (y))   // warning: evaluates y twice
-#define BITMASK_CHECK_ANY(x,y) ((x) & (y))
-
 
 namespace sps {
 
@@ -51,9 +49,10 @@ uint32_t bool2int(const size_t d, ...) {
   va_list ap;             /* varargs list traverser */
   va_start(ap, d);
 
-  size_t *d1 = static_cast<size_t*>(malloc(d*sizeof(bool)));
-  for (size_t i = 0 ; i < d ; i++)
+  size_t *d1 = static_cast<size_t*>(SPS_MALLOC(d*sizeof(bool)));
+  for (size_t i = 0 ; i < d ; i++) {
     d1[i] = va_arg(ap, int32_t);
+  }
 
   mask = d1[0];
   for (size_t i = 1 ; i < d ; i++) {
