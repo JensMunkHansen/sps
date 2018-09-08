@@ -35,19 +35,19 @@ using deleted_aligned_array = std::unique_ptr<T[], std::function<void(T*)> >;
  *
  * @return
  */
-template<typename T>
+template<typename T, std::size_t Alignment = 4*sizeof(T)>
 deleted_aligned_array<T> deleted_aligned_array_create(size_t n) {
-  return deleted_aligned_array<T>( static_cast<T*>(SPS_MM_MALLOC(n*sizeof(T), 32)),
+  return deleted_aligned_array<T>( static_cast<T*>(SPS_MM_MALLOC(n*sizeof(T), Alignment)),
                                   [](T* f)->void { _mm_free(f);});
 }
 
 //! Aligned multi-dimensional array
 /*! Aligned multi-dimensional array, which is automatically deleted like a unique ptr */
-template <class T, size_t D>
+template <typename T, size_t D>
 class deleted_aligned_multi_array {
 };
 
-template <class T>
+template <typename T>
 class deleted_aligned_multi_array<T, 1> : public std::unique_ptr<T[], std::function<void(T*)> >{
   deleted_aligned_multi_array(size_t n) :
       // 32-byte aligned to allow 4-vectors of doubles
@@ -55,7 +55,7 @@ class deleted_aligned_multi_array<T, 1> : public std::unique_ptr<T[], std::funct
                                                    [](T* f)->void { _mm_free(f);}) {}
 };
 
-template <class T>
+template <typename T>
 class deleted_aligned_multi_array<T, 2> {
 public:
   typedef T** pointer;
