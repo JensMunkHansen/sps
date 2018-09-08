@@ -37,9 +37,9 @@ STATIC_INLINE_BEGIN size_t msize(void* data) {
 static inline void *sps_malloc(const char *file,int line,size_t size) {
   void *ptr = malloc(size);
 
-  if(!ptr) {
+  if (!ptr) {
     fprintf(stderr, "Could not allocate: %zu bytes (%s:%d)\n", size, file, line);
     exit(EXIT_FAILURE);
   }
-  return(ptr);
+  return ptr;
 }

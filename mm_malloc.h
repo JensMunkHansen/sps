@@ -44,7 +44,7 @@ static inline void *sps_mm_malloc(const char *file, int line, size_t size, int a
     printf("Could not allocate: %zu bytes (%s:%d)\n", size, file, line);
     exit(EXIT_FAILURE);
   }
-  return(ptr);
+  return ptr;
 }
 
 
