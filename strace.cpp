@@ -148,6 +148,7 @@ void* STrace::mallocHook(size_t size,
     const char* msg = "malloc() replacement function should not return "
                       "a memory block larger than 512 bytes\n";
     print2fd(msg, strlen(msg) + 1);
+    // _exit used in child processes when exec fails (does not flush stdio or call atexit handlers)
     _exit(EXIT_FAILURE);
   }
   return malloc_buffer;
@@ -249,13 +250,13 @@ void STrace::signalHandler(int sig, ::siginfo_t* info, void* secret) {
       const int msg_max_length = 128;
       if (m_bEnableColorOutput) {
         // Bold red
-        strcpy(msg, "\033[31;1m");
+        strcpy(msg, "\033[31;1m");  // use snprintf
       } else {
         msg[0] = '\0';
       }
       switch (sig) {
       case SIGSEGV:
-        strcat(msg, "Segmentation fault");
+        strcat(msg, "Segmentation fault");  // snprintf
         break;
       case SIGABRT:
         strcat(msg, "Aborted");

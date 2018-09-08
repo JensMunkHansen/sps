@@ -60,7 +60,7 @@ class deleted_aligned_multi_array<T, 2> {
 public:
   typedef T** pointer;
   typedef const T** const_pointer;
-  typedef std::unique_ptr<T*, std::function<void(T**)>> deleted_unique_array;
+  typedef std::unique_ptr<T*, std::function<void(T**)> > deleted_unique_array;
 
   /**
    * Default constructor
