@@ -1,4 +1,4 @@
-﻿#include <gtest/gtest.h>
+#include <gtest/gtest.h>
 
 #include <sps/globals.hpp>
 
@@ -32,40 +32,6 @@ class TTest : public sps::Singleton<TTest<T> > {
 
 // Explicit instantiate destructor (otherwise not called)
 template int sps::Singleton<TTest<float> >::InstanceDestroy();
-
-// Some templated gtest stuff
-template <typename T, size_t SIZE>
-size_t foo1(std::array<T, SIZE>& a, size_t start) {
-  return !(a[start] == 1);
-}
-
-template <typename T, size_t SIZE>
-size_t foo2(std::array<T,SIZE>& a, size_t start) {
-  return !(a[start] == 1);
-}
-
-template <typename T, size_t SIZE>
-size_t foo3(std::array<T,SIZE>& a, size_t start) {
-  return !(a[start] == 1);
-}
-
-template<typename T, size_t SIZE>
-using fooFp = size_t(*)(std::array<T, SIZE>&, size_t);
-
-template <typename T, size_t SIZE>
-class fooTemplateClass: public ::testing::TestWithParam<fooFp<T, SIZE>> {};
-
-class Tc1: public fooTemplateClass<int, 1> {};
-
-TEST_P(Tc1, Fnc) {
-  fooFp<int, 1> fnc = GetParam();
-  std::array<int, 1> arr ={1};
-  EXPECT_EQ(1, arr[fnc(arr, 0)]);
-}
-
-INSTANTIATE_TEST_CASE_P(
-    Name, Tc1,
-    ::testing::Values(foo1<int, 1>, foo2<int, 1>, foo3<int, 1>),);
 
 // My stuff
 
