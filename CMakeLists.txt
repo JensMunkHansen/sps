@@ -35,10 +35,19 @@ check_include_file(mqueue.h HAVE_MQUEUE_H)
 check_include_file(signal.h HAVE_SIGNAL_H)
 check_include_file(pthread.h HAVE_PTHREAD_H)
 
-include_directories(
-  "${PROJECT_BINARY_DIR}")  # to find sps/config.h
-include_directories(
-  "${PROJECT_SOURCE_DIR}")  # to find sps/xxx.h
+# TODO(JMH): Create a sps/sps directory structure
+#            Right now the build directory must be named sps
+if (${PROJECT_NAME} STREQUAL "Project")
+  include_directories(
+    "${CMAKE_CURRENT_BINARY_DIR}/..")  # to find sps/config.h
+  include_directories(
+    "${CMAKE_CURRENT_SOURCE_DIR}/..")  # to find sps/xxx.h
+else()
+  include_directories(
+    "${PROJECT_BINARY_DIR}")  # to find sps/config.h
+  include_directories(
+    "${PROJECT_SOURCE_DIR}")  # to find sps/xxx.h
+endif()
 
 find_package(FFTW REQUIRED)
 if (WIN32)
@@ -265,6 +274,9 @@ if (BUILD_SPS_TEST)
 
   add_executable(bitswitch_test bitswitch_test.cpp)
   add_gtest_dependencies(bitswitch_test)
+
+  add_executable(allocator_test allocator_test.cpp)
+  add_gtest_dependencies(allocator_test)
 
   if (UNIX)
     add_executable(weak_binder_test weak_binder_test.cpp)
