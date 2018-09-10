@@ -67,9 +67,6 @@ SPS_EXPORT point_t : public std::array<T, 4>
 
 #endif
 {
-  // Can I in C++14 do
-  using std::array<T, 4>::array;
-
   static const point_t xaxis;   ///< x-axis
   static const point_t yaxis;   ///< y-axis
   static const point_t zaxis;   ///< z-axis
@@ -86,6 +83,8 @@ SPS_EXPORT point_t : public std::array<T, 4>
     std::aligned_array<T, 4>(reinterpret_cast<std::aligned_array<T, 4> const&>(
                                *(args.begin()))) {}
 #else
+  using std::array<T, 4>::array;
+
   /*
   point_t(std::initializer_list<T> args) :
     std::array<T, 4>(reinterpret_cast<std::array<T, 4> const&>(
