@@ -36,14 +36,14 @@ class DynAllocators : public sps::CRTP<T, DynAllocators> {
   }
 
   // Placement
-  static void* operator new(std::size_t count, void* pUser) {
+  static void* operator new(std::size_t count, void* pUser) throw() {
     debug_print("Placement\n");
     // count is size of object, pUser is address
     // TEST
     // SHOULD CALL CTOR HERE
     return nullptr;
   }
-  static void* operator new[]( std::size_t count, void* pUser) {
+  static void* operator new[]( std::size_t count, void* pUser) throw() {
     // count - alignment is size of objects, pUser address of first element
     debug_print("Placement\n");
     // SHOULD CALL CTORS HERE
