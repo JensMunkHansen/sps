@@ -11,6 +11,16 @@ class A {
   sps::deleted_aligned_array<float> m_data;
 };
 
+struct B {
+  B() : pData(nullptr)  {
+    pData = new int[10];
+  }
+  ~B() {
+    delete pData;
+  }
+  int* pData;
+};
+
 TEST(memory_test, aligned_unique_array) {
   auto a = sps::deleted_aligned_array_create<float>(0);
 
@@ -25,14 +35,20 @@ TEST(memory_test, aligned_unique_array) {
   auto g = sps::deleted_aligned_multi_array_create<double, 2>(0, 1);
 
 #ifdef __GNUG__
-  sps::unique_multi_array<double, 2> h =
-    sps::nix::deleted_aligned_multi_array_create<double, 2>(7, 8);
-  size_t m = 7;
-  size_t n = 8;
-  const size_t nDims = 2;
-  sps::unique_multi_array<double, nDims> i =
-    sps::unique_multi_array_create<double, nDims>(m, n);
+  //  sps::unique_multi_array<double, 2> h =
+  //    sps::nix::deleted_aligned_multi_array_create<double, 2>(7, 8);
+  //  size_t m = 7;
+  //  size_t n = 8;
+  //  const size_t nDims = 2;
+  //  sps::unique_multi_array<double, nDims> i =
+  //    sps::unique_multi_array_create<double, nDims>(m, n);
 #endif
+
+  // Must fail
+  // auto j = sps::deleted_aligned_multi_array<B,2>(1,1);
+  // auto k = sps::deleted_aligned_multi_array_create<B, 2>(1,1);
+
+  auto l = sps::deleted_aligned_multi_array_create<double, 1>(1);
 
   ASSERT_TRUE(true);
 }
