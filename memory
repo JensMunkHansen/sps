@@ -112,8 +112,8 @@ namespace sps {
   using sps::nix::deleted_aligned_multi_array_create;
 
   // Alias type to unique_multi_array
-  template <class T, size_t I>
-  using unique_multi_array = sps::nix::deleted_aligned_multi_array<T, I>;
+  template <class T, size_t I, class H = typename std::enable_if<std::is_pod<T>::value>::type>
+  using unique_multi_array = sps::nix::deleted_aligned_multi_array<T, I, H>;
 
   // Alias function to unique_multi_array_create (TODO: Do this correctly)
 #if 0
