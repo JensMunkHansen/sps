@@ -46,13 +46,18 @@ deleted_aligned_array<T> deleted_aligned_array_create(size_t n) {
 
 //! Aligned multi-dimensional array
 /*! Aligned multi-dimensional array, which is automatically deleted like a unique ptr */
-
 template <typename T, size_t D, class = typename std::enable_if<std::is_pod<T>::value>::type>
 class deleted_aligned_multi_array {
 };
 
 // TODO(JMH): typename = std::enable_if<std::is_pod<T>::value>
 
+/*! \brief Aligned one-dimensional array
+ *
+ * @tparam T floating point type
+ *
+ * Aligned one-dimensional array, which is automatically deleted like a unique ptr
+ */
 template <typename T>
 class deleted_aligned_multi_array<T, 1, void> : public std::unique_ptr<T[], std::function<void(T*)> >{
  public:
@@ -65,8 +70,12 @@ class deleted_aligned_multi_array<T, 1, void> : public std::unique_ptr<T[], std:
   }
 };
 
-// static_assert(std::is_pod<T>::value, "T must be a pod-type");
-// add template argument: typename std::enable_if<std::is_pod<T>::value>::type = 0
+/*! \brief Aligned two-dimensional array
+ *
+ * @tparam T floating point type
+ *
+ * Aligned two-dimensional array, which is automatically deleted like a unique ptr
+ */
 template <typename T>
 class deleted_aligned_multi_array<T, 2, void> {
 public:
