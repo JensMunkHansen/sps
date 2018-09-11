@@ -37,6 +37,7 @@ using deleted_aligned_array = std::unique_ptr<T[], std::function<void(T*)> >;
  */
 template<typename T, std::size_t Alignment = 4*sizeof(T)>
 deleted_aligned_array<T> deleted_aligned_array_create(size_t n) {
+  static_assert(std::is_pod<T>::value, "T must be a pod-type");
   return deleted_aligned_array<T>( static_cast<T*>(SPS_MM_MALLOC(n*sizeof(T), Alignment)),
                                   [](T* f)->void { _mm_free(f);});
 }
