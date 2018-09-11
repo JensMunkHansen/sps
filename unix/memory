@@ -74,6 +74,17 @@ public:
   typedef const T** const_pointer;
   typedef std::unique_ptr<T*, std::function<void(T**)> > deleted_unique_array;
 
+ public:
+  size_t m_m;                   ///<Number of rows
+  size_t m_n;                   ///<Number of columns
+
+ private:
+  deleted_unique_array data;    ///<Data
+
+  deleted_aligned_multi_array(const deleted_aligned_multi_array& other) = delete;
+  deleted_aligned_multi_array& operator=( const deleted_aligned_multi_array& a ) = delete;
+
+ public:
   /**
    * Default constructor
    *
@@ -117,7 +128,10 @@ public:
    *
    * @param other
    */
-  deleted_aligned_multi_array(deleted_aligned_multi_array&& other) : m_m(std::move(other.m_m)), m_n(std::move(other.m_n)), data(std::move(other.data)) { }
+  deleted_aligned_multi_array(deleted_aligned_multi_array&& other) :
+      m_m(std::move(other.m_m)),
+      m_n(std::move(other.m_n)),
+      data(std::move(other.data)) { }
 
   /**
    * Move assignment
@@ -146,6 +160,11 @@ public:
   T& operator()(size_t i, size_t j) {
     return this->data.get()[0][i*m_n + j];
   }
+
+  const T& operator()(size_t i, size_t j) const {
+    return this->data.get()[0][i*m_n + j];
+  }
+
 
   /**
    * Get row pointer
@@ -206,21 +225,11 @@ public:
   template<typename _Up>
   void reset(_Up) = delete;
 
- private:
-  deleted_aligned_multi_array(const deleted_aligned_multi_array& other) = delete;
-  deleted_aligned_multi_array& operator=( const deleted_aligned_multi_array& a ) = delete;
-
- public:
-  size_t m_m;                   ///<Number of rows
-  size_t m_n;                   ///<Number of columns
-  deleted_unique_array data;  ///<Data
 };
 
-#if 1
-// Partially specialize the function for two dimensions
 template <class T, size_t I>
 inline typename std::enable_if<I==2 && std::is_pod<T>::value, deleted_aligned_multi_array<T,2, void> >::type
-deleted_aligned_multi_array_create(size_t m, size_t n) {
+    deleted_aligned_multi_array_create(size_t m, size_t n) {
   return deleted_aligned_multi_array<T, 2, void>(m,n);
 }
 
@@ -229,8 +238,6 @@ inline typename std::enable_if<I==1 && std::is_pod<T>::value, deleted_aligned_mu
     deleted_aligned_multi_array_create(size_t m) {
   return deleted_aligned_multi_array<T, 1, void>(m);
 }
-
-#endif
 
 // If we don't care about contiguous-ness, we can do the following (fix recursive type)
 template <class T, size_t d>
