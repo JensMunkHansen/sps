@@ -23,7 +23,7 @@
  *   float data[4];
  * };
  */
-typedef struct sps_align16 {
+  typedef struct sps_align16 {
 } sps_align16_t __attribute__((aligned(16)));
 typedef struct sps_align32 {
 } sps_align32_t __attribute__((aligned(32)));
