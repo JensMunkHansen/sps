@@ -16,9 +16,11 @@ int main() {
   STrace::Instance().OptionSet(STrace::STRACE_COMMON_PATH, 1);
   STrace::Instance().OptionSet(STrace::STRACE_REL_PATH, 0);
 
-  //FILE* fp = ::fopen("./test.txt", "w+");
-  //int fd = fileno(fp);
-  //  STrace::Instance()->OptionSet(STrace::STRACE_FILEDESCRIPTOR, fd);
+#if 0
+  FILE* fp = ::fopen("/home/jmh/test.txt", "w+");
+  int fd = fileno(fp);
+  STrace::Instance().OptionSet(STrace::STRACE_FILEDESCRIPTOR, fd);
+#endif
 
   int k = 2433;
 

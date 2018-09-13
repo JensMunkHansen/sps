@@ -434,13 +434,15 @@ void STrace::signalHandler(int sig, ::siginfo_t* info, void* secret) {
         if (m_bEnableColorOutput) {
           char* number_pos = strstr(line, ":");
           if (number_pos != NULL) {
+            // TODO(JMH): Remove when correcting MIME types
+            *(number_pos) = ' ';         // Remove
             char* line_number = memory;  // 128
-            strcpy(line_number, number_pos);
+            strcpy(line_number, ++number_pos); // One past colon (remove ++)
             // Overwrite the new line char
             line_number[strlen(line_number) - 1] = 0;
             // \033[32;1m%s\033[0m\n
             strcpy(number_pos, "\033[32;1m"); // bold green
-            // Using g++ 6.3.0 (line number is 1 larger than what is right,)
+            strcat(line, ":"); // Remove line
             strcat(line, line_number);
             strcat(line, "\033[0m\n");
           }
@@ -465,7 +467,14 @@ void STrace::signalHandler(int sig, ::siginfo_t* info, void* secret) {
       }
 
       strcat(line, "\n");
-      print2fd(line);
+
+      // TODO(JMH): Verify this
+      char* filemsg = memory;
+      filemsg[0] = '\0';
+      strcpy(filemsg, "file:");
+      strcat(filemsg, line);
+      //      print2fd(line);
+      print2fd(filemsg);
     }
 
     // Write '\0' to indicate the end of the output

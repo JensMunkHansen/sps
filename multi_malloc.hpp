@@ -167,7 +167,7 @@ void* _mm_multi_malloc(size_t d, ...) {
   check_size_divides_alignment<sizeof(T), Alignment>();
 
 #if !defined(__STRICT_ANSI__) && !defined(_MSC_VER)
-  static_assert(std::is_scalar<T>::value, "Type T must be scalar");
+  //  static_assert(std::is_scalar<T>::value, "Type T must be scalar");
 #endif
 
   va_list ap;             /* varargs list traverser */
