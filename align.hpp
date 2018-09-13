@@ -74,6 +74,7 @@ __declspec(align(4)) struct align4 {};
 __declspec(align(8)) struct align8 {};
 __declspec(align(16)) struct align16 {};
 __declspec(align(32)) struct align32 {};
+__declspec(align(64)) struct align64 {};
 template<int A> struct aligned;
 template<> struct aligned<1> : align1 {};
 template<> struct aligned<2> : align2 {};
@@ -81,6 +82,7 @@ template<> struct aligned<4> : align4 {};
 template<> struct aligned<8> : align8 {};
 template<> struct aligned<16> : align16 {};
 template<> struct aligned<32> : align32 {};
+template<> struct aligned<64> : align64 {};
 #  pragma warning(pop)
 #else
 template<int A> struct aligned;
@@ -90,6 +92,7 @@ template<> struct __attribute__((aligned(4))) aligned<4>   { };
 template<> struct __attribute__((aligned(8))) aligned<8>   { };
 template<> struct __attribute__((aligned(16))) aligned<16> { };
 template<> struct __attribute__((aligned(32))) aligned<32> { };
+template<> struct __attribute__((aligned(64))) aligned<64> { };
 #endif
 
 template <typename T, size_t Alignment = 16>
