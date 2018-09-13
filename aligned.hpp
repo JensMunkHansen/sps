@@ -72,7 +72,7 @@ inline typename std::remove_extent<T>::type *alloc(std::size_t num) {
 #else
   int error = posix_memalign(&mem, align, sizeof(TYPE) * num);
 
-  memset(mem,0,sizeof(TYPE) * num);
+   memset(mem,0,sizeof(TYPE) * num);
 
   if (error == EINVAL)
     throw std::logic_error("Error: Alignment must be a power of two "
