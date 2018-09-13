@@ -53,7 +53,7 @@ class CRTP {
   }
 
  private:
-  CRTP() {}
+  CRTP() = default;
   friend crtpType<T>;
 };
 }  // namespace sps
