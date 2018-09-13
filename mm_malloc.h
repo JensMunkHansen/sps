@@ -37,6 +37,8 @@
 
 #define SPS_MM_MALLOC(theSize, theAlignment) sps_mm_malloc(__FILE__, __LINE__, theSize, theAlignment)
 
+#define SPS_MM_FREE(ptr) _mm_free(ptr)
+
 static inline void *sps_mm_malloc(const char *file, int line, size_t size, int alignment) {
   void *ptr = _mm_malloc(size, alignment);
 
