@@ -23,6 +23,10 @@
 
 #include <sps/crtp_helper.hpp>
 
+#ifndef CXX11
+# error This header requires at least C++11
+#endif
+
 namespace sps {
 
 template <unsigned int alignment>
@@ -95,6 +99,20 @@ template<> struct __attribute__((aligned(32))) aligned<32> { };
 template<> struct __attribute__((aligned(64))) aligned<64> { };
 #endif
 
+
+
+/*! \brief Alignment helper for ensuring heap alignment
+ *
+ * A class supplying providing aligned single and array
+ * allocators. The class is implemented using the curious recurring
+ * template pattern (CRTP). When C++17 is used and structures are
+ * aligned using alignas, the default allocators and deallocators
+ * respect alignment on the heap. For C++14, this is not the case.
+ *
+ * @tparam T The descendant, which satisfy alignment on stack and heap
+ * @tparam Alignment The alignment, which must be a power of two
+ *
+ */
 template <typename T, size_t Alignment = 16>
 class dynaligned : public sps::aligned<Alignment> {
  public:
