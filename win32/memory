@@ -21,33 +21,12 @@
 namespace sps {
 namespace win32 {
 
-#ifdef _MSC_VER
-# pragma warning(push)
-# pragma warning(disable : 4324)
-#endif
-ALIGN16_BEGIN struct ALIGN16_END base_align16 {
-  /*
-    Empty classes are "special" because the standard requires that no complete object have size 0,
-    so a class with no data members or bases always requires some padding if it doesn't have a vtable.
-
-    Apparently, MSVC creates a struct of size 16, if a struct of size 16 is derived from a struct of
-    size 0, so we have removed this and ignored warning 4324
-
-  */
-  //      char dummy[16];
-};
-ALIGN32_BEGIN struct ALIGN32_END base_align32 {
-};
-#ifdef _MSC_VER
-# pragma warning(pop)
-#endif
-
 /*
   Using Microsoft Visual Studio 2013, the following construct
   works.
 
   auto del = [](T* p) {
-  _mm_free(p);
+    _mm_free(p);
   };
   std::unique_ptr<T[], decltype(del)> bla((T*)_mm_malloc(sizeof(T)*nDivW,16), del);
 
@@ -222,16 +201,17 @@ class unique_aligned_multi_array<T, 2> {
   size_t m_n; ///<Number of columns
 };
 
-// Temporarily disable this
-#if 1
-
-// Work-around to partially specialize a function (multiple dimensions)
 template <class T, size_t I>
-inline typename std::enable_if<I == 2, unique_aligned_multi_array<T, 2> >::type
-unique_aligned_multi_array_create(size_t m, size_t n) {
-  return unique_aligned_multi_array<T,2>(m,n);
+inline typename std::enable_if<I==2 && std::is_pod<T>::value, unique_aligned_multi_array<T,2, void> >::type
+    unique_aligned_multi_array_create(size_t m, size_t n) {
+  return unique_aligned_multi_array<T, 2, void>(m,n);
 }
-#endif
+
+template <class T, size_t I>
+inline typename std::enable_if<I==1 && std::is_pod<T>::value, unique_aligned_multi_array<T, 1, void> >::type
+    unique_aligned_multi_array_create(size_t m) {
+  return unique_aligned_multi_array<T, 1, void>(m);
+}
 }  // namespace win32
 }  // namespace sps
 
