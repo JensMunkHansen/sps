@@ -25,7 +25,7 @@
 namespace sps {
 namespace nix {
 template<typename T>
-using deleted_aligned_array = std::unique_ptr<T[], std::function<void(T*)> >;
+using unique_aligned_array = std::unique_ptr<T[], std::function<void(T*)> >;
 
 /**
  * Create unique aligned array with custom deleter
@@ -36,9 +36,9 @@ using deleted_aligned_array = std::unique_ptr<T[], std::function<void(T*)> >;
  * @return
  */
 template<typename T, std::size_t Alignment = 4*sizeof(T)>
-deleted_aligned_array<T> deleted_aligned_array_create(size_t n) {
+unique_aligned_array<T> unique_aligned_array_create(size_t n) {
   static_assert(std::is_pod<T>::value, "T must be a pod-type");
-  return deleted_aligned_array<T>( static_cast<T*>(SPS_MM_MALLOC(n*sizeof(T), Alignment)),
+  return unique_aligned_array<T>(static_cast<T*>(SPS_MM_MALLOC(n*sizeof(T), Alignment)),
                                   [](T* f)->void { _mm_free(f);});
 }
 
@@ -47,7 +47,7 @@ deleted_aligned_array<T> deleted_aligned_array_create(size_t n) {
 //! Aligned multi-dimensional array
 /*! Aligned multi-dimensional array, which is automatically deleted like a unique ptr */
 template <typename T, size_t D, class = typename std::enable_if<std::is_pod<T>::value>::type>
-class deleted_aligned_multi_array {
+class unique_aligned_multi_array {
 };
 
 // TODO(JMH): typename = std::enable_if<std::is_pod<T>::value>
@@ -59,9 +59,9 @@ class deleted_aligned_multi_array {
  * Aligned one-dimensional array, which is automatically deleted like a unique ptr
  */
 template <typename T>
-class deleted_aligned_multi_array<T, 1, void> : public std::unique_ptr<T[], std::function<void(T*)> >{
+class unique_aligned_multi_array<T, 1, void> : public std::unique_ptr<T[], std::function<void(T*)> >{
  public:
-  deleted_aligned_multi_array(size_t n) :
+  unique_aligned_multi_array(size_t n) :
       // 32-byte aligned to allow 4-vectors of doubles inside T
       std::unique_ptr<T[], std::function<void(T*)> >(static_cast<T*>(SPS_MM_MALLOC(n*sizeof(T), 32)),
                                                    [](T* f)->void { _mm_free(f);}) {
@@ -77,28 +77,28 @@ class deleted_aligned_multi_array<T, 1, void> : public std::unique_ptr<T[], std:
  * Aligned two-dimensional array, which is automatically deleted like a unique ptr
  */
 template <typename T>
-class deleted_aligned_multi_array<T, 2, void> {
+class unique_aligned_multi_array<T, 2, void> {
 public:
   typedef T** pointer;
   typedef const T** const_pointer;
-  typedef std::unique_ptr<T*, std::function<void(T**)> > deleted_unique_array;
+  typedef std::unique_ptr<T*, std::function<void(T**)> > unique_unique_array;
 
  public:
   size_t m_m;                   ///<Number of rows
   size_t m_n;                   ///<Number of columns
 
  private:
-  deleted_unique_array data;    ///<Data
+  unique_unique_array data;    ///<Data
 
-  deleted_aligned_multi_array(const deleted_aligned_multi_array& other) = delete;
-  deleted_aligned_multi_array& operator=( const deleted_aligned_multi_array& a ) = delete;
+  unique_aligned_multi_array(const unique_aligned_multi_array& other) = delete;
+  unique_aligned_multi_array& operator=( const unique_aligned_multi_array& a ) = delete;
 
  public:
   /**
    * Default constructor
    *
    */
-  deleted_aligned_multi_array() : m_m(0), m_n(0), data() {}
+  unique_aligned_multi_array() : m_m(0), m_n(0), data() {}
 
   /**
    *
@@ -106,9 +106,9 @@ public:
    * @param m
    * @param n
    */
-  deleted_aligned_multi_array(size_t m, size_t n) : m_m(m), m_n(n) {
+  unique_aligned_multi_array(size_t m, size_t n) : m_m(m), m_n(n) {
     if (m*n > 0) {
-      data = deleted_unique_array(new T*[m](),
+      data = unique_unique_array(new T*[m](),
                                     [&](T** x) {
                                       // Not required, but would be cool to use initializer
                                       if (msize(x) > 0) {
@@ -137,7 +137,7 @@ public:
    *
    * @param other
    */
-  deleted_aligned_multi_array(deleted_aligned_multi_array&& other) :
+  unique_aligned_multi_array(unique_aligned_multi_array&& other) :
       m_m(std::move(other.m_m)),
       m_n(std::move(other.m_n)),
       data(std::move(other.data)) { }
@@ -149,7 +149,7 @@ public:
    *
    * @return
    */
-  deleted_aligned_multi_array& operator=( deleted_aligned_multi_array&& other ) {
+  unique_aligned_multi_array& operator=( unique_aligned_multi_array&& other ) {
     if (this != &other) {
       this->data = std::move( other.data );
       this->m_m  = std::move( other.m_m );
@@ -237,15 +237,15 @@ public:
 };
 
 template <class T, size_t I>
-inline typename std::enable_if<I==2 && std::is_pod<T>::value, deleted_aligned_multi_array<T,2, void> >::type
-    deleted_aligned_multi_array_create(size_t m, size_t n) {
-  return deleted_aligned_multi_array<T, 2, void>(m,n);
+inline typename std::enable_if<I==2 && std::is_pod<T>::value, unique_aligned_multi_array<T,2, void> >::type
+    unique_aligned_multi_array_create(size_t m, size_t n) {
+  return unique_aligned_multi_array<T, 2, void>(m,n);
 }
 
 template <class T, size_t I>
-inline typename std::enable_if<I==1 && std::is_pod<T>::value, deleted_aligned_multi_array<T, 1, void> >::type
-    deleted_aligned_multi_array_create(size_t m) {
-  return deleted_aligned_multi_array<T, 1, void>(m);
+inline typename std::enable_if<I==1 && std::is_pod<T>::value, unique_aligned_multi_array<T, 1, void> >::type
+    unique_aligned_multi_array_create(size_t m) {
+  return unique_aligned_multi_array<T, 1, void>(m);
 }
 
 // If we don't care about contiguous-ness, we can do the following (fix recursive type)

@@ -30,7 +30,7 @@
 #include <sps/debug.h>
 
 #ifdef _MSC_VER
-# include <cstdlib> // atexit
+# include <cstdlib>  // atexit
 #endif
 
 #include <atomic>
@@ -51,7 +51,6 @@ namespace sps {
 
 template <typename T, template <typename> class V> class globalstruct {
  public:
-  //  template <typename U> using MyTemplate = V<U>;
   static std::atomic<class V<T>*> pVar;
  private:
   globalstruct() = delete;
@@ -64,21 +63,6 @@ template <typename T, template <typename> class V> class globalstruct {
 #elif __clang__
 # pragma clang diagnostic pop
 #endif
-
-template <typename T> class _global {
- public:
-  static std::atomic<T*> pVar;
- private:
-  _global() = delete;
-  _global(const _global& rhs) = delete;
-  void operator=(const _global& rhs) = delete;
-};
-
-// TODO(JMH): Consider requiring descendant to be non-copyconstructible
-template<bool B, typename T = void> using disable_if = std::enable_if<!B, T>;
-
-// Use this for InstanceGet
-// noexcept(std::is_nothrow_constructible<T>::value)
 
 template <class T>
 class Singleton {
@@ -107,30 +91,24 @@ class Singleton {
 
  protected:
   Singleton() {
-#ifdef _MSC_VER
+
     // If we never include this in a DLL, which is loaded
     // dynamically, we can use the standard atexit handler.
-    //
-    // TODO(JMH): Figure out to add function pointer
-    // to a list called on DLL_PROCESS_DETACH
-    std::atexit([]()->void { Singleton<T>::InstanceDestroy();});
-#endif
+    // std::atexit([]()->void { Singleton<T>::InstanceDestroy();});
   }
-#if 0
   /**
    * Copy-ctor and assignment could be deleted such that we do not allow copying the singleton
    *
    */
   Singleton(Singleton const &) = delete;
   Singleton& operator=(Singleton const &) = delete;
-#endif
+
  private:
   static std::atomic<T*> g_instance;
   static std::mutex g_mutex;
-#if 0
+
   // Ugly hack to enforce generation of InstanceDestroy
   const int atexit = Singleton<T>::InstanceDestroy();
-#endif
 };
 
 template <class T>
@@ -151,6 +129,58 @@ std::atomic<T*> Singleton<T>::g_instance{nullptr};
 
 template <class T>
 std::mutex Singleton<T>::g_mutex;
+
+
+template <class T>
+class Default {
+ public:
+  /**
+   * InstanceGet
+   *
+   * Acquire the (non-static) singleton instance
+   *
+   * @return Pointer to singleton instance
+   */
+  static T* InstanceGet() {
+    T* pInstance = g_instance.load(std::memory_order_acquire);
+    if (!pInstance) {
+      std::lock_guard<std::mutex> guard(g_mutex);
+      pInstance = g_instance.load(std::memory_order_relaxed);
+      if (!pInstance) {
+        pInstance = new T;
+        g_instance.store(pInstance, std::memory_order_release);
+      }
+    }
+    return pInstance;
+  }
+
+  static int InstanceDestroy() SPS_ATTR_DESTRUCTOR;
+
+ protected:
+  Default() {}
+ private:
+  static std::atomic<T*> g_instance;
+  static std::mutex g_mutex;
+};
+
+template <class T>
+int Default<T>::InstanceDestroy() {
+  int retval = -1;
+  std::lock_guard<std::mutex> guard(g_mutex);
+  if (g_instance) {
+    debug_print("Default destroyed");
+    delete g_instance;
+    g_instance = nullptr;
+    retval = 0;
+  }
+  return retval;
+}
+
+template <class T>
+std::atomic<T*> Default<T>::g_instance{nullptr};
+
+template <class T>
+std::mutex Default<T>::g_mutex;
 
 }  // namespace sps
 
