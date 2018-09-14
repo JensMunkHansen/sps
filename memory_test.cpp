@@ -5,10 +5,10 @@
 class A {
  public:
   A() {
-    m_data = sps::deleted_aligned_array_create<float>(20);
+    m_data = sps::unique_aligned_array_create<float>(20);
   }
  private:
-  sps::deleted_aligned_array<float> m_data;
+  sps::unique_aligned_array<float> m_data;
 };
 
 struct B {
@@ -22,21 +22,21 @@ struct B {
 };
 
 TEST(memory_test, aligned_unique_array) {
-  auto a = sps::deleted_aligned_array_create<float>(0);
+  auto a = sps::unique_aligned_array_create<float>(0);
 
-  auto b = sps::deleted_aligned_array_create<float>(35);
+  auto b = sps::unique_aligned_array_create<float>(35);
 
-  auto c = sps::deleted_aligned_multi_array_create<double, 2>(1, 1);
+  auto c = sps::unique_aligned_multi_array_create<double, 2>(1, 1);
 
-  auto d = sps::deleted_aligned_multi_array_create<double, 2>(0, 0);
+  auto d = sps::unique_aligned_multi_array_create<double, 2>(0, 0);
 
-  auto f = sps::deleted_aligned_multi_array_create<double, 2>(1, 0);
+  auto f = sps::unique_aligned_multi_array_create<double, 2>(1, 0);
 
-  auto g = sps::deleted_aligned_multi_array_create<double, 2>(0, 1);
+  auto g = sps::unique_aligned_multi_array_create<double, 2>(0, 1);
 
 #ifdef __GNUG__
   //  sps::unique_multi_array<double, 2> h =
-  //    sps::nix::deleted_aligned_multi_array_create<double, 2>(7, 8);
+  //    sps::nix::unique_aligned_multi_array_create<double, 2>(7, 8);
   //  size_t m = 7;
   //  size_t n = 8;
   //  const size_t nDims = 2;
@@ -45,10 +45,10 @@ TEST(memory_test, aligned_unique_array) {
 #endif
 
   // Must fail
-  // auto j = sps::deleted_aligned_multi_array<B,2>(1,1);
-  // auto k = sps::deleted_aligned_multi_array_create<B, 2>(1,1);
+  // auto j = sps::unique_aligned_multi_array<B,2>(1,1);
+  // auto k = sps::unique_aligned_multi_array_create<B, 2>(1,1);
 
-  auto l = sps::deleted_aligned_multi_array_create<double, 1>(1);
+  auto l = sps::unique_aligned_multi_array_create<double, 1>(1);
 
   ASSERT_TRUE(true);
 }
@@ -67,7 +67,7 @@ TEST(memory_test, multi_malloc) {
 }
 
 TEST(memory_test, reset_array) {
-  auto b = sps::deleted_aligned_array_create<float>(35);
+  auto b = sps::unique_aligned_array_create<float>(35);
   b.reset(static_cast<float*>(_mm_malloc(45*sizeof(float), 16)));
   b.get_deleter() = sps::make::function([](float* f)->void { _mm_free(f);});
 }
