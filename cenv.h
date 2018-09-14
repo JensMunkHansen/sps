@@ -142,15 +142,6 @@ EC++  __embedded_cplusplus  Embedded C++
 
 */
 
-#if 0
-// Works for stack allocation if C++11 (MSVC 2017 or proper compiler)
-# define ALIGN16_BEGIN alignas(16)
-# define ALIGN16_END
-# define ALIGN32_BEGIN alignas(32)
-# define ALIGN32_END
-
-#else
-
 #if (defined(_MSC_VER) && defined(_WIN32))
 # define ALIGN16_BEGIN __declspec(align(16))
 # define ALIGN16_END
@@ -161,8 +152,6 @@ EC++  __embedded_cplusplus  Embedded C++
 # define ALIGN16_END __attribute__((aligned(16)))
 # define ALIGN32_BEGIN
 # define ALIGN32_END __attribute__((aligned(32)))
-#endif
-
 #endif
 
 // Static inlines
