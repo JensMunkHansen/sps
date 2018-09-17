@@ -157,6 +157,16 @@ class dynaligned : public sps::aligned<Alignment> {
 #endif
   }
 
+  void operator delete(void* ptr, std::align_val_t align) {
+    debug_print("aligned\n");
+#if 1
+    return ::operator delete(ptr);
+#else
+    SPS_MM_FREE(ptr);
+#endif
+  }
+
+  // Called if the above is left undefined
   void operator delete(void* ptr, std::size_t size, std::align_val_t align) {
     debug_print("aligned\n");
 #if 1
@@ -166,14 +176,6 @@ class dynaligned : public sps::aligned<Alignment> {
 #endif
   }
 
-  void operator delete(void* ptr, std::align_val_t align) {
-    debug_print("aligned\n");
-#if 1
-    return ::operator delete(ptr);
-#else
-    SPS_MM_FREE(ptr);
-#endif
-  }
   void* operator new[]( std::size_t count, std::align_val_t al) throw() {
     debug_print("aligned\n");
     return ::operator new[](count, al);
