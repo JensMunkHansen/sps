@@ -114,12 +114,12 @@ unique_aligned_array<T> unique_aligned_array_create(size_t n) {
   return unique_aligned_array<T>(n);
 }
 
-template <class T, size_t D>
+template <class T, size_t D, class = typename std::enable_if<std::is_pod<T>::value>::type>
 class unique_aligned_multi_array {
 };
 
 template <class T>
-class unique_aligned_multi_array<T, 2> {
+class unique_aligned_multi_array<T, 2, void> {
  public:
   typedef T** pointer;
   typedef const T** const_pointer;

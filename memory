@@ -108,9 +108,6 @@ namespace sps {
 #elif defined(_MSC_VER)
 
   // TODO: Figure out how Microsoft reveals true C++11
-  using sps::win32::base_align16;
-  using sps::win32::base_align32;
-
   using sps::win32::unique_aligned_array;
   using sps::win32::unique_aligned_array_create;
 
