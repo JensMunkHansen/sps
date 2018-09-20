@@ -158,6 +158,7 @@ class Default {
 
  protected:
   Default() {}
+
  private:
   static std::atomic<T*> g_instance;
   static std::mutex g_mutex;
