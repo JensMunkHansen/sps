@@ -1,3 +1,5 @@
+#define SPS_DEBUG 1
+
 #include <gtest/gtest.h>
 
 #include <sps/globals.hpp>
@@ -36,10 +38,10 @@ template int sps::Singleton<TTest<float> >::InstanceDestroy();
 class Defaulted : public sps::Default<Defaulted> {
  public:
   Defaulted() {
-    debug_print("Defaulted");
+    debug_print("\n");
   }
   ~Defaulted() {
-    debug_print("Defaulted");
+    debug_print("\n");
   }
  private:
   float m_data;
@@ -66,16 +68,14 @@ void fun0() {
   SPS_UNREFERENCED_PARAMETER(test);
 }
 
-#if 0
 TEST(globals_test, singleton_ttest) {
   // We cannot instantiate templates here
-  //  fun0();
+  fun0();
 }
 
 TEST(globals_test, default_test) {
   Defaulted d;
 }
-#endif
 
 int main(int argc, char* argv[]) {
   testing::InitGoogleTest(&argc, argv);
