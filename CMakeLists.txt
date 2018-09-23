@@ -452,6 +452,17 @@ endif()
 # TODO: Create an "export-set" for SPS and import this in FNM and SOFUS using
 #       find_package or include(sps.cmake)
 
+if( ${PROJECT_NAME} STREQUAL "BFTX")
+  install(TARGETS sps
+    # IMPORTANT: Add the fnm library to the "export-set"
+    EXPORT BftXTargets
+    RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
+    ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib
+    LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib
+    PUBLIC_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}/sps"
+    COMPONENT dev)
+endif()
+
 if( ${PROJECT_NAME} STREQUAL "fnm")
   install(TARGETS sps
     # IMPORTANT: Add the fnm library to the "export-set"

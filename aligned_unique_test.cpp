@@ -13,9 +13,14 @@ struct A {
     }
   }
 };
-
-
 #include <sps/aligned.hpp>
+#include <sps/align.hpp>
+
+template <class T> class Float : public sps::dynaligned<Float<T>, 16> {
+ public:
+  T value;
+};
+
 
 struct Foo {
   Foo(int x, int y) : x(x), y(y){};
@@ -26,6 +31,7 @@ struct Foo {
 
 int main() {
 
+  Float<double> f;
   // Single object
 #if 0
   auto x = aligned::make_unique<double,16>(16.0);
@@ -46,7 +52,7 @@ int main() {
 
   auto z = aligned::make_unique<A[]>(9);
 
-  A* pA = new A[11];
+  A* pA = new A[7];
   uintptr_t* q = reinterpret_cast<uintptr_t*>(pA);
   q--;
   //
