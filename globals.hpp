@@ -91,7 +91,6 @@ class Singleton {
 
  protected:
   Singleton() {
-
     // If we never include this in a DLL, which is loaded
     // dynamically, we can use the standard atexit handler.
     // std::atexit([]()->void { Singleton<T>::InstanceDestroy();});
