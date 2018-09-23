@@ -107,8 +107,8 @@ class Singleton {
   static std::atomic<T*> g_instance;
   static std::mutex g_mutex;
 
-  // Ugly hack to enforce generation of InstanceDestroy
-  const int atexit = Singleton<T>::InstanceDestroy();
+  // Ugly hack to enforce generation of InstanceDestroy - deadlocks
+  //const int atexit = Singleton<T>::InstanceDestroy();
 };
 
 template <class T>
@@ -156,8 +156,14 @@ class Default {
 
   static int InstanceDestroy() SPS_ATTR_DESTRUCTOR;
 
+  ~Default() {
+    debug_print("\n");
+  }
+
  protected:
-  Default() {}
+  Default() {
+    debug_print("\n");
+  }
 
  private:
   static std::atomic<T*> g_instance;
