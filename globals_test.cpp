@@ -56,7 +56,7 @@ void fun() {
 
 TEST(globals_test, singleton_test) {
   // We cannot instantiate templates here
-  fun();
+  //  fun();
 }
 
 void fun0() {
