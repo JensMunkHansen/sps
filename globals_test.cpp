@@ -33,6 +33,20 @@ class TTest : public sps::Singleton<TTest<T> > {
 // Explicit instantiate destructor (otherwise not called)
 template int sps::Singleton<TTest<float> >::InstanceDestroy();
 
+class Defaulted : public sps::Default<Defaulted> {
+ public:
+  Defaulted() {
+    debug_print("Defaulted");
+  }
+  ~Defaulted() {
+    debug_print("Defaulted");
+  }
+ private:
+  float m_data;
+};
+
+template int sps::Default<Defaulted>::InstanceDestroy();
+
 // My stuff
 
 void fun() {
@@ -52,10 +66,16 @@ void fun0() {
   SPS_UNREFERENCED_PARAMETER(test);
 }
 
+#if 0
 TEST(globals_test, singleton_ttest) {
   // We cannot instantiate templates here
-  fun0();
+  //  fun0();
 }
+
+TEST(globals_test, default_test) {
+  Defaulted d;
+}
+#endif
 
 int main(int argc, char* argv[]) {
   testing::InitGoogleTest(&argc, argv);
