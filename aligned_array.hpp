@@ -44,9 +44,9 @@ template <typename T, std::size_t N>
 class SPS_EXPORT aligned_array {
 public:
 #ifdef __GNUG__
-  T elems[N] __attribute__((aligned(4*sizeof(T))));  /// fixed-size array of elements
+  T elems[N] __attribute__((aligned(4*sizeof(T))));  ///< fixed-size array of elements
 #elif defined(_MSC_VER) && (_MSC_VER >= 1900)
-  __declspec(align(4*sizeof(T))) T elems[N];
+  __declspec(align(4*sizeof(T))) T elems[N];  ///< fixed-size array of elements
 #elif defined(_MSC_VER)
   // Workaround - aligned enough for double precision
   ALIGN32_BEGIN T elems[N] ALIGN32_END;  ///< fixed-size array of elements
