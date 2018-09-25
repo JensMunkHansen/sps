@@ -164,8 +164,8 @@ public:
    * @param y
    */
   void swap(aligned_array<T, N>& y) {
-#if defined(_MSC_VER) && defined(NDEBUG)
-    // Gives no warnings, but linker errors in debug mode
+#if (defined(_MSC_VER) && (_MSC_VER > 1900)) || (defined(_MSC_VER) && !defined(_DEBUG))
+    // Gives no warnings, but linker errors in debug mode (older visual studio)
     std::swap_ranges(
         begin(),
         end(),
