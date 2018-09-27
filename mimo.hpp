@@ -25,7 +25,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with SOFUS.  If not, see <http://www.gnu.org/licenses/>.
  *
- *  shared_lock - one writer, multiple readers
+ *  TODO: make version using std::shared_lock - one writer, multiple readers
  */
 
 #pragma once
