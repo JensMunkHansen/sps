@@ -88,10 +88,10 @@ MSVC++ 5.0  _MSC_VER == 1100
 
 #if defined(__cplusplus)
 # if (__cplusplus >= 201103L)
-#  define CXX11 1
+#  define CXX11 11
 # endif
 # if defined(_MSC_VER) && (_MSC_VER >= 1900)
-#  define CXX11 1
+#  define CXX11 11
 # endif
 
 # if defined(_MSC_VER) && (_MSC_VER <= 1900)
@@ -111,10 +111,10 @@ MSVC++ 5.0  _MSC_VER == 1100
 #  define SPS_OVERRIDE
 # endif
 # if (__cplusplus >= 201402L)
-#  define CXX14 1
+#  define CXX14 14
 # endif
 # if (__cplusplus >= 201703L)
-#  define CXX17 1
+#  define CXX17 17
 # endif
 #endif
 
@@ -366,6 +366,30 @@ EC++  __embedded_cplusplus  Embedded C++
 # endif
 #endif
 
+#if CXX14
+# define SPS_DEPRECATED(since) [[deprecated("Since " #since)]]
+# define SPS_DEPRECATED_FOR(since, replacement) \
+  [[deprecated("Since " #since "; use " #replacement)]]
+#else
+# ifdef __GNUC__
+#  define SPS_DEPRECATED(since) __attribute__((__deprecated__("Since " #since)))
+#  define SPS_DEPRECATED_FOR(since, replacement) \
+  __attribute__((__deprecated__("Since " #since "; use " #replacement)))
+# elif defined(_MSC_VER)
+#  if (_MSC_VER >= 1900)
+#   define SPS_DEPRECATED(since) __declspec(deprecated)
+#   define SPS_DEPRECATED_FOR(since, replacement) \
+  __declspec(deprecated)
+#  else
+#   define SPS_DEPRECATED(since) __declspec(deprecated("Since " # since))
+#   define SPS_DEPRECATED_FOR(since, replacement) \
+  __declspec(deprecated("Since " #since "; use " #replacement))
+#  endif
+# endif
+#else
+# define SPS_DEPRECATED(since)
+# define SPS_DEPRECATED_FOR(since, replacement)
+#endif
 /* Local variables: */
 /* indent-tabs-mode: nil */
 /* tab-width: 2 */
