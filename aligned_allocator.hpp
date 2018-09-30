@@ -1,12 +1,12 @@
 ﻿/**
- * @file   aligned_allocator.hpp
- * @author Jens Munk Hansen <jens.munk.hansen@gmail.com>
- * @date   Wed Jul 22 23:18:58 2011
- *
- * @brief  Aligned allocator for STL types
- *
- *
- */
+* @file   aligned_allocator.hpp
+* @author Jens Munk Hansen <jens.munk.hansen@gmail.com>
+* @date   Wed Jul 22 23:18:58 2011
+*
+* @brief  Aligned allocator for STL types
+*
+* Copyright 2017 Jens Munk Hansen
+*/
 
 /*
  *  This file is part of SOFUS.
@@ -27,26 +27,19 @@
 
 #pragma once
 
+#include <sps/cenv.h>
+#include <sps/mm_malloc.h>   // Required for _mm_malloc() and _mm_free()
+
 #include <cstddef>           // Required for size_t and ptrdiff_t and NULL
 #include <new>               // Required for placement new and std::bad_alloc
 #include <stdexcept>         // Required for std::length_error
 
 #include <cstdlib>           // Required for malloc() and free()
 
-#ifdef _WIN32
-# include <malloc.h>         // Required for _mm_malloc() and _mm_free()
-#else
-# include <mm_malloc.h>      // Required for _mm_malloc() and _mm_free()
-#endif
-
-#ifndef UNUSED
-# define UNUSED(p) ((void)(p))
-#endif
-
 /*! Aligned allocator for STL containers. */
-template <typename T, std::size_t Alignment = 4*sizeof(T)> class aligned_allocator {
-public:
-
+template <typename T,
+          std::size_t Alignment = 4*sizeof(T)> class aligned_allocator {
+ public:
   /// <summary>   STL standard aliases. . </summary>
   typedef T * pointer;
   typedef const T * const_pointer;
@@ -63,8 +56,7 @@ public:
    *
    * @return the address
    */
-  T* address(T& r) const
-  {
+  T* address(T& r) const {
     return &r;
   }
 
@@ -75,8 +67,7 @@ public:
    *
    * @return the address
    */
-  const T* address(const T& s) const
-  {
+  const T* address(const T& s) const {
     return &s;
   }
 
@@ -86,8 +77,7 @@ public:
    *
    * @return the size
    */
-  size_t max_size() const
-  {
+  size_t max_size() const {
     return (static_cast<size_t>(0) - static_cast<size_t>(1)) / sizeof(T);
   }
 
@@ -154,7 +144,7 @@ public:
    * @param other
    */
   template <typename U> aligned_allocator(const aligned_allocator<U, Alignment>& other) {
-    UNUSED(other);
+    SPS_UNREFERENCED_PARAMETER(other);
   }
 
   /**
@@ -210,9 +200,8 @@ public:
    * @param p [in] If non-null, the T* p is the address used for construction.
    * @param n The length of the buffer.
    */
-  void deallocate(T * const p, const size_t n) const
-  {
-    UNUSED(n);
+  void deallocate(T * const p, const size_t n) const {
+    SPS_UNREFERENCED_PARAMETER(n);
     _mm_free(p);
   }
 
@@ -223,8 +212,7 @@ public:
    *
    * @return null if it fails, else.
    */
-  template <typename U> T * allocate(const size_t n, const U * /* const hint */) const
-  {
+  template <typename U> T * allocate(const size_t n, const U * /* const hint */) const {
     return allocate(n);
   }
 
@@ -261,8 +249,7 @@ private:
  * @param p [in] If non-null, the T * const to destroy.
  */
 template <typename T, std::size_t Alignment>
-void aligned_allocator<T,Alignment>::destroy(T * const p) const
-{
+void aligned_allocator<T, Alignment>::destroy(T * const p) const {
   p->~T();
 }
 
@@ -270,7 +257,6 @@ void aligned_allocator<T,Alignment>::destroy(T * const p) const
 # pragma warning(pop)
 #endif
 
-#undef UNUSED
 
 /* Local variables: */
 /* indent-tab-mode: nil */
