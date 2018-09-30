@@ -386,9 +386,6 @@ EC++  __embedded_cplusplus  Embedded C++
   __declspec(deprecated("Since " #since "; use " #replacement))
 #  endif
 # endif
-#else
-# define SPS_DEPRECATED(since)
-# define SPS_DEPRECATED_FOR(since, replacement)
 #endif
 /* Local variables: */
 /* indent-tabs-mode: nil */
