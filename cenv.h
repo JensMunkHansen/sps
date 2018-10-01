@@ -367,23 +367,29 @@ EC++  __embedded_cplusplus  Embedded C++
 #endif
 
 #if CXX14
-# define SPS_DEPRECATED(since) [[deprecated("Since " #since)]]
-# define SPS_DEPRECATED_FOR(since, replacement) \
+# ifndef SPS_DEPRECATED
+#  define SPS_DEPRECATED(since) [[deprecated("Since " #since)]]
+#  define SPS_DEPRECATED_FOR(since, replacement) \
   [[deprecated("Since " #since "; use " #replacement)]]
+# endif
 #else
 # ifdef __GNUC__
-#  define SPS_DEPRECATED(since) __attribute__((__deprecated__("Since " #since)))
-#  define SPS_DEPRECATED_FOR(since, replacement) \
+#  ifndef SPS_DEPRECATED
+#   define SPS_DEPRECATED(since) __attribute__((__deprecated__("Since " #since)))
+#   define SPS_DEPRECATED_FOR(since, replacement) \
   __attribute__((__deprecated__("Since " #since "; use " #replacement)))
+#  endif
 # elif defined(_MSC_VER)
-#  if (_MSC_VER >= 1900)
-#   define SPS_DEPRECATED(since) __declspec(deprecated)
-#   define SPS_DEPRECATED_FOR(since, replacement) \
-  __declspec(deprecated)
-#  else
-#   define SPS_DEPRECATED(since) __declspec(deprecated("Since " # since))
-#   define SPS_DEPRECATED_FOR(since, replacement) \
-  __declspec(deprecated("Since " #since "; use " #replacement))
+#  ifndef SPS_DEPRECATED
+#   if (_MSC_VER >= 1900)
+#    define SPS_DEPRECATED(since) __declspec(deprecated)
+#    define SPS_DEPRECATED_FOR(since, replacement) \
+   __declspec(deprecated)
+#   else
+#    define SPS_DEPRECATED(since) __declspec(deprecated("Since " # since))
+#    define SPS_DEPRECATED_FOR(since, replacement) \
+   __declspec(deprecated("Since " #since "; use " #replacement))
+#   endif
 #  endif
 # endif
 #endif
