@@ -207,11 +207,14 @@ inline typename std::enable_if<I==2 && std::is_pod<T>::value, unique_aligned_mul
   return unique_aligned_multi_array<T, 2, void>(m,n);
 }
 
+// TODO(JMH): Fix this for WIN32
+#if 0
 template <class T, size_t I>
 inline typename std::enable_if<I==1 && std::is_pod<T>::value, unique_aligned_multi_array<T, 1, void> >::type
     unique_aligned_multi_array_create(size_t m) {
   return unique_aligned_multi_array<T, 1, void>(m);
 }
+#endif
 }  // namespace win32
 }  // namespace sps
 
