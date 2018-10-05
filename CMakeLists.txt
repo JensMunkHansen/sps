@@ -278,6 +278,9 @@ if (BUILD_SPS_TEST)
   add_executable(allocator_test allocator_test.cpp)
   add_gtest_dependencies(allocator_test)
 
+  add_executable(default_test default_test.cpp)
+  add_gtest_dependencies(default_test)
+
   if (UNIX)
     add_executable(weak_binder_test weak_binder_test.cpp)
     add_gtest_dependencies(weak_binder_test)
