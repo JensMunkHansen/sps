@@ -370,6 +370,9 @@ if (BUILD_SPS_TEST)
   add_test(NAME    bitswitch_test
            COMMAND bitswitch_test)
 
+  add_test(NAME    default_test
+           COMMAND default_test)
+
   if (SPS_Signals)
     add_test(NAME    signals_test
              COMMAND signals_test)
