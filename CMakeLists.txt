@@ -278,6 +278,9 @@ if (BUILD_SPS_TEST)
   add_executable(allocator_test allocator_test.cpp)
   add_gtest_dependencies(allocator_test)
 
+  add_executable(default_test default_test.cpp)
+  add_gtest_dependencies(default_test)
+
   if (UNIX)
     add_executable(weak_binder_test weak_binder_test.cpp)
     add_gtest_dependencies(weak_binder_test)
@@ -369,6 +372,9 @@ if (BUILD_SPS_TEST)
 
   add_test(NAME    bitswitch_test
            COMMAND bitswitch_test)
+
+  add_test(NAME    default_test
+           COMMAND default_test)
 
   if (SPS_Signals)
     add_test(NAME    signals_test
