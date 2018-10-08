@@ -94,5 +94,8 @@ int main(int argc, char* argv[]) {
   return RUN_ALL_TESTS();
 }
 
-// GNU extension
-//
+/* Local variables: */
+/* indent-tabs-mode: nil */
+/* tab-width: 2 */
+/* c-basic-offset: 2 */
+/* End: */
