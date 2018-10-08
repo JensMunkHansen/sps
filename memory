@@ -39,7 +39,20 @@ namespace std {
 template<bool B, typename T = void> using disable_if = std::enable_if<!B, T>;
 
 namespace sps {
+#ifdef CXX11
+template <typename T>
+T* malloc(size_t nData) {
+  void *ptr = ::malloc(nData*sizeof(T));
+  if (!ptr) {
+    fprintf(stderr, "Could not allocate: %zu bytes\n", nData*sizeof(T));
+    exit(EXIT_FAILURE);
+  }
+  return static_cast<T*>(ptr);
+}
+#endif
+
 #if (defined(__GNUG__) && __cplusplus >= 201103L)
+
   using sps::nix::unique_aligned_array;
   using sps::nix::unique_aligned_array_create;
 
