@@ -36,6 +36,8 @@
 
 #include <cstdlib>           // Required for malloc() and free()
 
+#include <memory>            // std::allocator
+
 /*! Aligned allocator for STL containers. */
 template <typename T,
           std::size_t Alignment = 4*sizeof(T)> class aligned_allocator {
@@ -103,9 +105,14 @@ template <typename T,
    * @param p [in] If non-null, the T* p is the address used for construction.
    * @param t The object to displace.
    */
-  void construct(T* const p, const T& t) const {
+  void construct(T* const p, const T& arg) const {
     void* const pv = static_cast<void*>(p);
-    new (pv) T(t);
+    ::new (pv) T(arg);
+  }
+
+  template<class U, class... Args>
+  void construct(U* p, Args&&... args) {
+    ::new(p) U(std::forward<Args>(args)...);
   }
 
   /**
@@ -114,6 +121,9 @@ template <typename T,
    * @param p [in] If non-null, the T* const to destroy.
    */
   void destroy(T* const p) const;
+
+  template<class U>
+  void destroy(U* p) const;
 
   /**
    * Equality operator.
@@ -143,7 +153,8 @@ template <typename T,
    *
    * @param other
    */
-  template <typename U> aligned_allocator(const aligned_allocator<U, Alignment>& other) {
+  template <typename U>
+  aligned_allocator(const aligned_allocator<U, Alignment>& other) {
     SPS_UNREFERENCED_PARAMETER(other);
   }
 
@@ -185,9 +196,10 @@ template <typename T,
     }
 
     // aligned_allocator wraps _mm_malloc().
-    void* const pv = _mm_malloc(n * sizeof(T),Alignment);
+    void* const pv = _mm_malloc(n * sizeof(T), Alignment);
 
-    // Allocators should throw std::bad_alloc in the case of memory allocation failure.
+    // Allocators should throw std::bad_alloc in the case of memory
+    // allocation failure.
     if (pv == NULL) {
       throw std::bad_alloc();
     }
@@ -200,7 +212,7 @@ template <typename T,
    * @param p [in] If non-null, the T* p is the address used for construction.
    * @param n The length of the buffer.
    */
-  void deallocate(T * const p, const size_t n) const {
+  void deallocate(T* const p, const size_t n) const {
     SPS_UNREFERENCED_PARAMETER(n);
     _mm_free(p);
   }
@@ -212,7 +224,8 @@ template <typename T,
    *
    * @return null if it fails, else.
    */
-  template <typename U> T * allocate(const size_t n, const U * /* const hint */) const {
+  template <class U>
+  T* allocate(const size_t n, const  U* hint = 0) const {
     return allocate(n);
   }
 
@@ -224,8 +237,7 @@ template <typename T,
   // base class assignment operator is inaccessible" within
   // the STL headers, but that warning is useless.
 
-private:
-
+ private:
   /**
    * Private unimplemented assignment operator.
    *
@@ -234,13 +246,12 @@ private:
    * @return A shallow copy of this object.
    */
   aligned_allocator& operator=(const aligned_allocator& other);
-
 };
 
 // A compiler bug causes it to believe that p->~T() doesn't reference p.
 #ifdef _MSC_VER
 # pragma warning(push)
-# pragma warning(disable: 4100) // Unreferenced formal parameter
+# pragma warning(disable: 4100)  // Unreferenced formal parameter
 #endif
 
 /**
@@ -253,10 +264,45 @@ void aligned_allocator<T, Alignment>::destroy(T * const p) const {
   p->~T();
 }
 
+template <typename T, std::size_t Alignment>
+template<class U>
+void aligned_allocator<T, Alignment>::destroy(U* p) const {
+  p->~T();
+}
+
 #ifdef _MSC_VER
 # pragma warning(pop)
 #endif
 
+template <typename T, typename U, std::size_t Alignment>
+inline bool operator==(const aligned_allocator<T, Alignment>&, const aligned_allocator<U, Alignment>&&) {
+  return true;
+}
+
+template <typename T, typename U, std::size_t Alignment>
+inline bool operator!=(const aligned_allocator<T, Alignment>& a, const aligned_allocator<U, Alignment>& b) {
+  return !(a == b);
+}
+
+
+template<typename T, typename... Args>
+std::unique_ptr<T[], std::function<void(T *)>>
+    make_unique_array(std::allocator<T> alloc, std::size_t size, Args... args) {
+  T *ptr = alloc.allocate(size);
+
+  for (std::size_t i = 0; i < size; ++i) {
+    alloc.construct(&ptr[i], std::forward<Args>(args)...);
+  }
+
+  auto deleter = [](T *p, std::allocator<T> alloc, std::size_t size) {
+    for (std::size_t i = 0; i < size; ++i) {
+      alloc.destroy(&p[i]);
+    }
+    alloc.deallocate(p, sizeof(T) * size);
+  };
+
+  return {ptr, std::bind(deleter, std::placeholders::_1, alloc, size)};
+}
 
 /* Local variables: */
 /* indent-tab-mode: nil */
