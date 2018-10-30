@@ -1,4 +1,4 @@
-﻿/**
+/**
 * @file   aligned_allocator.hpp
 * @author Jens Munk Hansen <jens.munk.hansen@gmail.com>
 * @date   Wed Jul 22 23:18:58 2011
@@ -37,6 +37,8 @@
 #include <cstdlib>           // Required for malloc() and free()
 
 #include <memory>            // std::allocator
+
+#include <functional>        // std::function
 
 /*! Aligned allocator for STL containers. */
 template <typename T,
