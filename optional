@@ -63,4 +63,5 @@ const details::nullopt_t nullopt = details::nullopt;
 /* indent-tabs-mode: nil */
 /* tab-width: 2 */
 /* c-basic-offset: 2 */
+/* mode: c++ */
 /* End: */
