@@ -1,20 +1,17 @@
 #include <cstdio>
 
-struct A {
+#include <sps/aligned.hpp>
+#include <sps/align.hpp>
+#include <sps/aligned_allocator.hpp>
+
+struct A : public sps::dynaligned<A> {
   A() {}
   ~A() {
     //    printf(".\n");
   }
   int k = 2;
-  void operator delete[](void* p, size_t count) {
-    for (size_t i = 0 ; i < count ; i++) {
-      ((A*)p)->~A();
-      p++;
-    }
-  }
+
 };
-#include <sps/aligned.hpp>
-#include <sps/align.hpp>
 
 template <class T> class Float : public sps::dynaligned<Float<T>, 16> {
  public:
@@ -22,10 +19,15 @@ template <class T> class Float : public sps::dynaligned<Float<T>, 16> {
 };
 
 
-struct Foo {
-  Foo(int x, int y) : x(x), y(y){};
+struct Foo : public sps::aligned<32> {
+  Foo(int x, int y) : x(x), y(y) {
+    printf(".\n");
+  };
   int x;
   int y;
+  ~Foo() {
+    printf("x\n");
+  }
 };
 
 
@@ -33,37 +35,28 @@ int main() {
 
   Float<double> f;
   // Single object
-#if 0
   auto x = aligned::make_unique<double,16>(16.0);
-
   printf("0x%x\n", &x);
   printf("%d\n", (uintptr_t)x.get() % 16);
 
-  // Forbidden thanks to "{}" --- did the user want to write
-  // aligned::make_unique<double[]>(16)?
-  // auto x = aligned::make_unique<double>(16);
-
+  // Okay
   auto foo = aligned::make_unique<Foo>(3, 4);
 
-  // Array
-#endif
+  // Not working
+  // auto z0 = aligned::make_unique<A>();
 
-  //  auto y = aligned::make_unique<double[]>(16);
 
-  auto z = aligned::make_unique<A[]>(9);
+  // Works
+  auto z = make_unique_array(std::allocator<Foo>(), 2, 3, 4);
 
-  A* pA = new A[7];
-  uintptr_t* q = reinterpret_cast<uintptr_t*>(pA);
-  q--;
-  //
+  printf("0x%x\n", (uintptr_t) &(z.get()[0]));
+  printf("%d\n", (uintptr_t) &(z.get()[1]) % 16);
 
-  std::cout << *(q) << std::endl;
 
-  for (size_t i = 0 ; i < 16 ; i++) {
-    std::cout << (*q >> 4*i) << std::endl;
-  }
+  auto z0 = make_unique_aligned_array<Foo, 32, int, int>(aligned_allocator<Foo, 32>(), 2, 3, 4);
 
-  delete[] pA;
+  printf("0x%x\n", (uintptr_t) &(z0.get()[1]));
+  printf("%d\n", (uintptr_t) &(z0.get()[1]) % 32);
 
 
   // Disabled for arrays of known bounds:

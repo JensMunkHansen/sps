@@ -99,7 +99,7 @@ template<> struct __attribute__((aligned(32))) aligned<32> { };
 template<> struct __attribute__((aligned(64))) aligned<64> { };
 #endif
 
-
+// TODO(JMH): Invalid free(), delete, delete[] or realloc (when used with arrays)
 
 /*! \brief Alignment helper for ensuring heap alignment
  *
