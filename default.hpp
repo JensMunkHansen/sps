@@ -9,33 +9,35 @@ static const DefaultValue defaultValue;
 
 template<typename T>
 using IsNotReference =
-    typename std::enable_if<!std::is_reference<T>::value, void>::type;
+typename std::enable_if<!std::is_reference<T>::value, void>::type;
 
-    template<typename T, T... DefaultedParameter>
+template<typename T, T... DefaultedParameter>
 class Defaulted {
  public:
-    // Do not make these explicit
-    Defaulted(T const& t) : value_(t) {
-    }
-    template<typename T_ = T, typename = IsNotReference<T_>>
-    Defaulted(T&& t) : value_(std::move(t)) {
-    }
-    Defaulted(DefaultValue) : value_(DefaultedParameter...) {}
-    T const& get_or_default() const { return value_; }
-    T & get_or_default() { return value_; }
+  // Do not make these explicit
+  Defaulted(T const& t) : value_(t) {}
+
+  template<typename T_ = T, typename = IsNotReference<T_>>
+  Defaulted(T&& t) : value_(std::move(t)) {}
+
+  Defaulted(DefaultValue) : value_(DefaultedParameter...) {}
+  T const& get_or_default() const { return value_; }
+  T & get_or_default() { return value_; }
  private:
-    T value_;
+  T value_;
 };
 
 template<typename T, typename GetDefaultValue>
 class DefaultedF {
  public:
-  DefaultedF(T const& t) : value_(t){}
+
+  DefaultedF(T const& t) : value_(t) {}
+
   template<typename T_ = T, typename = IsNotReference<T_>>
-  DefaultedF(T&& t) : value_(std::move(t)) {
-  }
-  DefaultedF(DefaultValue) : value_(sps::nullopt) {
-  }
+  DefaultedF(T&& t) : value_(std::move(t)) {}
+
+  DefaultedF(DefaultValue) : value_(sps::nullopt) {}
+
   template<typename... Args>
   T get_or_default(Args&&... args) {
     if (value_) {
@@ -45,7 +47,7 @@ class DefaultedF {
     }
   }
  private:
-    sps::optional<T> value_;
+  sps::optional<T> value_;
 };
 }  // namespace sps
 

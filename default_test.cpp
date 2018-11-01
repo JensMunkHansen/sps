@@ -41,9 +41,9 @@ TEST(DefaultedF_Value_provided, DefaultedF) {
 
 class CopyLogger {
  public:
-  CopyLogger(int& copyCount) : copyCount_(copyCount) {
+  explicit CopyLogger(int& copyCount) : copyCount_(copyCount) {
   }
-  CopyLogger(CopyLogger const& other) : copyCount_(other.copyCount_) {
+  explicit CopyLogger(CopyLogger const& other) : copyCount_(other.copyCount_) {
     ++copyCount_;
   }
  private:
