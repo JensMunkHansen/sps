@@ -281,6 +281,9 @@ if (BUILD_SPS_TEST)
   add_executable(default_test default_test.cpp)
   add_gtest_dependencies(default_test)
 
+  add_executable(aligned_allocator_test aligned_allocator_test.cpp)
+  add_gtest_dependencies(aligned_allocator_test)
+
   if (UNIX)
     add_executable(weak_binder_test weak_binder_test.cpp)
     add_gtest_dependencies(weak_binder_test)
@@ -375,6 +378,9 @@ if (BUILD_SPS_TEST)
 
   add_test(NAME    default_test
            COMMAND default_test)
+
+  add_test(NAME    aligned_allocator_test
+           COMMAND aligned_allocator_test)
 
   if (SPS_Signals)
     add_test(NAME    signals_test
