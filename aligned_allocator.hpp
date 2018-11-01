@@ -30,6 +30,8 @@
 #include <sps/cenv.h>
 #include <sps/mm_malloc.h>   // Required for _mm_malloc() and _mm_free()
 
+// TODO(JEM): Use std::aligned_alloc if C++17
+
 #include <cstddef>           // Required for size_t and ptrdiff_t and NULL
 #include <new>               // Required for placement new and std::bad_alloc
 #include <stdexcept>         // Required for std::length_error
@@ -305,6 +307,8 @@ make_unique_array(std::allocator<T> alloc, std::size_t size, Args... args) {
 
   return {ptr, std::bind(deleter, std::placeholders::_1, alloc, size)};
 }
+
+// static_assert(alignof(T) % Alignment == 0 && std::is_same<Allocator, aligned_allocator<T>> || std::allocator)
 
 template<typename T, std::size_t Alignment = 16, typename... Args>
 std::unique_ptr<T[], std::function<void(T *)>>
