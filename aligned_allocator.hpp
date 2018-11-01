@@ -27,10 +27,10 @@
 
 #pragma once
 
-#include <sps/cenv.h>
+#include <sps/cenv.h>        // SPS_UNREFERENCED_PARAMETER
 #include <sps/mm_malloc.h>   // Required for _mm_malloc() and _mm_free()
 
-// TODO(JEM): Use std::aligned_alloc if C++17
+// TODO(JMH): Use std::aligned_alloc if C++17
 
 #include <cstddef>           // Required for size_t and ptrdiff_t and NULL
 #include <new>               // Required for placement new and std::bad_alloc
@@ -288,7 +288,8 @@ inline bool operator!=(const aligned_allocator<T, Alignment>& a, const aligned_a
   return !(a == b);
 }
 
-
+#if 0
+// Initial version (could be needed for C++14 only)
 template<typename T, typename... Args>
 std::unique_ptr<T[], std::function<void(T *)>>
 make_unique_array(std::allocator<T> alloc, std::size_t size, Args... args) {
@@ -331,6 +332,36 @@ make_unique_aligned_array(aligned_allocator<T, Alignment> alloc, std::size_t siz
   return {ptr, std::bind(deleter, std::placeholders::_1, alloc, size)};
 }
 
+#endif
+
+namespace sps {
+template<typename T, typename Allocator = std::allocator<T>, typename... Args>
+std::unique_ptr<T[], std::function<void(T*)>>
+make_unique_array(std::size_t size, Args... args) {
+  Allocator alloc = Allocator();
+  T *ptr = alloc.allocate(size);
+
+  for (std::size_t i = 0; i < size; ++i) {
+    alloc.construct(&ptr[i], std::forward<Args>(args)...);
+  }
+
+  auto deleter = [](T *p, Allocator alloc, std::size_t size) {
+    for (std::size_t i = 0; i < size; ++i) {
+      alloc.destroy(&p[i]);
+    }
+    alloc.deallocate(p, sizeof(T) * size);
+  };
+
+  return {ptr, std::bind(deleter, std::placeholders::_1, alloc, size)};
+}
+
+template <typename T, std::size_t Alignment = 16, typename... Args>
+auto make_unique_aligned_array(std::size_t size, Args... args)->decltype(sps::make_unique_array<T, aligned_allocator<T, Alignment>, Args...>(size, args...)) {
+  static_assert(alignof(T) % Alignment == 0, "Bad alignment");
+  return sps::make_unique_array<T, aligned_allocator<T, Alignment>, Args...>(size, args...);
+}
+
+}  // namespace sps
 
 /* Local variables: */
 /* indent-tab-mode: nil */
