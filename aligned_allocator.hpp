@@ -306,6 +306,28 @@ make_unique_array(std::allocator<T> alloc, std::size_t size, Args... args) {
   return {ptr, std::bind(deleter, std::placeholders::_1, alloc, size)};
 }
 
+template<typename T, std::size_t Alignment = 16, typename... Args>
+std::unique_ptr<T[], std::function<void(T *)>>
+make_unique_aligned_array(aligned_allocator<T, Alignment> alloc, std::size_t size, Args... args) {
+  static_assert(alignof(T) % Alignment == 0, "Bad alignment");
+  // This requires the object T itself to be aligned
+  T *ptr = alloc.allocate(size);
+
+  for (std::size_t i = 0; i < size; ++i) {
+    alloc.construct(&ptr[i], std::forward<Args>(args)...);
+  }
+
+  auto deleter = [](T *p, aligned_allocator<T, Alignment> alloc, std::size_t size) {
+    for (std::size_t i = 0; i < size; ++i) {
+      alloc.destroy(&p[i]);
+    }
+    alloc.deallocate(p, sizeof(T) * size);
+  };
+
+  return {ptr, std::bind(deleter, std::placeholders::_1, alloc, size)};
+}
+
+
 /* Local variables: */
 /* indent-tab-mode: nil */
 /* tab-width: 2 */
