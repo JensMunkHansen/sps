@@ -55,7 +55,7 @@ constexpr std::nullopt_t nullopt = std::nullopt;
 #else
 template <typename T>
 using optional = details::optional<T>;
-constexpr details::nullopt_t nullopt = details::nullopt;
+const details::nullopt_t nullopt = details::nullopt;
 #endif
 }  // namespace sps
 
