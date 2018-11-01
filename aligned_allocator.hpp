@@ -287,7 +287,7 @@ inline bool operator!=(const aligned_allocator<T, Alignment>& a, const aligned_a
 
 template<typename T, typename... Args>
 std::unique_ptr<T[], std::function<void(T *)>>
-    make_unique_array(std::allocator<T> alloc, std::size_t size, Args... args) {
+make_unique_array(std::allocator<T> alloc, std::size_t size, Args... args) {
   T *ptr = alloc.allocate(size);
 
   for (std::size_t i = 0; i < size; ++i) {
