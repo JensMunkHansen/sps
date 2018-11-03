@@ -358,7 +358,7 @@ make_unique_array(std::size_t size, Args... args) {
 template <typename T, std::size_t Alignment = 16, typename... Args>
 auto make_unique_aligned_array(std::size_t size, Args... args)->decltype(sps::make_unique_array<T, aligned_allocator<T, Alignment>, Args...>(size, args...)) {
   static_assert(alignof(T) % Alignment == 0, "Bad alignment");
-  return sps::make_unique_array<T, aligned_allocator<T, Alignment>, Args...>(size, args...);
+  return sps::make_unique_array<T, aligned_allocator<T, Alignment>, Args...>(size, std::forward<Args>(args)...);
 }
 
 }  // namespace sps
