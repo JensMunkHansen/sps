@@ -372,6 +372,13 @@ EC++  __embedded_cplusplus  Embedded C++
 #  define SPS_DEPRECATED_FOR(since, replacement) \
   [[deprecated("Since " #since "; use " #replacement)]]
 # endif
+
+# define SPS_ALIAS_TEMPLATE_FUNCTION(highLevelF, lowLevelF)                 \
+template<typename... Args>                                              \
+inline auto highLevelF(Args&&... args) -> decltype(lowLevelF(std::forward<Args>(args)...)) {                                                                    \
+  return lowLevelF(std::forward<Args>(args)...);                        \
+}
+
 #else
 # ifdef __GNUC__
 #  ifndef SPS_DEPRECATED
