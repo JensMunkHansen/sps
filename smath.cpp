@@ -388,15 +388,15 @@ void arc_point_ellipsis(const sps::ellipsis_t<T>& ellipsis, const T& arc,
     (*point)[2] = T(0.0);
     if ((arc > M_PI_2) && (arc < M_3PI_2)) {
       (*point)[0] =
-          - a*b / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
+        - a*b / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
       (*point)[1] =
-          - a*b*tan(arc) / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
+        - a*b*tan(arc) / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
     } else {
       // 0 <= arc < M_PI_2 or M_3PI_2 < arc <= M_2PI
       (*point)[0] =
-          a*b / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
+        a*b / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
       (*point)[1] =
-          a*b*tan(arc) / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
+        a*b*tan(arc) / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
     }
   }
 }
