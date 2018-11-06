@@ -373,11 +373,15 @@ EC++  __embedded_cplusplus  Embedded C++
   [[deprecated("Since " #since "; use " #replacement)]]
 # endif
 
-# define SPS_ALIAS_TEMPLATE_FUNCTION(highLevelF, lowLevelF)                 \
-template<typename... Args>                                              \
-inline auto highLevelF(Args&&... args) -> decltype(lowLevelF(std::forward<Args>(args)...)) {                                                                    \
-  return lowLevelF(std::forward<Args>(args)...);                        \
+# define SPS_ALIAS_TEMPLATE_FUNCTION(highLevelF, lowLevelF) \
+template<typename... Args>                                  \
+inline auto highLevelF(Args&&... args)->decltype(lowLevelF(std::forward<Args>(args)...)) { \
+  return lowLevelF(std::forward<Args>(args)...);            \
 }
+
+# define SPS_ALIAS_FUNCTION(highLevelF, lowLevelF) \
+const auto highLevelF = lowLevelF;
+// Alternatively, you could say auto& highLevelF = lowLevelF;
 
 #else
 # ifdef __GNUC__

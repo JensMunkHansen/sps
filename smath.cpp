@@ -309,7 +309,6 @@ void basis_vectors(double* vec0, double* vec1, double* vec2,
 template <typename T>
 void dist_point_to_circle_local(const point_t<T>& point,
                                 const circle_t<T>& circle, T* r, T* z, T* distNear) {
-
   sps::point_t<T> normal, uvector, vvector;
   sps::basis_vectors<T, sps::EulerIntrinsicYXY>(&uvector, circle.euler, 0);
   sps::basis_vectors<T, sps::EulerIntrinsicYXY>(&vvector, circle.euler, 1);
@@ -336,7 +335,6 @@ template <typename T>
 void dist_point_to_circle_local(
   const point_t<T>& point,
   const circle_t<T>& circle, T* r, T* z, T* distNear, T* distFar) {
-
   sps::point_t<T> normal, uvector, vvector;
   sps::basis_vectors<T, sps::EulerIntrinsicYXY>(&uvector, circle.euler, 0);
   sps::basis_vectors<T, sps::EulerIntrinsicYXY>(&vvector, circle.euler, 1);
