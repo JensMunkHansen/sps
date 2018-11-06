@@ -545,7 +545,11 @@ void compute_bounding_box_circle(const sps::circle_t<T>& circle, sps::bbox_t<T>*
   box->min[2] = circle.center[2] - hd;
   box->max[2] = circle.center[2] + hd;
 }
-}
+
+template<typename T>
+void arc_point_ellipsis(const sps::ellipsis_t<T>& ellipsis, const T& arc,
+                        sps::point_t<T>* point);
+}  // namespace sps
 
 /*@}*/
 
