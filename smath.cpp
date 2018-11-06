@@ -11,8 +11,10 @@
 #include <sps/config.h>
 #include <sps/trigintrin.h>
 #include <sps/debug.h>
+#include <sps/cmath>
 
 #include <sps/smath.hpp>
+
 
 namespace std {
 template struct SPS_EXPORT std::pair<float, float>;
@@ -367,6 +369,38 @@ T dist_point_to_circle(const point_t<T>& point, const circle_t<T>& circle) {
   return distNear;
 }
 
+// Support orientation
+template<typename T>
+void arc_point_ellipsis(const sps::ellipsis_t<T>& ellipsis, const T& arc,
+                        sps::point_t<T>* point) {
+  // Not good
+  if (sps::almost_equal(arc, T(M_PI_2), 1)) {
+    (*point)[0] = T(0.0);
+    (*point)[1] = ellipsis.hh;
+    (*point)[2] = T(0.0);
+  } else if (sps::almost_equal(arc, T(M_3PI_2), 1)) {
+    (*point)[0] = T(0.0);
+    (*point)[1] = -ellipsis.hh;
+    (*point)[2] = T(0.0);
+  } else {
+    T a = ellipsis.hw;
+    T b = ellipsis.hh;
+    (*point)[2] = T(0.0);
+    if ((arc > M_PI_2) && (arc < M_3PI_2)) {
+      (*point)[0] =
+          - a*b / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
+      (*point)[1] =
+          - a*b*tan(arc) / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
+    } else {
+      // 0 <= arc < M_PI_2 or M_3PI_2 < arc <= M_2PI
+      (*point)[0] =
+          a*b / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
+      (*point)[1] =
+          a*b*tan(arc) / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
+    }
+  }
+}
+
 #ifdef _WIN32
 template class std::aligned_array<float, 4U>;
 template class std::aligned_array<double, 4U>;
@@ -422,6 +456,11 @@ template void SPS_EXPORT dist_point_to_circle_local<float>(
 template void SPS_EXPORT dist_point_to_circle_local<float>(
   const sps::point_t<float>& point,
   const sps::circle_t<float>& circle, float *r, float *z, float *distNear);
+
+
+template
+void arc_point_ellipsis(const sps::ellipsis_t<float>& ellipsis, const float& arc,
+                        sps::point_t<float>* point);
 
 
 template struct SPS_EXPORT element_rect_t<double>;

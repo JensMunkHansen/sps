@@ -160,6 +160,15 @@ struct SPS_EXPORT circle_t : sps::aligned<4*sizeof(T)> {
   T radius;                ///< Radius
 };
 
+template <typename T>
+struct SPS_EXPORT ellipsis_t : sps::aligned<4*sizeof(T)> {
+  sps::point_t<T> center;  ///< Center position
+  sps::euler_t<T> euler;   ///< Euler angles
+  T hw;                    ///< Half width (half axis)
+  T hh;                    ///< Half height (half axis)
+};
+
+
 /*! \brief Element representation
  *
  *  The element representation is used no matter if the
