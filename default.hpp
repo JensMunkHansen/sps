@@ -4,12 +4,12 @@
 
 namespace sps {
 
-struct DefaultValue{};
+struct DefaultValue {};
 static const DefaultValue defaultValue;
 
 template<typename T>
 using IsNotReference =
-typename std::enable_if<!std::is_reference<T>::value, void>::type;
+  typename std::enable_if<!std::is_reference<T>::value, void>::type;
 
 template<typename T, T... DefaultedParameter>
 class Defaulted {
@@ -21,8 +21,12 @@ class Defaulted {
   Defaulted(T&& t) : value_(std::move(t)) {}
 
   Defaulted(DefaultValue) : value_(DefaultedParameter...) {}
-  T const& get_or_default() const { return value_; }
-  T & get_or_default() { return value_; }
+  T const& get_or_default() const {
+    return value_;
+  }
+  T & get_or_default() {
+    return value_;
+  }
  private:
   T value_;
 };

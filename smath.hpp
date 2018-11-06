@@ -280,13 +280,13 @@ T SPS_EXPORT dist_point_to_circle(const point_t<T>& point, const circle_t<T>& ci
 
 template <typename T>
 void SPS_EXPORT dist_point_to_circle_local(const point_t<T>& point,
-                                const circle_t<T>& circle,
-                                T* r, T* z, T* distNear);
+    const circle_t<T>& circle,
+    T* r, T* z, T* distNear);
 
 template <typename T>
 void SPS_EXPORT dist_point_to_circle_local(const point_t<T>& point,
-                                const circle_t<T>& circle,
-                                T* r, T* z, T* distNear, T* distFar);
+    const circle_t<T>& circle,
+    T* r, T* z, T* distNear, T* distFar);
 
 /**
  * Clamp a vector inside a box
