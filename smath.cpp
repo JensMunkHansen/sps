@@ -438,7 +438,6 @@ void tan_point_ellipsis(const sps::ellipsis_t<T>& ellipsis,
       (*point)[1] *= T(-1);
     }
   }
-  std::cout << *point << std::endl;
 }
 
 #ifdef _WIN32

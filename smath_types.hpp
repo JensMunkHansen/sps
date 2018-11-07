@@ -89,6 +89,12 @@ SPS_EXPORT point_t : public std::array<T, 4>
     std::array<T, 4>(reinterpret_cast<std::array<T, 4> const&>(
                        *(args.begin()))) {}
 #endif
+  point_t<T>& operator+=(const point_t<T>& other) {
+    (*this)[0] += other[0];
+    (*this)[1] += other[1];
+    (*this)[2] += other[2];
+    return *this;
+  }
 };
 
 
