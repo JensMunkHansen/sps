@@ -372,7 +372,6 @@ template<typename T>
 void arc_point_ellipsis(const sps::ellipsis_t<T>& ellipsis, const T& arc,
                         sps::point_t<T>* point) {
   (*point)[2] = T(0.0);
-  // Not good
   if (sps::almost_equal(arc, T(M_PI_2), 1)) {
     (*point)[0] = T(0.0);
     (*point)[1] = ellipsis.hh;
@@ -392,15 +391,15 @@ void arc_point_ellipsis(const sps::ellipsis_t<T>& ellipsis, const T& arc,
     } else {
       if ((arc > M_PI_2) && (arc < M_3PI_2)) {
         (*point)[0] =
-            - a*b / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
+          - a*b / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
         (*point)[1] =
-            - a*b*tan(arc) / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
+          - a*b*tan(arc) / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
       } else {
         // 0 <= arc < M_PI_2 or M_3PI_2 < arc <= M_2PI
         (*point)[0] =
-            a*b / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
+          a*b / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
         (*point)[1] =
-            a*b*tan(arc) / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
+          a*b*tan(arc) / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
       }
     }
   }
@@ -412,12 +411,19 @@ void tan_point_ellipsis(const sps::ellipsis_t<T>& ellipsis,
                         sps::point_t<T>* point) {
   (*point)[2] = T(0.0);
   // Catches sign
-  if (sps::almost_equal(x, 0.0, 1)) {
+  if (sps::almost_equal(x, T(0.0), 1)) {
     (*point)[0] = T(0.0);
     if (y > 0) {
       (*point)[1] = ellipsis.hh;
     } else {
       (*point)[1] = -ellipsis.hh;
+    }
+  } else if (sps::almost_equal(y, T(0.0), 1)) {
+    (*point)[1] = T(0.0);
+    if (x > 0) {
+      (*point)[0] = ellipsis.hw;
+    } else {
+      (*point)[0] = -ellipsis.hw;
     }
   } else {
     T a = ellipsis.hw;
@@ -432,6 +438,7 @@ void tan_point_ellipsis(const sps::ellipsis_t<T>& ellipsis,
       (*point)[1] *= T(-1);
     }
   }
+  std::cout << *point << std::endl;
 }
 
 #ifdef _WIN32
@@ -493,6 +500,12 @@ template void SPS_EXPORT dist_point_to_circle_local<float>(
 
 template
 void arc_point_ellipsis(const sps::ellipsis_t<float>& ellipsis, const float& arc,
+                        sps::point_t<float>* point);
+
+template
+void tan_point_ellipsis(const sps::ellipsis_t<float>& ellipsis,
+                        const float& y,
+                        const float& x,
                         sps::point_t<float>* point);
 
 
