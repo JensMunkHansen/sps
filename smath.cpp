@@ -392,7 +392,7 @@ void arc_point_ellipsis(const sps::ellipsis_t<T>& ellipsis, const T& arc,
       (*point)[0] =
         a*b / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
       (*point)[1] =
-          (a*b*tan(arc)) / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
+        (a*b*tan(arc)) / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
     }
   }
 }
@@ -415,9 +415,9 @@ void tan_point_ellipsis(const sps::ellipsis_t<T>& ellipsis,
     T b = ellipsis.hh;
     T tan = y/x;
     (*point)[0] =
-        a*b / sqrt(SQUARE(b) + SQUARE(a*tan));
+      a*b / sqrt(SQUARE(b) + SQUARE(a*tan));
     (*point)[1] =
-        (a*b*tan) / sqrt(SQUARE(b) + SQUARE(a*tan));
+      (a*b*tan) / sqrt(SQUARE(b) + SQUARE(a*tan));
     if (x < 0) {
       (*point)[0] *= T(-1);
       (*point)[1] *= T(-1);
