@@ -549,6 +549,10 @@ void compute_bounding_box_circle(const sps::circle_t<T>& circle, sps::bbox_t<T>*
 template<typename T>
 void arc_point_ellipsis(const sps::ellipsis_t<T>& ellipsis, const T& arc,
                         sps::point_t<T>* point);
+template<typename T>
+void tan_point_ellipsis(const sps::ellipsis_t<T>& ellipsis, const T& y, const T& x,
+                        sps::point_t<T>* point);
+
 }  // namespace sps
 
 /*@}*/
