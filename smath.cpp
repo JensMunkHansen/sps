@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file   smath.cpp
  * @author Jens Munk Hansen <jmh@jmhlaptop>
  * @date   Sun Apr 30 22:52:50 2017
@@ -382,17 +382,26 @@ void arc_point_ellipsis(const sps::ellipsis_t<T>& ellipsis, const T& arc,
   } else {
     T a = ellipsis.hw;
     T b = ellipsis.hh;
-    if ((arc > M_PI_2) && (arc < M_3PI_2)) {
-      (*point)[0] =
-        - a*b / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
-      (*point)[1] =
-        - a*b*tan(arc) / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
+    if (sps::almost_equal(b, T(0.0), 1)) {
+      (*point)[1] = T(0.0);
+      if (fabs(arc) < M_PI_2) {
+        (*point)[0] = a;
+      } else {
+        (*point)[0] = -a;
+      }
     } else {
-      // 0 <= arc < M_PI_2 or M_3PI_2 < arc <= M_2PI
-      (*point)[0] =
-        a*b / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
-      (*point)[1] =
-        (a*b*tan(arc)) / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
+      if ((arc > M_PI_2) && (arc < M_3PI_2)) {
+        (*point)[0] =
+            - a*b / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
+        (*point)[1] =
+            - a*b*tan(arc) / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
+      } else {
+        // 0 <= arc < M_PI_2 or M_3PI_2 < arc <= M_2PI
+        (*point)[0] =
+            a*b / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
+        (*point)[1] =
+            a*b*tan(arc) / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
+      }
     }
   }
 }
