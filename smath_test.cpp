@@ -190,6 +190,31 @@ TEST(smath, arc_point_ellipsis) {
   // Perfect
   std::cout << std::endl << sps::almost_equal(-0.0f, 0.0f, 1) << std::endl;
 }
+
+TEST(smath, intcp_line_rect) {
+  sps::element_rect_t<float> rect;
+  rect.hh = 1.0f;
+  rect.hw = 2.0f;
+  rect.center = {0.0f, 0.0f, 0.0f};
+  sps::point_t<float> point;
+  float x = 1.0f;
+  float y = 0.0f;
+  intcp_line_rect(rect, y, x, &point);
+  std::cout << point << std::endl;
+  x = 0.0f;
+  y = 1.0f;
+  intcp_line_rect(rect, y, x, &point);
+  std::cout << point << std::endl;
+  x = -1.0f;
+  y = 0.0f;
+  intcp_line_rect(rect, y, x, &point);
+  std::cout << point << std::endl;
+  x = 0.0f;
+  y = -1.0f;
+  intcp_line_rect(rect, y, x, &point);
+  std::cout << point << std::endl;
+}
+
 /*
 // TODO: Use this alternative for testing
 T angle = atan2(v,u);
