@@ -461,11 +461,11 @@ void intcp_line_rect(const sps::element_rect_t<T>& rect,
   } else {
     T tan = y/x;
     if (fabs(tan * rect.hw) > rect.hh) {
-      (*point)[0] = std::copysign(x,T(1.0)) * T(1.0)/fabs(tan) * rect.hh;
-      (*point)[1] = std::copysign(y,T(1.0)) * rect.hh;
+      (*point)[0] = std::copysign(T(1.0), x) * T(1.0)/fabs(tan) * rect.hh;
+      (*point)[1] = std::copysign(T(1.0), y) * rect.hh;
     } else {
-      (*point)[0] = std::copysign(x,T(1.0)) * rect.hw;
-      (*point)[1] = std::copysign(y,T(1.0)) * fabs(tan) * rect.hw;
+      (*point)[0] = std::copysign(T(1.0), x) * rect.hw;
+      (*point)[1] = std::copysign(T(1.0), y) * fabs(tan) * rect.hw;
     }
   }
 }
