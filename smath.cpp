@@ -367,7 +367,6 @@ T dist_point_to_circle(const point_t<T>& point, const circle_t<T>& circle) {
   return distNear;
 }
 
-// TODO(JMH): Support orientation
 template<typename T>
 void arc_point_ellipsis(const sps::ellipsis_t<T>& ellipsis, const T& arc,
                         sps::point_t<T>* point) {
@@ -440,6 +439,37 @@ void tan_point_ellipsis(const sps::ellipsis_t<T>& ellipsis,
   }
 }
 
+// WRONG
+template<typename T>
+void intcp_line_rect(const sps::element_rect_t<T>& rect,
+                     const T& y, const T& x, sps::point_t<T>* point) {
+  (*point)[2] = T(0.0);
+  if (sps::almost_equal(x, T(0.0), 1)) {
+    (*point)[0] = T(0.0);
+    if (y > 0) {
+      (*point)[1] = rect.hh;
+    } else {
+      (*point)[1] = -rect.hh;
+    }
+  } else if (sps::almost_equal(y, T(0.0), 1)) {
+    (*point)[1] = T(0.0);
+    if (x > 0) {
+      (*point)[0] = rect.hw;
+    } else {
+      (*point)[0] = -rect.hw;
+    }
+  } else {
+    T tan = y/x;
+    if (fabs(tan * rect.hw) > rect.hh) {
+      (*point)[0] = std::copysign(x,T(1.0)) * T(1.0)/fabs(tan) * rect.hh;
+      (*point)[1] = std::copysign(y,T(1.0)) * rect.hh;
+    } else {
+      (*point)[0] = std::copysign(x,T(1.0)) * rect.hw;
+      (*point)[1] = std::copysign(y,T(1.0)) * fabs(tan) * rect.hw;
+    }
+  }
+}
+
 #ifdef _WIN32
 template class std::aligned_array<float, 4U>;
 template class std::aligned_array<double, 4U>;
@@ -496,6 +526,10 @@ template void SPS_EXPORT dist_point_to_circle_local<float>(
   const sps::point_t<float>& point,
   const sps::circle_t<float>& circle, float *r, float *z, float *distNear);
 
+template
+void intcp_line_rect(const sps::element_rect_t<float>& rect,
+                     const float& y, const float& x,
+                     sps::point_t<float>* point);
 
 template
 void arc_point_ellipsis(const sps::ellipsis_t<float>& ellipsis, const float& arc,

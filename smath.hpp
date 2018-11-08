@@ -546,12 +546,32 @@ void compute_bounding_box_circle(const sps::circle_t<T>& circle, sps::bbox_t<T>*
   box->max[2] = circle.center[2] + hd;
 }
 
+/**
+ * Intersection point of line originating from center of ellipsis
+ * in the plane defined using Euler coordinates and a direction
+ * angle arc
+ *
+ * TODO(JMH): Support Euler orientation, ellipsis is assumed to
+ * lie in xy-plane
+ *
+ * @param[in] ellipsis
+ * @param[in] arc angle
+ * @param[out] point intersection point
+ */
 template<typename T>
 void arc_point_ellipsis(const sps::ellipsis_t<T>& ellipsis, const T& arc,
                         sps::point_t<T>* point);
 template<typename T>
-void tan_point_ellipsis(const sps::ellipsis_t<T>& ellipsis, const T& y, const T& x,
+void tan_point_ellipsis(const sps::ellipsis_t<T>& ellipsis,
+                        const T& y, const T& x,
                         sps::point_t<T>* point);
+
+// TODO(JMH): Make more general line
+template<typename T>
+void intcp_line_rect(const sps::element_rect_t<T>& rect,
+                     const T& y, const T& x,
+                     sps::point_t<T>* point);
+
 
 }  // namespace sps
 
