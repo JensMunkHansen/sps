@@ -1,18 +1,17 @@
 #include <sps/sps_export.h>
-#include <sps/math.h>
-#include <sps/smath.hpp>
-
 #include <float.h>
-
-#include <cstdlib>
-#include <iostream>
-#include <cassert>
-
 #include <stdint.h>
+#include <sps/math.h>
+#include <gtest/gtest.h>
 
+#include <sps/cmath>
+#include <cassert>
+#include <cstdlib>
+
+#include <iostream>
 #include <vector>
 
-#include <gtest/gtest.h>
+#include <sps/smath.hpp>
 
 using namespace sps;
 
@@ -157,6 +156,65 @@ TEST(smath_test, test_dists_most_distant_and_closest) {
   ASSERT_LT(fabs(distFar - sqrtf(43.0f)), FLT_EPSILON);
 }
 
+TEST(smath, arc_point_ellipsis) {
+  sps::ellipsis_t<float> ellipse;
+  ellipse.hh = 1.0;
+  ellipse.hw = 2.0;
+  sps::point_t<float> point;
+  float arc = 0.0f;
+
+  sps::arc_point_ellipsis<float>(ellipse, arc, &point);
+  std::cout << sps::almost_equal(point[0], ellipse.hw, 1);
+  std::cout << sps::almost_equal(point[1], 0.0f, 1);
+
+  arc = M_PI_2;
+  sps::arc_point_ellipsis(ellipse, arc, &point);
+  std::cout << sps::almost_equal(point[0], 0.0f, 1);
+  std::cout << sps::almost_equal(point[1], ellipse.hh, 1);
+
+  arc = M_PI;
+  sps::arc_point_ellipsis(ellipse, arc, &point);
+  std::cout << sps::almost_equal(point[0], -ellipse.hw, 1);
+  //  std::cout << sps::almost_equal(point[1], 0.0f, 1);
+
+  arc = M_3PI_2;
+  sps::arc_point_ellipsis(ellipse, arc, &point);
+  std::cout << sps::almost_equal(point[0], 0.0f, 1);
+  std::cout << sps::almost_equal(point[1], -ellipse.hh, 1);
+
+  arc = M_2PI;
+  sps::arc_point_ellipsis(ellipse, arc, &point);
+  std::cout << sps::almost_equal(point[0], ellipse.hw, 1);
+  //  std::cout << sps::almost_equal(point[1], 0.0f, 1);
+
+  // Perfect
+  std::cout << std::endl << sps::almost_equal(-0.0f, 0.0f, 1) << std::endl;
+}
+
+TEST(smath, intcp_line_rect) {
+  sps::element_rect_t<float> rect;
+  rect.hh = 1.0f;
+  rect.hw = 2.0f;
+  rect.center = {0.0f, 0.0f, 0.0f};
+  sps::point_t<float> point;
+  float x = 1.0f;
+  float y = 0.0f;
+  intcp_line_rect(rect, y, x, &point);
+  std::cout << point << std::endl;
+  x = 0.0f;
+  y = 1.0f;
+  intcp_line_rect(rect, y, x, &point);
+  std::cout << point << std::endl;
+  x = -1.0f;
+  y = 0.0f;
+  intcp_line_rect(rect, y, x, &point);
+  std::cout << point << std::endl;
+  x = 0.0f;
+  y = -1.0f;
+  intcp_line_rect(rect, y, x, &point);
+  std::cout << point << std::endl;
+}
+
 /*
 // TODO: Use this alternative for testing
 T angle = atan2(v,u);
@@ -176,3 +234,4 @@ int main(int argc, char** argv) {
 /* tab-width: 2 */
 /* c-basic-offset: 2 */
 /* End: */
+

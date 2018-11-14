@@ -89,6 +89,12 @@ SPS_EXPORT point_t : public std::array<T, 4>
     std::array<T, 4>(reinterpret_cast<std::array<T, 4> const&>(
                        *(args.begin()))) {}
 #endif
+  point_t<T>& operator+=(const point_t<T>& other) {
+    (*this)[0] += other[0];
+    (*this)[1] += other[1];
+    (*this)[2] += other[2];
+    return *this;
+  }
 };
 
 
@@ -159,6 +165,15 @@ struct SPS_EXPORT circle_t : sps::aligned<4*sizeof(T)> {
   sps::euler_t<T> euler;   ///< Euler angles
   T radius;                ///< Radius
 };
+
+template <typename T>
+struct SPS_EXPORT ellipsis_t : sps::aligned<4*sizeof(T)> {
+  sps::point_t<T> center;  ///< Center position
+  sps::euler_t<T> euler;   ///< Euler angles
+  T hw;                    ///< Half width (half axis)
+  T hh;                    ///< Half height (half axis)
+};
+
 
 /*! \brief Element representation
  *

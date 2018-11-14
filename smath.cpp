@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file   smath.cpp
  * @author Jens Munk Hansen <jmh@jmhlaptop>
  * @date   Sun Apr 30 22:52:50 2017
@@ -11,8 +11,10 @@
 #include <sps/config.h>
 #include <sps/trigintrin.h>
 #include <sps/debug.h>
+#include <sps/cmath>
 
 #include <sps/smath.hpp>
+
 
 namespace std {
 template struct SPS_EXPORT std::pair<float, float>;
@@ -307,7 +309,6 @@ void basis_vectors(double* vec0, double* vec1, double* vec2,
 template <typename T>
 void dist_point_to_circle_local(const point_t<T>& point,
                                 const circle_t<T>& circle, T* r, T* z, T* distNear) {
-
   sps::point_t<T> normal, uvector, vvector;
   sps::basis_vectors<T, sps::EulerIntrinsicYXY>(&uvector, circle.euler, 0);
   sps::basis_vectors<T, sps::EulerIntrinsicYXY>(&vvector, circle.euler, 1);
@@ -334,7 +335,6 @@ template <typename T>
 void dist_point_to_circle_local(
   const point_t<T>& point,
   const circle_t<T>& circle, T* r, T* z, T* distNear, T* distFar) {
-
   sps::point_t<T> normal, uvector, vvector;
   sps::basis_vectors<T, sps::EulerIntrinsicYXY>(&uvector, circle.euler, 0);
   sps::basis_vectors<T, sps::EulerIntrinsicYXY>(&vvector, circle.euler, 1);
@@ -365,6 +365,109 @@ T dist_point_to_circle(const point_t<T>& point, const circle_t<T>& circle) {
   T distNear, r, z;
   dist_point_to_circle_local(point, circle, &r, &z, &distNear);
   return distNear;
+}
+
+template<typename T>
+void arc_point_ellipsis(const sps::ellipsis_t<T>& ellipsis, const T& arc,
+                        sps::point_t<T>* point) {
+  (*point)[2] = T(0.0);
+  if (sps::almost_equal(arc, T(M_PI_2), 1)) {
+    (*point)[0] = T(0.0);
+    (*point)[1] = ellipsis.hh;
+  } else if (sps::almost_equal(arc, T(M_3PI_2), 1)) {
+    (*point)[0] = T(0.0);
+    (*point)[1] = -ellipsis.hh;
+  } else {
+    T a = ellipsis.hw;
+    T b = ellipsis.hh;
+    if (sps::almost_equal(b, T(0.0), 1)) {
+      (*point)[1] = T(0.0);
+      if (fabs(arc) < M_PI_2) {
+        (*point)[0] = a;
+      } else {
+        (*point)[0] = -a;
+      }
+    } else {
+      if ((arc > M_PI_2) && (arc < M_3PI_2)) {
+        (*point)[0] =
+          - a*b / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
+        (*point)[1] =
+          - a*b*tan(arc) / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
+      } else {
+        // 0 <= arc < M_PI_2 or M_3PI_2 < arc <= M_2PI
+        (*point)[0] =
+          a*b / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
+        (*point)[1] =
+          a*b*tan(arc) / sqrt(SQUARE(b) + SQUARE(a*tan(arc)));
+      }
+    }
+  }
+}
+template<typename T>
+void tan_point_ellipsis(const sps::ellipsis_t<T>& ellipsis,
+                        const T& y,
+                        const T& x,
+                        sps::point_t<T>* point) {
+  (*point)[2] = T(0.0);
+  // Catches sign
+  if (sps::almost_equal(x, T(0.0), 1)) {
+    (*point)[0] = T(0.0);
+    if (y > 0) {
+      (*point)[1] = ellipsis.hh;
+    } else {
+      (*point)[1] = -ellipsis.hh;
+    }
+  } else if (sps::almost_equal(y, T(0.0), 1)) {
+    (*point)[1] = T(0.0);
+    if (x > 0) {
+      (*point)[0] = ellipsis.hw;
+    } else {
+      (*point)[0] = -ellipsis.hw;
+    }
+  } else {
+    T a = ellipsis.hw;
+    T b = ellipsis.hh;
+    T tan = y/x;
+    (*point)[0] =
+      a*b / sqrt(SQUARE(b) + SQUARE(a*tan));
+    (*point)[1] =
+      (a*b*tan) / sqrt(SQUARE(b) + SQUARE(a*tan));
+    if (x < 0) {
+      (*point)[0] *= T(-1);
+      (*point)[1] *= T(-1);
+    }
+  }
+}
+
+// WRONG
+template<typename T>
+void intcp_line_rect(const sps::element_rect_t<T>& rect,
+                     const T& y, const T& x, sps::point_t<T>* point) {
+  (*point)[2] = T(0.0);
+  if (sps::almost_equal(x, T(0.0), 1)) {
+    (*point)[0] = T(0.0);
+    if (y > 0) {
+      (*point)[1] = rect.hh;
+    } else {
+      (*point)[1] = -rect.hh;
+    }
+  } else if (sps::almost_equal(y, T(0.0), 1)) {
+    (*point)[1] = T(0.0);
+    if (x > 0) {
+      (*point)[0] = rect.hw;
+    } else {
+      (*point)[0] = -rect.hw;
+    }
+  } else {
+    T tan = y/x;
+    if (fabs(tan * rect.hw) > rect.hh) {
+      (*point)[0] = std::copysign(T(1.0), x) * T(1.0)/fabs(tan) * rect.hh;
+      (*point)[1] = std::copysign(T(1.0), y) * rect.hh;
+    } else {
+      (*point)[0] = std::copysign(T(1.0), x) * rect.hw;
+      (*point)[1] = std::copysign(T(1.0), y) * fabs(tan) * rect.hw;
+    }
+  }
 }
 
 #ifdef _WIN32
@@ -423,6 +526,21 @@ template void SPS_EXPORT dist_point_to_circle_local<float>(
   const sps::point_t<float>& point,
   const sps::circle_t<float>& circle, float *r, float *z, float *distNear);
 
+template
+void intcp_line_rect(const sps::element_rect_t<float>& rect,
+                     const float& y, const float& x,
+                     sps::point_t<float>* point);
+
+template
+void arc_point_ellipsis(const sps::ellipsis_t<float>& ellipsis, const float& arc,
+                        sps::point_t<float>* point);
+
+template
+void tan_point_ellipsis(const sps::ellipsis_t<float>& ellipsis,
+                        const float& y,
+                        const float& x,
+                        sps::point_t<float>* point);
+
 
 template struct SPS_EXPORT element_rect_t<double>;
 
@@ -472,3 +590,4 @@ template std::pair<double,double> minmax_delay<double,double>(
 /* tab-width: 2 */
 /* c-basic-offset: 2 */
 /* End: */
+

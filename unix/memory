@@ -42,6 +42,10 @@ unique_aligned_array<T> unique_aligned_array_create(size_t n) {
                                   [](T* f)->void { _mm_free(f);});
 }
 
+// TODO: If C++14
+// return std::make_unique<T[], std::function<void(T*)>(n,[](T*f)->void {_mm_free(f);};
+
+
 //
 
 //! Aligned multi-dimensional array
