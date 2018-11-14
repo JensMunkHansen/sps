@@ -48,8 +48,9 @@ TEST(memory_test, aligned_unique_array) {
   // auto j = sps::unique_aligned_multi_array<B,2>(1,1);
   // auto k = sps::unique_aligned_multi_array_create<B, 2>(1,1);
 
+#ifdef __GNUG__
   auto l = sps::unique_aligned_multi_array_create<double, 1>(1);
-
+#endif
   ASSERT_TRUE(true);
 }
 
@@ -93,5 +94,8 @@ int main(int argc, char* argv[]) {
   return RUN_ALL_TESTS();
 }
 
-// GNU extension
-//
+/* Local variables: */
+/* indent-tabs-mode: nil */
+/* tab-width: 2 */
+/* c-basic-offset: 2 */
+/* End: */

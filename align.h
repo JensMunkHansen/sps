@@ -1,6 +1,6 @@
 /**
  * @file   align.h
- * @author Jens Munk Hansen <jmh@debian9laptop.parknet.dk>
+ * @author Jens Munk Hansen <jens.munk.hansen@gmail.com>
  * @date   Thu Sep 13 22:17:44 2015
  *
  * @brief
@@ -39,3 +39,4 @@ typedef __declspec(align(64)) struct sps_align16 {
 #endif
 
 #endif  // SPS_ALIGN_H
+

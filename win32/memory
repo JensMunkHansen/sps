@@ -62,6 +62,9 @@ class unique_aligned_array {
    */
   typedef T* pointer;
 
+  // Consider defining pointer
+  // to std::remove_reference<Deleter>::type::pointer if that type exists, otherwise T*
+
   unique_aligned_array() : m_data() {}
 
   // 32-byte aligned to allow 4-vectors of doubles
