@@ -64,6 +64,49 @@ template <typename T, template <typename> class V> class globalstruct {
 # pragma clang diagnostic pop
 #endif
 
+
+class Identifiable {
+ private:
+  static std::uint32_t UIDCreate() {
+    static std::atomic<std::uint32_t> g_uid = {0};
+    std::uint32_t retval = std::atomic_fetch_add(&g_uid, 1U);
+    if (retval + 1 == 0) {
+      exit(-1);
+    }
+    return retval;
+  }
+ protected:
+  Identifiable() {
+    m_Id = UIDCreate();
+  }
+ public:
+  std::uint32_t IDGet() const {
+    return m_Id;
+  }
+ private:
+  std::uint32_t m_Id;
+};
+
+
+/*! \brief Singleton base class
+ *
+ * @tparam T type of the actual singleton
+ *
+ * Usage:
+ *
+ * class MySingleton : public sps::Singleton<MySingleton> {
+ *  private:
+ *   MySingleton() {
+ *   }
+ *  friend class sps::Singleton<MySingleton>;
+ * };
+ *
+ * MySingleton *pSingleton = MySingleton::InstanceGet();
+ *
+ * The class could have been inherited from sps::Default, but
+ * then the user must friend sps::Default<MySingleton>, which
+ * is unfortunate.
+ */
 template <class T>
 class Singleton {
  public:
@@ -105,11 +148,20 @@ class Singleton {
  private:
   static std::atomic<T*> g_instance;
   static std::mutex g_mutex;
-
-  // Ugly hack to enforce generation of InstanceDestroy - deadlocks
-  //const int atexit = Singleton<T>::InstanceDestroy();
 };
 
+/**
+ * InstanceDestroy
+ *
+ * Note this must be explicitly instantiated for all descendants. Introducing
+ * a member
+ *
+ * const int atexit = Singleton<T>::InstanceDestroy()
+ *
+ * would enforce this, but this a nasty hack
+ *
+ * @return error code
+ */
 template <class T>
 int Singleton<T>::InstanceDestroy() {
   int retval = -1;
@@ -130,6 +182,7 @@ template <class T>
 std::mutex Singleton<T>::g_mutex;
 
 
+// Note this a copy-able version of the Singleton above
 template <class T>
 class Default {
  public:
@@ -165,8 +218,8 @@ class Default {
   }
 
  private:
-  static std::atomic<T*> g_instance;
-  static std::mutex g_mutex;
+  static std::atomic<T*> g_instance;  // Default instance
+  static std::mutex g_mutex;  // Mutex for accessing default instance
 };
 
 template <class T>

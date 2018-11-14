@@ -68,6 +68,9 @@ struct is_aligned {
  *   T a;
  * };
  *
+ *
+ * In the case of multiple inheritance, place this to the left. Storage is allocated
+ * and initializers are called from left to right - the order they appear
  */
 #ifdef _MSC_VER
 #  pragma warning(push)

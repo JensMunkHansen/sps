@@ -122,8 +122,7 @@ STATIC_INLINE_BEGIN void* multi_malloc(size_t s, size_t d, ...) {
  * @param r data
  * @param d number of dimensions
  */
-STATIC_INLINE_BEGIN void multi_free(void *r, size_t d)
-{
+STATIC_INLINE_BEGIN void multi_free(void *r, size_t d) {
 
   void **p;
   void *next=NULL;
