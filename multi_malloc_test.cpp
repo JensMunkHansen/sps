@@ -1,4 +1,4 @@
-﻿#include <cstddef>
+#include <cstddef>
 #include <sps/cstdio>
 #include <sps/multi_malloc.hpp>
 #include <sps/multi_malloc.h>
@@ -34,7 +34,8 @@ int main(int argc, char* argv[]) {
   f = (float**) _mm_multi_malloc<float,32>(2,100,100);
   f[99][99] = 1.0f;
   memset(f[0],0,100*100*sizeof(float));
-  _mm_multi_free<float,32>(f,2);
+//  ASSERT_EQ((uintptr_t)&f[0][0] % 32, 0);
+    _mm_multi_free<float, 32>(f, 2);
 
   f = (float**) _mm_multi_malloc<float,4>(2,100,100);
   f[99][99] = 1.0f;
