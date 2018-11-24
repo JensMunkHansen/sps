@@ -121,7 +121,7 @@ struct SPS_EXPORT mat3_t {
     mat3_t<T> result;
     for (size_t i = 0 ; i < 3 ; i++) {
       for (size_t j = 0 ; j < 3 ; j++) {
-        results.data[i][j] = T(0.0);
+        result.data[i][j] = T(0.0);
         for (size_t k = 0 ; k < 3 ; k++) {
           result.data[i][j] =
             result.data[i][j]

@@ -489,6 +489,10 @@ template <typename T, RotationConvention conv>
 void SPS_EXPORT euler2rot(const sps::euler_t<T>& euler,
                           sps::mat3_t<T>* mat);
 
+template <typename T, RotationConvention conv>
+void SPS_EXPORT rot2euler(const sps::mat3_t<T>& rot,
+                          euler_t<T>* euler);
+
 /**
  * Rotate point using 3 Euler angles according to the convention.
  *
@@ -530,6 +534,16 @@ inline std::ostream& operator<<(std::ostream& out, const point_t<T>& point) {
   out << "x: " << point[0] << " y: " << point[1] << " z: " << point[2] << std::endl;
   return out;
 }
+
+template <typename T>
+inline std::ostream& operator<<(std::ostream& out, const mat3_t<T>& mat) {
+  out << mat.data[0][0] << " " << mat.data[0][1] << " " << mat.data[0][2] << std::endl;
+  out << mat.data[1][0] << " " << mat.data[1][1] << " " << mat.data[1][2] << std::endl;
+  out << mat.data[2][0] << " " << mat.data[2][1] << " " << mat.data[2][2];
+  return out;
+}
+
+
 
 template<typename T>
 void compute_bounding_box_circle(const sps::circle_t<T>& circle, sps::bbox_t<T>* box) {
