@@ -59,14 +59,79 @@ minmax_delay(const T* xs, const U* ws, size_t nData) {
 template <typename T, RotationConvention conv>
 void euler2rot(const sps::euler_t<T>& euler,
                sps::mat3_t<T>* mat) {
-  sps::point_t<T> v0,v1,v2;
+  // TODO: Make this a class and partially specialize
+  //       this for convention yxy
+  sps::point_t<T> v0, v1, v2;
   basis_vectors<T, conv>(&v0, euler, 0);
   basis_vectors<T, conv>(&v1, euler, 1);
   basis_vectors<T, conv>(&v2, euler, 2);
   for (size_t i = 0 ; i < 3 ; ++i) {
-    mat->data[i][0] = v0[i];
-    mat->data[i][1] = v1[i];
-    mat->data[i][2] = v2[i];
+    mat->data[0][i] = v0[i];
+    mat->data[1][i] = v1[i];
+    mat->data[2][i] = v2[i];
+  }
+}
+
+// TODO(JMH): This is the yxy specialization - not generic
+template <typename T, RotationConvention conv>
+void SPS_EXPORT rot2euler(const sps::mat3_t<T>& rot,
+                          euler_t<T>* euler) {
+  size_t iFirstAxis = 1;
+  int repetition = 1;
+  size_t parity = 1;
+  int intrin = 1;  // rotating frame
+
+  size_t iNextAxis[4] = {1, 2, 0, 1};
+
+  size_t i = iFirstAxis;            // 1
+  size_t j = iNextAxis[i+parity];   // 0
+  size_t k = iNextAxis[i-parity+1]; // 2
+
+  euler->alpha = T(0.0);
+  euler->beta  = T(0.0);
+  euler->gamma = T(0.0);
+
+  T sy;
+  bool bSingular;
+
+  if (repetition) {
+    sy = sqrt(SQUARE(rot.data[i][j]) +
+              SQUARE(rot.data[i][k]));
+    bSingular = sy < T(10.0) * std::numeric_limits<T>::epsilon();
+
+    euler->alpha = atan2(rot.data[i][j], rot.data[i][k]);
+    euler->beta  = atan2(sy, rot.data[i][i]);
+    euler->gamma = atan2(rot.data[j][i], -rot.data[k][i]);
+
+    if (bSingular) {
+      euler->alpha = atan2(-rot.data[j][k], rot.data[j][j]);
+      euler->beta  = atan2(sy, rot.data[i][i]);
+      euler->gamma = T(0.0);
+    }
+  } else {
+    sy = sqrt(SQUARE(rot.data[i][i]) +
+              SQUARE(rot.data[j][i]));
+    bSingular = sy < T(10.0) * std::numeric_limits<T>::epsilon();
+
+    euler->alpha = atan2(rot.data[k][j], rot.data[k][k]);
+    euler->beta  = atan2(-rot.data[k][i], sy);
+    euler->gamma = atan2(rot.data[j][i], rot.data[i][i]);
+
+    if (bSingular) {
+      euler->alpha = atan2(-rot.data[j][k], rot.data[j][j]);
+      euler->beta  = atan2(-rot.data[k][i], sy);
+      euler->gamma = T(0.0);
+    }
+  }
+
+  if (parity) {
+    euler->alpha = -euler->alpha;
+    euler->beta  = -euler->beta;
+    euler->gamma = -euler->gamma;
+  }
+
+  if (intrin) {
+    std::swap(euler->alpha, euler->gamma);
   }
 }
 
@@ -491,6 +556,7 @@ template class std::aligned_array<double, 4U>;
 
 template struct euler_t<float>;
 template struct point_t<float>;
+template struct mat3_t<float>;
 template struct element_rect_t<float>;
 
 #ifdef _WIN32
@@ -512,7 +578,16 @@ template void SPS_EXPORT
 basis_vectors<float, sps::EulerIntrinsicYXY>(sps::point_t<float>* output,
     const sps::euler_t<float>& euler, size_t index);
 
+template void SPS_EXPORT
+euler2rot<float, sps::EulerIntrinsicYXY>(const sps::euler_t<float>& euler,
+                                         sps::mat3_t<float>* rot);
+
+template void SPS_EXPORT
+rot2euler<float, sps::EulerIntrinsicYXY>(const sps::mat3_t<float>& rot, euler_t<float>* euler);
+
 template std::ostream& operator<<(std::ostream& out, const point_t<float>& point);
+
+template std::ostream& operator<<(std::ostream& out, const mat3_t<float>& point);
 
 template void
 SPS_EXPORT basis_vectors(float* vec0, float* vec1, float* vec2, const sps::euler_t<float>& euler);
