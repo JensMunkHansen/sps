@@ -580,7 +580,7 @@ basis_vectors<float, sps::EulerIntrinsicYXY>(sps::point_t<float>* output,
 
 template void SPS_EXPORT
 euler2rot<float, sps::EulerIntrinsicYXY>(const sps::euler_t<float>& euler,
-                                         sps::mat3_t<float>* rot);
+    sps::mat3_t<float>* rot);
 
 template void SPS_EXPORT
 rot2euler<float, sps::EulerIntrinsicYXY>(const sps::mat3_t<float>& rot, euler_t<float>* euler);
