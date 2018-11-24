@@ -66,9 +66,9 @@ void euler2rot(const sps::euler_t<T>& euler,
   basis_vectors<T, conv>(&v1, euler, 1);
   basis_vectors<T, conv>(&v2, euler, 2);
   for (size_t i = 0 ; i < 3 ; ++i) {
-    mat->data[0][i] = v0[i];
-    mat->data[1][i] = v1[i];
-    mat->data[2][i] = v2[i];
+    mat->data[i][0] = v0[i];
+    mat->data[i][1] = v1[i];
+    mat->data[i][2] = v2[i];
   }
 }
 
