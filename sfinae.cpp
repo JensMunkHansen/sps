@@ -96,8 +96,8 @@ auto advance(Iter begin, int n) {
 
 // STL practice
 
-template <class Iter>
-using iter_supports_plus_t = typename iter_traits<Iter>::supports_plus;
+//template <class Iter>
+//using iter_supports_plus_t = typename iter_traits<Iter>::supports_plus;
 
 
 

@@ -117,9 +117,11 @@ STATIC_INLINE_BEGIN int setcpuid(int cpu_id) {
  * @return
  */
 STATIC_INLINE_BEGIN unsigned int controlfp(unsigned int newCtrlWordBits = EM_INEXACT,
-    unsigned int mask = MCW_EM) {
+  unsigned int mask = MCW_EM) {
 #ifdef _MSC_VER
-  return _controlfp(newCtrlWordBits, mask);
+  unsigned int curCtrlWordBits = 0;
+  errno_t retval = _controlfp_s(&curCtrlWordBits, newCtrlWordBits, mask);
+  return static_cast<unsigned int>(retval);
 #else
   return -1;
 #endif
