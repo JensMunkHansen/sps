@@ -57,6 +57,20 @@ minmax_delay(const T* xs, const U* ws, size_t nData) {
 }
 
 template <typename T, RotationConvention conv>
+void euler2rot(const sps::euler_t<T>& euler,
+               sps::mat3_t<T>* mat) {
+  sps::point_t<T> v0,v1,v2;
+  basis_vectors<T, conv>(&v0, euler, 0);
+  basis_vectors<T, conv>(&v1, euler, 1);
+  basis_vectors<T, conv>(&v2, euler, 2);
+  for (size_t i = 0 ; i < 3 ; ++i) {
+    mat->data[i][0] = v0[i];
+    mat->data[i][1] = v1[i];
+    mat->data[i][2] = v2[i];
+  }
+}
+
+template <typename T, RotationConvention conv>
 void basis_vectors(sps::point_t<T>* output,
                    const euler_t<T>& euler, size_t index) {
   const T alpha = euler.alpha;
