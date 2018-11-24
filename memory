@@ -25,6 +25,9 @@
 #include <sps/win32/memory>
 #include <sps/unix/memory>
 
+// Just a note: replace memset, memcpy, memcmp, memmove with std::fill(_n), std::copy,
+// and std::equal(std::lexicographical_compare), std::move
+
 #ifndef CXX11
 // Backport std::make_unique from C++14
 namespace std {
