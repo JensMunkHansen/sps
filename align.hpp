@@ -119,11 +119,17 @@ template<> struct __attribute__((aligned(64))) aligned<64> { };
 template <typename T, size_t Alignment = 16>
 class dynaligned : public sps::aligned<Alignment> {
  public:
-  void* operator new(std::size_t size) throw() {
+  // Throwing
+  void* operator new(std::size_t size) throw(std::bad_alloc) {
     debug_print("aligned\n");
     T* ptr = static_cast<T*>(SPS_MM_MALLOC(size, Alignment));
     return ptr ? ptr : throw std::bad_alloc{};
   }
+
+  // Non-throwing
+  // void* operator new(std::size_t, const std::nothrow_t& nothrow_value) noexcept;
+  // Placement
+  // void* operator new(std::size_t, void* ptr) noexcept;
 
   void operator delete(void* ptr) {
     debug_print("aligned\n");
