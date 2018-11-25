@@ -1,4 +1,10 @@
-/*
+/**
+ * @file   progress.hpp
+ * @author Jens Munk Hansen <jmh@debian9laptop.parknet.dk>
+ * @date   Sun Nov 25 21:12:45 2018
+ *
+ * @brief
+ *
  *  This file is part of SOFUS.
  *
  *  SOFUS is free software: you can redistribute it and/or modify
@@ -22,28 +28,25 @@
 #include <mutex>
 #include <condition_variable>
 
-// TODO: Export only interface
+// TODO(JMH): Export only interface and use C library
+
 namespace sps {
-  class ProgressBar : public ProgressBarInterface {
-  public:
-    virtual void show(float percent) = 0;
-    virtual ~ProgressBar() = default;
+class ProgressBar : public ProgressBarInterface {
+ public:
+  virtual void show(float percent) = 0;
+  virtual ~ProgressBar() = default;
 
-    // Base functions
-    //void cancel();
+  template <typename P>
+  void wait(const P& period);
+ private:
+  bool bStop;
+  std::mutex mtx;
+  std::condition_variable cnd;
+};
 
-    template <typename P>
-    void wait(const P& period);
-  private:
-    bool bStop;
-    std::mutex mtx;
-    std::condition_variable cnd;
-  };
-
-  class SPS_EXPORT ProgressBarStdOut : public ProgressBarInterface {
-    // Add stuff like above
-  public:
-    virtual void show(float percent);
-    virtual ~ProgressBarStdOut() = default;
-  };
-}
+class SPS_EXPORT ProgressBarStdOut : public ProgressBarInterface {
+ public:
+  virtual void show(float percent);
+  virtual ~ProgressBarStdOut() = default;
+};
+}  // namespace sps
