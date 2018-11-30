@@ -35,7 +35,9 @@
 
 #include <stdarg.h>
 
-#define snprintf c99_snprintf
+#ifndef snprintf
+# define snprintf c99_snprintf
+#endif
 
 #ifdef _MSC_VER
 inline int c99_vsnprintf(char* str, size_t size, const char* format, va_list ap)
