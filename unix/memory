@@ -22,6 +22,9 @@
 
 #include <type_traits>
 
+// TODO(JMH): Consider creating a template class to allow constructions like,
+//            auto a = unique_aligned_array<T>(3);
+
 namespace sps {
 namespace nix {
 template<typename T>
@@ -252,6 +255,7 @@ inline typename std::enable_if<I==1 && std::is_pod<T>::value, unique_aligned_mul
   return unique_aligned_multi_array<T, 1, void>(m);
 }
 
+#if 0
 // If we don't care about contiguous-ness, we can do the following (fix recursive type)
 template <class T, size_t d>
 class multi_array {
@@ -274,6 +278,7 @@ class multi_array {
     free(d1);
   }
 };
+#endif
 }
 }
 
