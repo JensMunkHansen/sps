@@ -77,7 +77,10 @@ class Identifiable {
   }
  protected:
   Identifiable() {
+    // A unique is guaranteed, but many temporaries are created
+    //    std::cout << "Identifiable created" << std::endl;
     m_Id = UIDCreate();
+    //    std::cout << "m_Id: " << m_Id << std::endl;
   }
  public:
   std::uint32_t IDGet() const {
