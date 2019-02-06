@@ -35,7 +35,6 @@
 
 #include <sps/strace.hpp>
 
-#include <sps/cerr.h>
 #include <sps/stdlib.h>
 
 #include <stdint.h>
@@ -122,9 +121,13 @@ struct sigaction STrace::m_sa_fpe;
 
 void STrace::print2fd(const char *msg, size_t len) {
   if (len > 0) {
-    CallErr_Exit(write, (m_fdOutput, msg, len));
+    if (write(m_fdOutput, msg, len) < 0) {
+      _exit(EXIT_FAILURE);
+    }
   } else {
-    CallErr_Exit(write, (m_fdOutput, msg, strlen(msg)));
+    if (write(m_fdOutput, msg, strlen(msg)) < 0) {
+      _exit(EXIT_FAILURE);
+    }
   }
 }
 
