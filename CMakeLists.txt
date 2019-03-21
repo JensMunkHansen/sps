@@ -1,3 +1,5 @@
+# TODO(JMH): Remove dependence of add_gtest_dependencies
+
 cmake_minimum_required(VERSION 3.0)
 
 include(cmake/utils.cmake)
@@ -5,7 +7,7 @@ include(cmake/simd.cmake)
 include(cmake/gtest_macros.cmake)
 include(GenerateExportHeader)
 
-set(CMAKE_DEBUG_POSTFIX d)
+set(CMAKE_DEBUG_POSTFIX "")
 
 set(CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
@@ -256,7 +258,7 @@ if (BUILD_SPS_TEST)
   add_gtest_dependencies(smath_test)
 
   add_executable(memory_test memory_test.cpp)
-  add_gtest_dependencies(memory_test)
+  target_link_libraries(memory_test ${GTEST_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
   add_executable(multi_malloc_test multi_malloc_test.cpp)
   add_gtest_dependencies(multi_malloc_test)
