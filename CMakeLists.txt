@@ -5,6 +5,9 @@ include(cmake/simd.cmake)
 include(cmake/gtest_macros.cmake)
 include(GenerateExportHeader)
 
+find_package( GTest REQUIRED )
+find_package( Threads)
+
 set(CMAKE_DEBUG_POSTFIX d)
 
 set(CMAKE_MODULE_PATH
