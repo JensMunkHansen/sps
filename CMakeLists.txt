@@ -5,9 +5,6 @@ include(cmake/simd.cmake)
 include(cmake/gtest_macros.cmake)
 include(GenerateExportHeader)
 
-find_package( GTest REQUIRED )
-find_package( Threads)
-
 set(CMAKE_DEBUG_POSTFIX d)
 
 set(CMAKE_MODULE_PATH
@@ -218,6 +215,12 @@ endif()
 generate_export_header(sps)# DEFINE_NO_DEPRECATED)
 
 if (BUILD_SPS_TEST)
+  if (WIN32)
+    set(GTEST_ROOT "C:/Program Files/googletest-distribution")
+  endif()
+
+  find_package( GTest REQUIRED )
+
   # TODO: Support using pkg-config
   if (0)
     find_package(PkgConfig)
@@ -233,8 +236,6 @@ if (BUILD_SPS_TEST)
     )
 
     # Similarly for gmock : ${GMOCK_INCLUDE_DIRS}
-  else()
-    find_package( GoogleTest REQUIRED )
   endif()
 
   find_package( Threads REQUIRED )
