@@ -375,6 +375,10 @@ STATIC_INLINE_BEGIN int clz_u128 (unsigned __int128 u) {
 STATIC_INLINE_BEGIN __m128  _mm_madd_ps(__m128 a, __m128 b, __m128 c) STATIC_INLINE_END;
 
 
+STATIC_INLINE_BEGIN __m256d  _mm256_rcp_pd(__m256d a) {
+  return _mm256_div_pd(_m256_one_pd, a);
+}
+
 STATIC_INLINE_BEGIN __m128 _mm_rcp_nz_ps(__m128 input) {
   __m128 mask = _mm_cmpeq_ps(_mm_set1_ps(0.0f), input);
   __m128 recip = _mm_rcp_ps(input);
