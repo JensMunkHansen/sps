@@ -28,6 +28,7 @@ void ProgressBar::wait(const P& period) {
 }
 
 void ProgressBarStdOut::show(float percent) {
-  std::cout << "Progress: " << percent << " %" << std::endl;
+  std::cout.precision(4);
+  std::cout << std::fixed << "Progress: " << percent << " %" << std::endl;
 }
 }  // namespace sps
