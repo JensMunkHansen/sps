@@ -10,7 +10,13 @@
  * asynchronous handler is invoked.
  *
  */
-#include <experimental/optional>
+#if defined(__GNUG__) && (__GNUG__ < 7)
+# include <experimental/optional>
+#else
+# include <optional>
+# include <functional>
+#endif
+
 #include <memory>
 
 // #include <boost/none.hpp>
@@ -25,7 +31,13 @@ namespace sps {
 
 struct called_flag {};
 
-using std::experimental::optional;
+#if defined(__GNUG__) && (__GNUG__ < 7)
+  using std::experimental::optional;
+  using std::experimental::nullopt;
+#else
+  using std::optional;
+  using std::nullopt;
+#endif
 
 namespace detail {
 template <class Target, class Fun>
@@ -43,7 +55,7 @@ struct weak_binder {
     if (locked_ptr) {
       return m_fun(std::forward<Args>(args)...);
     } else {
-      return std::experimental::nullopt;
+      return nullopt;
     }
   }
 
@@ -56,7 +68,7 @@ struct weak_binder {
       m_fun(std::forward<Args>(args)...);
       return called_flag {};
     } else {
-      return std::experimental::nullopt;
+      return nullopt;
     }
   }
 
