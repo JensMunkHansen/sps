@@ -115,7 +115,7 @@ T* malloc(size_t nData) {
 
 #ifndef __clang__
   // Can we do this in general
-  template <>
+  // template <>
 #endif
   template <typename T>
   struct depth_ptr<T,0> {
