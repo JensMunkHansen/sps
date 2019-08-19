@@ -279,6 +279,8 @@ if (BUILD_SPS_TEST)
   add_gtest_dependencies(globals_test)
 
   add_executable(bitswitch_test bitswitch_test.cpp)
+  set_target_properties(bitswitch_test PROPERTIES
+    CXX_STANDARD 17)    
   add_gtest_dependencies(bitswitch_test)
 
   add_executable(allocator_test allocator_test.cpp)
@@ -295,6 +297,8 @@ if (BUILD_SPS_TEST)
 
   if (UNIX)
     add_executable(weak_binder_test weak_binder_test.cpp)
+    set_target_properties(weak_binder_test PROPERTIES
+      CXX_STANDARD 17)    
     add_gtest_dependencies(weak_binder_test)
   endif()
   set(sgc_test_SOURCES
