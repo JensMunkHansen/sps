@@ -459,7 +459,7 @@ endif()
 
   if (MSVC)
     # Potential uninitialized variable in SWIG_AsVal_
-    set_source_files_properties( ${swig_generated_file_fullname} PROPERTIES COMPILE_FLAGS "/wd4701 /wd4127 /wd4456")
+    set_source_files_properties( ${swig_generated_file_fullname} PROPERTIES COMPILE_FLAGS "/wd4459 /wd4701 /wd4127 /wd4456")
 
     # Allow to debug under windows, if debug versions of Python are missing
     string(REPLACE "_d" "" PYTHON_LIBRARIES "${PYTHON_LIBRARIES}")
