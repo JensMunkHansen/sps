@@ -33,6 +33,7 @@ public:
 };
 
 int main(int argc, char** argv) {
+  SPS_UNREFERENCED_PARAMETERS(argc, argv);
   A* pAs = new A[2];
   delete[] pAs;
 #if 0
