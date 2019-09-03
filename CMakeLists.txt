@@ -91,6 +91,10 @@ if (CYGWIN)
   set(CMAKE_CXX_FLAGS "-std=c++14 ${CMAKE_CXX_FLAGS} -mfma -msse2 -msse3 -msse4 -mavx -pedantic -Wall")
 endif()
 
+if (MSVC)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd6326")
+endif()
+
 # Squeezed in for clang (remove this)
 if (UNIX)
   set(CMAKE_CXX_FLAGS " -std=c++17 -pedantic -Wall ${CMAKE_CXX_FLAGS} -std=c++17") # Was c++14
@@ -286,6 +290,10 @@ if (BUILD_SPS_TEST)
   add_executable(allocator_test allocator_test.cpp)
   add_gtest_dependencies(allocator_test)
 
+  if (MSVC)
+    set_target_properties(allocator_test.cpp PROPERTIES COMPILE_FLAGS "/wd4324")
+  endif()
+  
   add_executable(default_test default_test.cpp)
   add_gtest_dependencies(default_test)
 
@@ -459,7 +467,7 @@ endif()
 
   if (MSVC)
     # Potential uninitialized variable in SWIG_AsVal_
-    set_source_files_properties( ${swig_generated_file_fullname} PROPERTIES COMPILE_FLAGS "/wd4459 /wd4701 /wd4127 /wd4456")
+    set_source_files_properties( ${swig_generated_file_fullname} PROPERTIES COMPILE_FLAGS "/wd6244 /wd6011 /wd4459 /wd4701 /wd4127 /wd4456")
 
     # Allow to debug under windows, if debug versions of Python are missing
     string(REPLACE "_d" "" PYTHON_LIBRARIES "${PYTHON_LIBRARIES}")
