@@ -17,8 +17,8 @@ cout << "Value of MAGIC_CONSTANT=" << tostring(MAGIC_CONSTANT);
 
 #include <iostream>
 int main() {
-using namespace std;
+  using namespace std;
 http://www.google.com
-int x = 5;
-cout << x;
+  int x = 5;
+  cout << x;
 }
