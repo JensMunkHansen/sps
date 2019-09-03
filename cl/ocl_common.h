@@ -61,7 +61,10 @@ cl_int clerrno = CL_SUCCESS;
  */
 static const char *
 strclerror(cl_int status) {
-  static struct { cl_int code; const char *msg; } error_table[] = {
+  static struct {
+    cl_int code;
+    const char *msg;
+  } error_table[] = {
     { CL_SUCCESS, "success" },
     { CL_DEVICE_NOT_FOUND, "device not found", },
     { CL_DEVICE_NOT_AVAILABLE, "device not available", },
@@ -98,7 +101,7 @@ strclerror(cl_int status) {
     { CL_INVALID_ARG_VALUE, "invalid ARG_VALUE", },
     { CL_INVALID_ARG_SIZE, "invalid ARG_SIZE", },
     { CL_INVALID_KERNEL_ARGS, "invalid KERNEL_ARGS", },
-    { CL_INVALID_WORK_DIMENSION , "invalid WORK_DIMENSION ", },
+    { CL_INVALID_WORK_DIMENSION, "invalid WORK_DIMENSION ", },
     { CL_INVALID_WORK_GROUP_SIZE, "invalid WORK_GROUP_SIZE", },
     { CL_INVALID_WORK_ITEM_SIZE, "invalid WORK_ITEM_SIZE", },
     { CL_INVALID_GLOBAL_OFFSET, "invalid GLOBAL_OFFSET", },
@@ -126,9 +129,9 @@ strclerror(cl_int status) {
 }
 
 #define CallClErr(fun, arg) {                                     \
-  intptr_t clerr64 = (intptr_t)(fun arg);			  \
+  intptr_t clerr64 = (intptr_t)(fun arg);       \
   cl_int clerr     = (cl_int) clerr64;                            \
-  if ((clerr == 0) && (clerrno != CL_SUCCESS)) {		  \
+  if ((clerr == 0) && (clerrno != CL_SUCCESS)) {      \
     FailClErr(#fun, clerrno)                                      \
   }                                                               \
   else if ((clerr != CL_SUCCESS) && (clerrno != CL_SUCCESS))      \
@@ -137,7 +140,7 @@ strclerror(cl_int status) {
 }
 
 #define CallClErrExit(fun, arg, ret, ...) {                       \
-  intptr_t clerr64 = (intptr_t)(fun arg);			  \
+  intptr_t clerr64 = (intptr_t)(fun arg);       \
   cl_int clerr     = (cl_int) clerr64;                            \
   if ((clerr == 0) && (clerrno != CL_SUCCESS)) {                  \
     FailClErr(#fun, clerrno)                                      \
@@ -154,6 +157,6 @@ strclerror(cl_int status) {
 
 #define FailClErr(msg,clerrno) {                                  \
   (void)fprintf(stderr, "FAILED: %s %d %s(clerrno=%d strclerror=%s)\n", \
-                __FILE__, __LINE__, msg, clerrno, strclerror(clerrno));	\
+                __FILE__, __LINE__, msg, clerrno, strclerror(clerrno)); \
   (void)fflush(stderr);                                           \
 }
