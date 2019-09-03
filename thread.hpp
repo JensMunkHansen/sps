@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file   thread.hpp
  * @author Jens Munk Hansen <jmh@debian9laptop.parknet.dk>
  * @date   Thu Feb 22 19:02:38 2018
@@ -63,6 +63,8 @@ class thread {
 #endif
 
 #ifdef _MSC_VER
+# pragma warning(push)
+# pragma warning(disable:6320)
   static bool set_thread_name(uint32_t dwThreadID, const char* psName) {
     /*
       Threads don't actually have names in Win32. The process via RaiseException
@@ -85,6 +87,7 @@ class thread {
     }
     return retval == 0;
   }
+# pragma warning(pop)
 #else
   static bool set_thread_name(const char* psName) {
     int retval = 0;
