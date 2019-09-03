@@ -16,6 +16,7 @@ SPS_ALIAS_TEMPLATE_FUNCTION(tplFunc, tplFuncImpl0);
 TEST(macro_test, tpl_alias) {
   float input = 2.0f;
   float output = tplFunc(input, 2);
+  SPS_UNREFERENCED_PARAMETERS(input, output);
 }
 
 float funcImpl0(const float& input, int k) {
@@ -31,6 +32,7 @@ SPS_ALIAS_FUNCTION(func, funcImpl0);
 TEST(macro_test, func_alias) {
   float input = 2.0f;
   float output = func(input, 2);
+  SPS_UNREFERENCED_PARAMETERS(input, output);
 }
 
 int main(int argc, char* argv[]) {

@@ -65,7 +65,7 @@ TEST(smath_test, test_min_max) {
 
 TEST(smath_test, test_point_to_circle) {
   point_t<float> p = {0.0f, 0.0f, 4.0f};
-  circle_t<float> c;
+  circle_t<float> c = circle_t<float>();
   c.center[0] = 0.0f;
   c.center[1] = 0.0f;
   c.center[2] = 0.0f;
@@ -96,7 +96,7 @@ TEST(smath_test, test_point_to_circle) {
 
 TEST(smath_test, test_point_to_circle_local) {
   point_t<float> p = {0.0f, 0.0f, 4.0f};
-  circle_t<float> c;
+  circle_t<float> c = circle_t<float>();
   c.center[0] = 0.0f;
   c.center[1] = 0.0f;
   c.center[2] = 0.0f;
@@ -132,8 +132,8 @@ TEST(smath_test, test_point_to_circle_local) {
 
 TEST(smath_test, test_dists_most_distant_and_closest) {
   // Overlapping boxes
-  bbox_t<float> box0;
-  bbox_t<float> box1;
+  bbox_t<float> box0 = bbox_t<float>();
+  bbox_t<float> box1 = bbox_t<float>();
   box0.min[0] = -2.0f;
   box0.max[0] =  2.0f;
   box0.min[1] = -2.0f;
@@ -167,22 +167,22 @@ TEST(smath, arc_point_ellipsis) {
   std::cout << sps::almost_equal(point[0], ellipse.hw, 1);
   std::cout << sps::almost_equal(point[1], 0.0f, 1);
 
-  arc = M_PI_2;
+  arc = float(M_PI_2);
   sps::arc_point_ellipsis(ellipse, arc, &point);
   std::cout << sps::almost_equal(point[0], 0.0f, 1);
   std::cout << sps::almost_equal(point[1], ellipse.hh, 1);
 
-  arc = M_PI;
+  arc = float(M_PI);
   sps::arc_point_ellipsis(ellipse, arc, &point);
   std::cout << sps::almost_equal(point[0], -ellipse.hw, 1);
   //  std::cout << sps::almost_equal(point[1], 0.0f, 1);
 
-  arc = M_3PI_2;
+  arc = float(M_3PI_2);
   sps::arc_point_ellipsis(ellipse, arc, &point);
   std::cout << sps::almost_equal(point[0], 0.0f, 1);
   std::cout << sps::almost_equal(point[1], -ellipse.hh, 1);
 
-  arc = M_2PI;
+  arc = float(M_2PI);
   sps::arc_point_ellipsis(ellipse, arc, &point);
   std::cout << sps::almost_equal(point[0], ellipse.hw, 1);
   //  std::cout << sps::almost_equal(point[1], 0.0f, 1);

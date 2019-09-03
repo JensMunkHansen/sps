@@ -31,6 +31,7 @@ class DynAllocators : public sps::CRTP<T, DynAllocators> {
     return ::operator new[](count);
   }
   void operator delete[](void* p, size_t count) {
+    SPS_UNREFERENCED_PARAMETER(count);
     debug_print("\n");
     return ::operator delete[](p); // Calls many dtors, free
   }

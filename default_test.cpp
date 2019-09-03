@@ -32,6 +32,7 @@ struct GetDefaultAmount {
 };
 
 double f3(int x, sps::DefaultedF<double, GetDefaultAmount> y, int z) {
+  SPS_UNREFERENCED_PARAMETERS(x, z);
   return y.get_or_default();
 }
 

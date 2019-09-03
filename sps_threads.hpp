@@ -201,6 +201,10 @@ unsigned int __stdcall launch_member_function(void *obj)
 
 // Naming threads - consider upgrading to using SetThreadDescription
 #ifdef _WIN32
+
+# pragma warning(push)
+# pragma warning(disable : 6320)
+
 const DWORD MS_VC_EXCEPTION = 0x406D1388;
 
 #pragma pack(push, 8)
@@ -244,6 +248,7 @@ STATIC_INLINE_BEGIN void SetThreadName(std::thread* thread,
     ::GetThreadId(static_cast<HANDLE>(thread->native_handle()));
   SetThreadName(threadId, threadName);
 }
+# pragma warning(pop)
 
 #else
 STATIC_INLINE_BEGIN void SetThreadName(std::thread* thread,

@@ -3,7 +3,7 @@
 
 #include <gtest/gtest.h>
 
-using namespace std;
+using namespace sps;
 
 TEST(aligned_array_test, ctor) {
   aligned_array<float, 12> arr1;

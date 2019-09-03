@@ -40,7 +40,7 @@ uint32_t bool2int(const bool* bools, const size_t length) {
   uint32_t mask = static_cast<uint32_t>(bools[0]);
   for (size_t i = 1 ; i < length ; i++) {
     mask = mask << 1;
-    mask = mask ^ bools[i];
+    mask = mask ^ (uint32_t) bools[i];
   }
   return mask;
 }

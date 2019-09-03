@@ -550,8 +550,8 @@ void intcp_line_rect(const sps::element_rect_t<T>& rect,
 }
 
 #ifdef _WIN32
-template class std::aligned_array<float, 4U>;
-template class std::aligned_array<double, 4U>;
+template class sps::aligned_array<float, 4U>;
+template class sps::aligned_array<double, 4U>;
 #endif
 
 template struct euler_t<float>;
@@ -561,8 +561,8 @@ template struct element_rect_t<float>;
 
 #ifdef _WIN32
 // Not possible to move to fnm library
-template class std::aligned_array<sps::point_t<float>, 4U>;
-template class std::aligned_array<sps::point_t<double>, 4U>;
+template class sps::aligned_array<sps::point_t<float>, 4U>;
+template class sps::aligned_array<sps::point_t<double>, 4U>;
 #endif
 
 template point_t<float> operator-(const point_t<float> &a, const point_t<float> &b);

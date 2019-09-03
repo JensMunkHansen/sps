@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file   smath_types.hpp
  * @author Jens Munk Hansen <jens.munk.hansen@gmail.com>
  * @date   Sat Mar 18 13:55:23 2017
@@ -36,7 +36,7 @@
 #include <sps/memory>   // For sps::aligned
 
 #ifdef _WIN32
-namespace std {
+namespace sps {
 template class SPS_EXPORT aligned_array<float, 4>;
 template class SPS_EXPORT aligned_array<double, 4>;
 }
@@ -55,7 +55,7 @@ namespace sps {
 #ifdef _MSC_VER
 
 template <typename T>
-struct SPS_EXPORT point_t : public std::aligned_array<T, 4>
+struct SPS_EXPORT point_t : public sps::aligned_array<T, 4>
 
 // Microsoft VS2013 does not allow mxing declspec(align()) with template
 
@@ -80,7 +80,7 @@ SPS_EXPORT point_t : public std::array<T, 4>
   }
 #ifdef _MSC_VER
   point_t(std::initializer_list<T> args) :
-    std::aligned_array<T, 4>(reinterpret_cast<std::aligned_array<T, 4> const&>(
+    sps::aligned_array<T, 4>(reinterpret_cast<sps::aligned_array<T, 4> const&>(
                                *(args.begin()))) {}
 #else
   using std::array<T, 4>::array;
@@ -156,7 +156,7 @@ struct SPS_EXPORT mat3_t {
  */
 #ifdef _MSC_VER
 template <typename T>
-struct SPS_EXPORT rect_t : public std::aligned_array<point_t<T>, 4> {};
+struct SPS_EXPORT rect_t : public sps::aligned_array<point_t<T>, 4> {};
 #else
 template <typename T>
 struct __attribute__((aligned(4*sizeof(T)))) SPS_EXPORT rect_t :
