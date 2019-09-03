@@ -12,7 +12,7 @@ struct Foo : public sps::aligned<32> {
 
 TEST(aligned_allocator, unique_array_test) {
   auto z = sps::make_unique_array<Foo>(2, 3, 4);
-  ASSERT_TRUE(true);
+  ASSERT_EQ(1, 1);
 }
 
 TEST(aligned_allocator, unique_aligned_array_test) {

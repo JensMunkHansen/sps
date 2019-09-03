@@ -15,6 +15,7 @@
 #include <sps/math.h>
 #include <sps/msignals.hpp>
 #include <sps/profiler.h>
+#include <sps/malloc.h>
 
 #ifdef _MSC_VER
 # include <algorithm>
@@ -403,7 +404,7 @@ TEST(signals_test, test_mfft_double)
 TEST(signals_test, test_scale_array)
 {
   for (size_t i = 1 ; i < 20 ; i++) {
-    float* fInput = (float*) malloc(i*sizeof(float));
+    float* fInput = static_cast<float*>(SPS_MALLOC(i*sizeof(float)));
     for (size_t j = 0 ; j < i ; j++) {
       fInput[j] = (float)i;
     }
@@ -420,7 +421,7 @@ TEST(signals_test, test_scale_array)
   }
 
   for (size_t i = 1 ; i < 20 ; i++) {
-    double* fInput = (double*) malloc(i*sizeof(double));
+    double* fInput = static_cast<double*>(SPS_MALLOC(i*sizeof(double)));
     for (size_t j = 0 ; j < i ; j++) {
       fInput[j] = (double)i;
     }

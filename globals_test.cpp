@@ -64,7 +64,7 @@ TEST(globals_test, singleton_test) {
 void fun0() {
   const TTest<float>* test = TTest<float>::InstanceGet();
   // If you make ctor public
-  TTest<float> object();
+  TTest<float> object;
   SPS_UNREFERENCED_PARAMETER(test);
 }
 

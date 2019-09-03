@@ -38,7 +38,7 @@
 #include <algorithm>
 #include <cassert>
 #include <utility>  // std::swap
-namespace std {
+namespace sps {
 
 template <typename T, std::size_t N>
 class SPS_EXPORT aligned_array {
@@ -401,7 +401,7 @@ class aligned_array<T, 0> {
   }
   template class SPS_EXPORT aligned_array<float, 4>;
   template class SPS_EXPORT aligned_array<double, 4>;
-}  // namespace std
+}  // namespace sps
 
 /* Local variables: */
 /* tab-width: 2 */
