@@ -93,6 +93,7 @@ endif()
 
 if (MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd6326")
+  add_definitions("/wd6385")
 endif()
 
 # Squeezed in for clang (remove this)
