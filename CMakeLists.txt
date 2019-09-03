@@ -291,7 +291,7 @@ if (BUILD_SPS_TEST)
   add_gtest_dependencies(allocator_test)
 
   if (MSVC)
-    set_target_properties(allocator_test.cpp PROPERTIES COMPILE_FLAGS "/wd4324")
+    set_source_files_properties(allocator_test.cpp PROPERTIES COMPILE_FLAGS "/wd4324")
   endif()
   
   add_executable(default_test default_test.cpp)
