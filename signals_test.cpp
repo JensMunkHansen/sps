@@ -138,7 +138,7 @@ T test_mfft(const size_t n) {
 
   for (size_t i=0 ; i < n ; i++) {
     max_diff =
-        std::max<T>(max_diff, fabs(c.m_data.get()[i] - a.m_data.get()[i]));
+      std::max<T>(max_diff, fabs(c.m_data.get()[i] - a.m_data.get()[i]));
   }
 
   return max_diff;
@@ -176,8 +176,7 @@ T test_conv(const size_t na, const size_t nb) {
 }
 
 template <typename T>
-T test_conv_in_place(const size_t na, const size_t nb)
-{
+T test_conv_in_place(const size_t na, const size_t nb) {
 
   size_t nInternal = 2 * next_power_two<size_t>(na+nb+1) + 2;
 
@@ -210,8 +209,7 @@ T test_conv_in_place(const size_t na, const size_t nb)
 }
 
 template <typename T>
-T test_mconv(const size_t na, const size_t nb)
-{
+T test_mconv(const size_t na, const size_t nb) {
 
   signal1D<T>   a(na);
   msignal1D<T> ma(na);
@@ -247,8 +245,7 @@ T test_mconv(const size_t na, const size_t nb)
 }
 
 template <typename T>
-T test_mconv_unmanaged(const size_t na, const size_t nb)
-{
+T test_mconv_unmanaged(const size_t na, const size_t nb) {
 
   signal1D<T>   a(na);
   msignal1D<T> ma(na);
@@ -283,13 +280,11 @@ T test_mconv_unmanaged(const size_t na, const size_t nb)
   return max_diff;
 }
 
-TEST(signals_test, sample_test)
-{
+TEST(signals_test, sample_test) {
   EXPECT_EQ(1, 1);
 }
 
-TEST(signals_test, test_conv_float)
-{
+TEST(signals_test, test_conv_float) {
   size_t na = 7;
   size_t nb = 6;
   size_t nc = na + nb - 1;
@@ -300,8 +295,7 @@ TEST(signals_test, test_conv_float)
   ASSERT_LT( (fmax_diff  / (2*next_power_two<size_t>(nc))), 1.1 * FLT_EPSILON);
 }
 
-TEST(signals_test, test_conv_float1)
-{
+TEST(signals_test, test_conv_float1) {
   size_t na = 1;
   size_t nb = 1;
   size_t nc = na + nb - 1;
@@ -312,8 +306,7 @@ TEST(signals_test, test_conv_float1)
   ASSERT_LT( (fmax_diff  / (2*next_power_two<size_t>(nc))), 1.1 * FLT_EPSILON);
 }
 
-TEST(signals_test, test_conv_double)
-{
+TEST(signals_test, test_conv_double) {
   size_t na = 7;
   size_t nb = 6;
   size_t nc = na + nb - 1;
@@ -323,8 +316,7 @@ TEST(signals_test, test_conv_double)
   ASSERT_LT((dmax_diff  / (2*next_power_two<size_t>(nc))), 1.1 * DBL_EPSILON);
 }
 
-TEST(signals_test, test_conv_in_place_float)
-{
+TEST(signals_test, test_conv_in_place_float) {
   size_t na = 7;
   size_t nb = 6;
   size_t nc = na + nb - 1;
@@ -334,8 +326,7 @@ TEST(signals_test, test_conv_in_place_float)
   ASSERT_LT( (fmax_diff  / (2*next_power_two<size_t>(nc))), 1.1 * FLT_EPSILON);
 }
 
-TEST(signals_test, test_mconv_float)
-{
+TEST(signals_test, test_mconv_float) {
   size_t na = 7;
   size_t nb = 6;
   size_t nc = na + nb - 1;
@@ -346,8 +337,7 @@ TEST(signals_test, test_mconv_float)
   ASSERT_LT( (fmax_diff  / (2*next_power_two<size_t>(nc))), 1.1 * FLT_EPSILON);
 }
 
-TEST(signals_test, test_mconv_unmanaged_float)
-{
+TEST(signals_test, test_mconv_unmanaged_float) {
   size_t na = 7;
   size_t nb = 6;
   size_t nc = na + nb - 1;
@@ -357,8 +347,7 @@ TEST(signals_test, test_mconv_unmanaged_float)
   ASSERT_LT( (fmax_diff  / (2*next_power_two<size_t>(nc))), 1.1 * FLT_EPSILON);
 }
 
-TEST(signals_test, test_mconv_float1)
-{
+TEST(signals_test, test_mconv_float1) {
   size_t na = 1;
   size_t nb = 1;
   size_t nc = na + nb - 1;
@@ -368,8 +357,7 @@ TEST(signals_test, test_mconv_float1)
   ASSERT_LT( (fmax_diff  / (2*next_power_two<size_t>(nc))), 1.1 * FLT_EPSILON);
 }
 
-TEST(signals_test, test_fft)
-{
+TEST(signals_test, test_fft) {
   const size_t n = 8;
   float fmax_diff = test_fft<float>(n);
 
@@ -377,8 +365,7 @@ TEST(signals_test, test_fft)
   ASSERT_LT( (fmax_diff  / (2.0*next_power_two<size_t>(n))), 1.1 * FLT_EPSILON);
 }
 
-TEST(signals_test, test_mfft)
-{
+TEST(signals_test, test_mfft) {
   const size_t n = 8;
   float fmax_diff = test_mfft<float>(n);
 
@@ -394,8 +381,7 @@ TEST(signals_test, test_mfft_double) {
   ASSERT_LT( (fmax_diff  / (2.0*next_power_two<size_t>(n))), 1.1 * FLT_EPSILON);
 }
 
-TEST(signals_test, test_scale_array)
-{
+TEST(signals_test, test_scale_array) {
   for (size_t i = 1 ; i < 20 ; i++) {
     float* fInput = static_cast<float*>(SPS_MALLOC(i*sizeof(float)));
     for (size_t j = 0 ; j < i ; j++) {
@@ -431,8 +417,7 @@ TEST(signals_test, test_scale_array)
   }
 }
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv) {
   testing::InitGoogleTest(&argc, argv);
   //    testing::GTEST_FLAG(filter) = "*float*";
   //    testing::GTEST_FLAG(filter) = "*test_conv_float";
