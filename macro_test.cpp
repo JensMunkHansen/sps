@@ -11,7 +11,7 @@ T tplFuncImpl0(const T& input, int k) {
   return output;
 }
 
-SPS_ALIAS_TEMPLATE_FUNCTION(tplFunc, tplFuncImpl0);
+SPS_ALIAS_TEMPLATE_FUNCTION(tplFunc, tplFuncImpl0)
 
 TEST(macro_test, tpl_alias) {
   float input = 2.0f;
@@ -27,7 +27,7 @@ float funcImpl0(const float& input, int k) {
   return output;
 }
 
-SPS_ALIAS_FUNCTION(func, funcImpl0);
+SPS_ALIAS_FUNCTION(func, funcImpl0)
 
 TEST(macro_test, func_alias) {
   float input = 2.0f;

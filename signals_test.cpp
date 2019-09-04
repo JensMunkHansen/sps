@@ -34,9 +34,7 @@
 using namespace sps;
 
 template <typename T>
-T test_fft_speed(const size_t na)
-{
-
+T test_fft_speed(const size_t na) {
   size_t n = 16;
   // Fix Me
   signal1D<T> a(n);
@@ -47,7 +45,7 @@ T test_fft_speed(const size_t na)
 
   signal1D<std::complex<T> > c;
 
-  bool result = fft<float>(a,n,c);
+  bool result = fft<float>(a, n, c);
   SPS_UNREFERENCED_PARAMETER(result);
 #if 0
   for (size_t i = 0 ; i < n/2 + 1 ; i++) {
@@ -69,22 +67,21 @@ T test_fft_speed(const size_t na)
   double time = sps::profiler::time();
 
   for (size_t i = 0 ; i < 10000000 ; i++) {
-    result = fft<float>(a1,n,c1);
+    result = fft<float>(a1, n, c1);
     ftotal += std::real(c1.data[na-1]);
     c1.data[0] = std::complex<float>(0.0f);
   }
-
-  std::cout << "Elapsed: " << sps::profiler::time() - time << " seconds" << std::endl;
+  SPS_UNREFERENCED_PARAMETER(result);
+  std::cout << "Elapsed: "
+            << sps::profiler::time() - time << " seconds" << std::endl;
 
   std::cout << "ftotal: " << ftotal << std::endl;
 
-  return T(0);//Signal1DPlan
+  return T(0);
 }
 
 template <typename T>
-T test_fft(const size_t n)
-{
-
+T test_fft(const size_t n) {
   signal1D<T> a(n);
 
   for (size_t i = 0 ; i < n ; i++) {
@@ -93,12 +90,12 @@ T test_fft(const size_t n)
 
   signal1D<std::complex<T> > b;
 
-  bool result = fft<T>(a,2*n,b);
+  bool result = fft<T>(a, 2*n, b);
 
   signal1D<T> c(n);
 
-  result = ifft<T>(b,2*n,c);
-
+  result = ifft<T>(b, 2*n, c);
+  SPS_UNREFERENCED_PARAMETER(result);
 #if 0
   for (size_t i = 0 ; i < n ; i++) {
     std::cout << c.data[i] << ", ";
@@ -115,9 +112,7 @@ T test_fft(const size_t n)
 }
 
 template <typename T>
-T test_mfft(const size_t n)
-{
-
+T test_mfft(const size_t n) {
   msignal1D<T> a(n);
 
   for (size_t i = 0 ; i < n ; i++) {
@@ -126,13 +121,13 @@ T test_mfft(const size_t n)
 
   msignal1D<std::complex<T> > b;
 
-  bool result = mfft<T>(a,2*n,b);
+  bool result = mfft<T>(a, 2*n, b);
 
   msignal1D<T> c(n);
 
   T max_diff = 0.0f;
 
-  result = mifft<T>(b,2*n,c);
+  result = mifft<T>(b, 2*n, c);
 
 #if 0
   for (size_t i = 0 ; i < n ; i++) {
@@ -142,16 +137,15 @@ T test_mfft(const size_t n)
 #endif
 
   for (size_t i=0 ; i < n ; i++) {
-    max_diff = std::max<T>(max_diff, fabs(c.m_data.get()[i] - a.m_data.get()[i]));
+    max_diff =
+        std::max<T>(max_diff, fabs(c.m_data.get()[i] - a.m_data.get()[i]));
   }
 
   return max_diff;
 }
 
 template <typename T>
-T test_conv(const size_t na, const size_t nb)
-{
-
+T test_conv(const size_t na, const size_t nb) {
   signal1D<T> a(na);
 
   for (size_t i = 0 ; i < na ; i++) {
@@ -165,13 +159,13 @@ T test_conv(const size_t na, const size_t nb)
   }
 
   signal1D<T> c;
-  bool result = conv_fft<T>(b,a,c);
+  bool result = conv_fft<T>(b, a, c);
 
   T max_diff = 0.0f;
 
   signal1D<T> c1;
 
-  result = conv<T>(b,a,c1);
+  result = conv<T>(b, a, c1);
 
   SPS_UNREFERENCED_PARAMETER(result);
 
@@ -392,8 +386,7 @@ TEST(signals_test, test_mfft)
   ASSERT_LT( (fmax_diff  / (2.0*next_power_two<size_t>(n))), 1.1 * FLT_EPSILON);
 }
 
-TEST(signals_test, test_mfft_double)
-{
+TEST(signals_test, test_mfft_double) {
   const size_t n = 8;
   double fmax_diff = test_mfft<double>(n);
 
