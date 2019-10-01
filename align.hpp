@@ -157,10 +157,11 @@ class dynaligned : public sps::aligned<Alignment> {
 
   void* operator new(std::size_t size, std::align_val_t al)  {
     debug_print("aligned\n");
-    static_assert(al == Alignment, "Alignment mismatch");
+    static_assert((size_t)al == Alignment, "Alignment mismatch");
 #if 1
     return ::operator new(size, al);
 #else
+    // The above should work
     T* ptr = static_cast<T*>(SPS_MM_MALLOC(size, al));
     return ptr ? ptr : throw std::bad_alloc{};
 #endif
@@ -171,6 +172,7 @@ class dynaligned : public sps::aligned<Alignment> {
 #if 1
     return ::operator delete(ptr);
 #else
+    // The above should work
     SPS_MM_FREE(ptr);
 #endif
   }
