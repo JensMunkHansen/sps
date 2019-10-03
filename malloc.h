@@ -1,6 +1,6 @@
 /**
  * @file   malloc.h
- * @author Jens Munk Hansen <jmh@jmhlaptop>
+ * @author Jens Munk Hansen <jens.munk.hansen@gmail.com>
  * @date   Thu Aug  3 20:11:01 2017
  *
  * @brief  wrapper for malloc.h
@@ -36,6 +36,18 @@ STATIC_INLINE_BEGIN size_t msize(void* data) {
 
 static inline void *sps_malloc(const char *file,int line,size_t size) {
   void *ptr = malloc(size);
+
+  if (!ptr) {
+    fprintf(stderr, "Could not allocate: %zu bytes (%s:%d)\n", size, file, line);
+    exit(EXIT_FAILURE);
+  }
+  return ptr;
+}
+
+#define SPS_CALLOC(theSize) sps_calloc(__FILE__, __LINE__, theSize)
+
+static inline void *sps_calloc(const char *file,int line,size_t size) {
+  void *ptr = calloc(size);
 
   if (!ptr) {
     fprintf(stderr, "Could not allocate: %zu bytes (%s:%d)\n", size, file, line);
