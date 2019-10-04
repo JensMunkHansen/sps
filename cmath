@@ -11,6 +11,7 @@
 #pragma once
 
 #include <sps/cenv.h>
+#include <sps/math.h>
 
 #include <cmath>
 #include <type_traits>   // std::enable_if
@@ -92,7 +93,7 @@ template <>
 inline float tan<float>(const float& v) { return tanf(v); }
 
 template <>
-inline float atan(const T& v) { return std::atanf(v); }
+inline float atan<float>(const float& v) { return std::atanf(v); }
 
 template <>
 inline float log(const float& v) { return std::logf(v); }
