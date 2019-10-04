@@ -120,7 +120,7 @@ template <typename T, size_t Alignment = 16>
 class dynaligned : public sps::aligned<Alignment> {
  public:
   // Throwing
-  void* operator new(std::size_t size) throw(std::bad_alloc) {
+  void* operator new(std::size_t size)  {
     debug_print("aligned\n");
     T* ptr = static_cast<T*>(SPS_MM_MALLOC(size, Alignment));
     return ptr ? ptr : throw std::bad_alloc{};
@@ -136,7 +136,7 @@ class dynaligned : public sps::aligned<Alignment> {
     SPS_MM_FREE(ptr);
   }
 
-  void* operator new[]( std::size_t size) throw() {
+  void* operator new[]( std::size_t size) {
     debug_print("aligned\n");
     T* ptr = static_cast<T*>(SPS_MM_MALLOC(size, Alignment));
     return ptr ? ptr : throw std::bad_alloc{};
@@ -155,12 +155,13 @@ class dynaligned : public sps::aligned<Alignment> {
    */
   ///@{
 
-  void* operator new(std::size_t size, std::align_val_t al) throw() {
+  void* operator new(std::size_t size, std::align_val_t al)  {
     debug_print("aligned\n");
-    static_assert(al == Alignment, "Alignment mismatch");
+    static_assert((size_t)al == Alignment, "Alignment mismatch");
 #if 1
     return ::operator new(size, al);
 #else
+    // The above should work
     T* ptr = static_cast<T*>(SPS_MM_MALLOC(size, al));
     return ptr ? ptr : throw std::bad_alloc{};
 #endif
@@ -171,6 +172,7 @@ class dynaligned : public sps::aligned<Alignment> {
 #if 1
     return ::operator delete(ptr);
 #else
+    // The above should work
     SPS_MM_FREE(ptr);
 #endif
   }
@@ -185,7 +187,7 @@ class dynaligned : public sps::aligned<Alignment> {
 #endif
   }
 
-  void* operator new[]( std::size_t count, std::align_val_t al) throw() {
+  void* operator new[]( std::size_t count, std::align_val_t al)  {
     debug_print("aligned\n");
     return ::operator new[](count, al);
   }
