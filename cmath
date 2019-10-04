@@ -70,6 +70,12 @@ inline T asin(const T& v) { return std::asin(v); }
 template <typename T>
 inline T acos(const T& v) { return std::acos(v); }
 
+template <typename T>
+inline T atan(const T& v) { return std::atan(v); }
+
+template <typename T>
+inline T log(const T& v) { return std::log(v); }
+
 template <>
 inline float sin<float>(const float& v) { return sinf(v); }
 
@@ -86,6 +92,12 @@ template <>
 inline float tan<float>(const float& v) { return tanf(v); }
 
 template <>
+inline float atan(const T& v) { return std::atanf(v); }
+
+template <>
+inline float log(const float& v) { return std::logf(v); }
+
+template <>
 inline double sin<double>(const double& v) { return std::sin(v); }
 
 template <>
@@ -99,6 +111,12 @@ inline double acos<double>(const double& v) { return std::acos(v); }
 
 template <>
 inline double tan<double>(const double& v) { return std::tan(v); }
+
+template <>
+inline double atan<double>(const double& v) { return std::atan(v); }
+
+template <>
+inline double log(const double& v) { return std::log(v); }
 
 // Consider using traits and using traits = sps::trig_traits<float>
 template <typename T>
