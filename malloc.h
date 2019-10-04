@@ -44,13 +44,14 @@ static inline void *sps_malloc(const char *file,int line,size_t size) {
   return ptr;
 }
 
-#define SPS_CALLOC(theSize) sps_calloc(__FILE__, __LINE__, theSize)
+#define SPS_CALLOC(count, theSize) sps_calloc(__FILE__, __LINE__, count, theSize)
 
-static inline void *sps_calloc(const char *file,int line,size_t size) {
-  void *ptr = calloc(size);
+static inline void *sps_calloc(const char *file, int line,
+			       size_t count, size_t size) {
+  void *ptr = calloc(count, size);
 
   if (!ptr) {
-    fprintf(stderr, "Could not allocate: %zu bytes (%s:%d)\n", size, file, line);
+    fprintf(stderr, "Could not allocate: %zu bytes (%s:%d)\n", size*count, file, line);
     exit(EXIT_FAILURE);
   }
   return ptr;
