@@ -1,7 +1,14 @@
 #pragma once
+
+#include <sps/malloc.h>
 #include <cstdlib>
 
 namespace sps {
+  template <typename T>
+  T* malloc(const size_t& nBytes) {
+    T* pMemory = static_cast<T*>(SPS_MALLOC(nBytes));
+    return pMemory;
+  }
 }  // namespace sps
 
 
