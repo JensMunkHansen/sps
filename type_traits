@@ -1,0 +1,12 @@
+#pragma once
+
+#include <sps/cenv.h>
+#include <type_traits>
+
+#ifndef CXX17
+// We cannot declare inline variables using c++14
+namespace std {
+  template< class T >
+  static inline constexpr bool is_pod_v = is_pod<T>::value;
+}  // namespace std
+#endif
