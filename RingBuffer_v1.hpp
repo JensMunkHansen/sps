@@ -97,7 +97,7 @@ class RingBuffer {
   LocalState m_Reader;
 
   // Try to disable CACHE_LINE_SIZE alignment
-  
+
   // Writer and reader's shared positions.
 #if 0
   struct alignas(CACHE_LINE_SIZE) SharedState {
