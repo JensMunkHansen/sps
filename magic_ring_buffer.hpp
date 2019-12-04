@@ -25,6 +25,7 @@
  *  along with SOFUS.  If not, see <http://www.gnu.org/licenses/>.
  *
  *  TODO: support NUMA nodes, SHMAT and MMAP
+ * numa_mem_id() or cpu_to_mem()
  */
 
 #pragma once
