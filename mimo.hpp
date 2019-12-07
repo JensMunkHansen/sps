@@ -69,7 +69,8 @@ namespace sps {
 #ifdef CXX11
 using std::is_copy_constructible;
 #else
-# error Implement sps::is_copy_constructible in c98.hpp
+# include <sps/c98.hpp>
+using sps::is_copy_constructible;
 #endif
 
 /*! \brief Multi-Reader-Multi-Writer Queue interface
