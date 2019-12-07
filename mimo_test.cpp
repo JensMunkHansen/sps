@@ -82,7 +82,7 @@ TEST(mimo_test, circular_buffer) {
   EXPECT_EQ(val, 2);
 }
 
-#if 0
+#if 1
 static void thread_pop(void* arg) {
   auto pQueue = (sps::MRMWQueue<float>*) arg;
   float value = 0.0f;
