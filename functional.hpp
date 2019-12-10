@@ -441,6 +441,111 @@ void static_function<Ret(Args...), Size>::assignHandler(Func&& func) {
   auto handlerPtr = new (&handler_) InvokerBoundType(std::forward<Func>(func));
   static_cast<void>(handlerPtr);
 }
+  template <typename F, typename ...Args> struct trailing_binder;
+
+template <typename R, typename ...Frgs, typename ...Args>
+struct trailing_binder<R(Frgs...), Args...> {
+  template <typename ...Brgs>
+  trailing_binder(R (*f)(Frgs...), Brgs &&... brgs)
+    : the_function(f)
+    , the_args(std::forward<Brgs>(brgs)...) {}
+
+  template <unsigned int ...I> struct intlist {};
+
+  template <typename ...Brgs>
+  typename std::enable_if<sizeof...(Brgs) + sizeof...(Args) == sizeof...(Frgs), R>::type
+  operator()(Brgs &&... brgs) {
+    return unwrap(std::integral_constant<bool, 0 == sizeof...(Args)>(),
+                  intlist<>(),
+                  std::forward<Brgs>(brgs)...);
+  }
+
+private:
+  template <unsigned int ...I, typename ...Brgs>
+  R unwrap(std::false_type, intlist<I...>, Brgs &&... brgs) {
+    return unwrap(std::integral_constant<bool, sizeof...(I) + 1 == sizeof...(Args)>(),
+                  intlist<I..., sizeof...(I)>(),
+                  std::forward<Brgs>(brgs)...);
+  }
+
+  template <unsigned int ...I, typename ...Brgs>
+  R unwrap(std::true_type, intlist<I...>, Brgs &&... brgs) {
+    return the_function(std::get<I>(the_args)..., std::forward<Brgs>(brgs)...);
+  }
+
+  R (*the_function)(Frgs...);
+  std::tuple<Args...> the_args;
+};
+
+template <typename R, typename ...Args, typename ...Frgs>
+trailing_binder<R(Frgs...), Args...> trailing_bind(
+  R (*f)(Frgs...),
+  Args &&... args) {
+  return trailing_binder<R(Frgs...), typename std::decay<Args>::type...>
+         (f, std::forward<Args>(args)...);
+}
+
+struct pb_tag {};  // use inheritance to mark prebinder structs
+
+// result_of_t will be defined by default in c++1y
+template<typename T > using result_of_t = typename std::result_of<T>::type;
+template<typename T> using is_prebinder =
+  std::is_base_of<pb_tag, typename std::remove_reference<T>::type >;
+
+//  ugly sequence generators for something different
+template<int N, int ...S> struct seq : seq<N-1, N, S...> {};
+template<int ...S> struct seq<0, S...> {
+  typedef seq type;
+};
+
+//  these three functions are only for nested prebind. they map
+//  T t -> T t and Prebind<f, T...> -> f(T...)
+template<typename T>
+auto dispatchee(T&& t, std::false_type) -> decltype(std::forward<T>(t)) {
+  return std::forward<T>(t);
+}
+
+template<typename T>
+auto
+dispatchee(T&& t, std::true_type) -> decltype(t()) {
+  return t();
+}
+
+template<typename T>
+auto
+expand(T&& t) -> decltype(dispatchee(std::forward<T>(t), is_prebinder<T>())) {
+  return dispatchee(std::forward<T>(t), is_prebinder<T>());
+}
+
+
+
+template<typename T> using expand_type = decltype(expand(std::declval<T>()));
+
+//  the functor which holds the closure in a tuple
+template<typename f, typename ...ltypes>
+struct prebinder : public pb_tag {
+  std::tuple<f, ltypes...> closure;
+  typedef typename seq<sizeof...(ltypes)>::type sequence;
+  prebinder(f F, ltypes... largs) : closure(F, largs...) {}
+
+  template<int ...S, typename ...rtypes>
+  result_of_t<f(expand_type<ltypes>..., rtypes...)>
+  apply(seq<0, S...>, rtypes&& ... rargs) {
+    return (std::get<0>(closure))(expand(std::get<S>(closure))...,
+                                  std::forward<rtypes>(rargs)...);
+  }
+
+  template<typename ...rtypes>
+  result_of_t<f(expand_type<ltypes>..., rtypes...)>
+  operator() (rtypes&& ... rargs) {
+    return apply(sequence(), std::forward<rtypes>(rargs)...);
+  }
+};
+
+template<typename f, typename ...ltypes>
+prebinder<f, ltypes...> prebind(f&& F, ltypes&&... largs) {
+  return prebinder<f, ltypes...>(std::forward<f>(F), std::forward<ltypes>(largs)...);
+}
 }  // namespace sps
 
 /* Local variables: */
