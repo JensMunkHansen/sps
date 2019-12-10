@@ -441,7 +441,7 @@ void static_function<Ret(Args...), Size>::assignHandler(Func&& func) {
   auto handlerPtr = new (&handler_) InvokerBoundType(std::forward<Func>(func));
   static_cast<void>(handlerPtr);
 }
-  template <typename F, typename ...Args> struct trailing_binder;
+template <typename F, typename ...Args> struct trailing_binder;
 
 template <typename R, typename ...Frgs, typename ...Args>
 struct trailing_binder<R(Frgs...), Args...> {
