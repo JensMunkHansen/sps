@@ -265,6 +265,9 @@ if (BUILD_SPS_TEST)
   add_executable(memory_test memory_test.cpp)
   target_link_libraries(memory_test ${GTEST_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
+  add_executable(functional_test functional_test.cpp)
+  target_link_libraries(functional_test ${GTEST_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+  
   add_executable(multi_malloc_test multi_malloc_test.cpp)
   add_gtest_dependencies(multi_malloc_test)
 
