@@ -2,6 +2,11 @@
 
 cmake_minimum_required(VERSION 3.0)
 
+# UseSWIG
+if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13")
+  cmake_policy(SET CMP0078 OLD)
+endif()
+
 include(cmake/utils.cmake)
 include(cmake/simd.cmake)
 include(cmake/gtest_macros.cmake)
