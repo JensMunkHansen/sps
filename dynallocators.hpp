@@ -1,9 +1,13 @@
 #include <sps/cenv.h>
 #include <sps/debug.h>
+#include <cstdlib>
+#include <cstdint>
 #include <sps/crtp_helper.hpp>
 
 #include <new>
 
+//#include <malloc.h>
+#include <sps/mm_malloc.h>
 //#include <features.h>
 
 namespace sps {
@@ -98,7 +102,7 @@ class DynAllocators : public sps::CRTP<T, DynAllocators> {
     debug_print("aligned\n");
 #if 1
     // Why is this wrong
-    T* ptr = (T*)_aligned_malloc(count, static_cast<std::size_t>(al));
+    T* ptr = (T*)std::aligned_alloc(static_cast<std::size_t>(al), count);
     size_t nObjects = (count - static_cast<std::size_t>(al)) / sizeof(T);
     new (ptr) T[nObjects]; // Calls placement new
     // Ctors called anyway, since new of descendant is not overloaded
@@ -119,7 +123,7 @@ class DynAllocators : public sps::CRTP<T, DynAllocators> {
       // pObject->~T(); // Calls dtors twice???
       pObject++;
     }
-    _aligned_free(ptr);
+    std::free(ptr);
 #else
     // Default
     return ::operator delete[](ptr, count, al); // Calls many dtors, free

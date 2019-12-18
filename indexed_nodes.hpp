@@ -100,7 +100,7 @@ class indexed_node : public base_node {
    *
    * @return
    */
-  static indexed_node* from_index( const uint64_t index ) throw(std::runtime_error);
+  static indexed_node* from_index( const uint64_t index );
 
   /**
    * Convert node<T> to an index.
@@ -161,8 +161,7 @@ template <typename T> uint64_t create_handle(T* t)
  *
  * @return
  */
-template <typename T> T& get_object(const uint64_t index) throw(std::runtime_error)
-{
+template <typename T> T& get_object(const uint64_t index) {
   indexed_node<T>* handle= indexed_node<T>::from_index(index);
   return handle->get_object();
 }
@@ -174,8 +173,7 @@ template <typename T> T& get_object(const uint64_t index) throw(std::runtime_err
  *
  * @return
  */
-template <typename T> indexed_node<T>& get_node(const uint64_t index) throw(std::runtime_error)
-{
+template <typename T> indexed_node<T>& get_node(const uint64_t index) {
   indexed_node<T>* handle= indexed_node<T>::from_index(index);
   return *handle;
 }
@@ -187,8 +185,7 @@ template <typename T> indexed_node<T>& get_node(const uint64_t index) throw(std:
  *
  * @param index
  */
-template <typename T> void destroy_object(const uint64_t index) throw(std::runtime_error)
-{
+template <typename T> void destroy_object(const uint64_t index) {
   indexed_node<T>* handle= indexed_node<T>::from_index(index);
   delete handle;
 }
@@ -200,8 +197,7 @@ template <typename T> void destroy_object(const uint64_t index) throw(std::runti
  *
  * @return
  */
-template <typename T> uint64_t clone_object(const uint64_t index) throw(std::runtime_error)
-{
+template <typename T> uint64_t clone_object(const uint64_t index) {
   indexed_node<T>* hCurrent = indexed_node<T>::from_index(index);
   T* clone = new T(hCurrent->get_object());
   indexed_node<T>* hClone = new indexed_node<T>(clone);
