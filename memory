@@ -52,6 +52,31 @@ T* malloc(size_t nData) {
   }
   return static_cast<T*>(ptr);
 }
+
+template <typename T>
+class padded {
+public:
+    template <typename... Args>
+    padded(Args&&... args) {
+        new (&_.t) T(std::forward<Args>(args)...);
+    }
+
+    ~padded() { _.t.~T(); }
+
+    // Accessors
+    T& access() { return _.t; }
+    T const& get() const { return _.t; }
+
+private:
+    union U {
+        U() { memset(this, 0, sizeof(T)); }
+
+        char buffer[sizeof(T)];
+        T t;
+    } _;
+}; // class padded
+
+
 #endif
 
 #if (defined(__GNUG__) && __cplusplus >= 201103L)
