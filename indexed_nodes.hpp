@@ -87,8 +87,7 @@ class indexed_node : public base_node {
    * Dtor
    *
    */
-  ~indexed_node()
-  {
+  ~indexed_node() {
     delete t;        // destroy object
     signature= NULL; // destroy signature
   }
@@ -116,8 +115,7 @@ class indexed_node : public base_node {
    *
    * @return
    */
-  T& get_object() const
-  {
+  T& get_object() const {
     return *t;
   }
 
@@ -148,8 +146,7 @@ namespace nodes {
  *
  * @return
  */
-template <typename T> uint64_t create_handle(T* t)
-{
+template <typename T> uint64_t create_handle(T* t) {
   indexed_node<T>* handle = new indexed_node<T>(t);
   return handle->to_index();
 }
@@ -217,8 +214,7 @@ class indexed_node_collector {
    * Dtor
    *
    */
-  ~indexed_node_collector()
-  {
+  ~indexed_node_collector() {
     size_t nObjectsCleared = 0;
 
     typename std::vector<indexed_node<T>*>::iterator i;
@@ -237,8 +233,7 @@ class indexed_node_collector {
     }
   }
 
-  static void register_handle (indexed_node<T>* obj)
-  {
+  static void register_handle (indexed_node<T>* obj) {
     static indexed_node_collector singleton(obj);
 
     typename std::vector<indexed_node<T>*>::iterator i;
@@ -260,8 +255,7 @@ class indexed_node_collector {
    *
    * @param obj
    */
-  indexed_node_collector(indexed_node<T>* obj)
-  {
+  indexed_node_collector(indexed_node<T>* obj) {
     char buffer[128];
 #ifdef SPS_TYPE_ID_NAME
     sprintf(buffer, "%zu", strlen(obj->type));
@@ -284,8 +278,7 @@ template <typename T>
 std::vector<indexed_node<T>*> indexed_node_collector<T>::objvector;
 
 template <typename T>
-uint64_t indexed_node<T>::to_index()
-{
+uint64_t indexed_node<T>::to_index() {
   // Find pointer in vector
   auto it = find(indexed_node_collector<T>::objvector.begin(),indexed_node_collector<T>::objvector.end(),this);
   if (it!=indexed_node_collector<T>::objvector.end()) {

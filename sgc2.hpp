@@ -40,9 +40,9 @@ class GarbageCollected : public CRTP<T, GarbageCollected> {
  protected:
   GarbageCollected() :
 #ifdef SPS_TYPE_ID_NAME
-      type(typeid(T).name())
+    type(typeid(T).name())
 #else
-      type(&typeid(T))
+    type(&typeid(T))
 #endif
   {
     this->signature = this;
@@ -250,10 +250,10 @@ int GarbageCollected<T>::ToIndex(indexed_type_index* index) {
                  GarbageCollector<T>::objvector.end(), this);
   if (it != GarbageCollector<T>::objvector.end()) {
     *index =
-        indexed_type_index(
-            std::distance(
-            GarbageCollector<T>::objvector.begin(),
-            it));
+      indexed_type_index(
+        std::distance(
+          GarbageCollector<T>::objvector.begin(),
+          it));
     return 0;
   } else {
     fprintf(stderr, "Invalid index.\n");
@@ -268,8 +268,8 @@ int GarbageCollected<T>::ToIndex(indexed_type_index* index) {
 //  TODO(JEM): introduce indexed after garbage collected
 //  If an object is typed (using typename) gc is using it
 class GCTestObject :
-    public sps::GarbageCollected<GCTestObject>,
-    public sps::Shared<GCTestObject> {
+  public sps::GarbageCollected<GCTestObject>,
+  public sps::Shared<GCTestObject> {
  public:
   GCTestObject() {
     std::cout << "GCTestObject" << std::endl;
