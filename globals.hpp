@@ -126,6 +126,9 @@ class Singleton {
       std::lock_guard<std::mutex> guard(g_mutex);
       pInstance = g_instance.load(std::memory_order_relaxed);
       if (!pInstance) {
+        // On first construction call dtor to enforce instantiation.
+        // Singleton<T>::InstanceDestroy();
+        // To do this, we should replace mutex with a std::recursive_mutex
         pInstance = new T;
         g_instance.store(pInstance, std::memory_order_release);
       }
