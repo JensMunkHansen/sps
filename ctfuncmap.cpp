@@ -48,7 +48,7 @@ template<char... N> struct interned {
   static char const value[];
 };
 
-template<char... N> char const interned<N...>::value[]{N...};
+template<char... N> char const interned<N...>::value[] {N...};
 
 template<int N>
 constexpr char ch(char const(&s)[N], int i) {

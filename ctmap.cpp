@@ -13,7 +13,7 @@ template<char... N> struct interned {
 };
 
 template<char... N>
-char const interned<N...>::value[]{N...};
+char const interned<N...>::value[] {N...};
 
 template<char... N>
 const int interned<N...>::p = 2;
