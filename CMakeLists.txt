@@ -312,6 +312,9 @@ if (BUILD_SPS_TEST)
   add_executable(macro_test macro_test.cpp)
   add_gtest_dependencies(macro_test)
 
+  add_executable(string_test string_test.cpp)
+  add_gtest_dependencies(string_test)
+
   if (UNIX)
     add_executable(weak_binder_test weak_binder_test.cpp)
     set_target_properties(weak_binder_test PROPERTIES
@@ -420,6 +423,8 @@ if (BUILD_SPS_TEST)
              COMMAND signals_test)
   endif()
 
+  add_test(NAME string_test
+           COMMAND string_test)
   # Link to threading library (general)
   set( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${CMAKE_THREAD_LIBS_INIT}")
 endif()
