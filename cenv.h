@@ -110,7 +110,8 @@ MSVC++ 5.0  _MSC_VER == 1100
 #  define SPS_REGISTER #register
 #  define SPS_OVERRIDE
 # endif
-# if (__cplusplus >= 201402L)
+// TODO: Do this correctly for Microsucks
+# if (__cplusplus >= 201402L) || (_MSC_VER >= 1900)
 #  define CXX14 14
 # endif
 # if (__cplusplus >= 201703L)
@@ -409,4 +410,5 @@ const auto highLevelF = lowLevelF;
 /* tab-width: 2 */
 /* c-basic-offset: 2 */
 /* End: */
+
 
