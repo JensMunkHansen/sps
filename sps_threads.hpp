@@ -117,7 +117,7 @@ STATIC_INLINE_BEGIN int setcpuid(int cpu_id) {
  * @return
  */
 STATIC_INLINE_BEGIN unsigned int controlfp(unsigned int newCtrlWordBits = EM_INEXACT,
-  unsigned int mask = MCW_EM) {
+    unsigned int mask = MCW_EM) {
 #ifdef _MSC_VER
   unsigned int curCtrlWordBits = 0;
   errno_t retval = _controlfp_s(&curCtrlWordBits, newCtrlWordBits, mask);
@@ -236,14 +236,14 @@ STATIC_INLINE_BEGIN void SetThreadName(uint32_t dwThreadID,
   } __except(EXCEPTION_EXECUTE_HANDLER) {
   }
 #ifdef WIN10
-  #include <processthreadsapi.h>
+#include <processthreadsapi.h>
   HRESULT r;
   // wchar_t
   wchar_t* pWideString = alloca(len(threadName)*sizeof(wchar_t) + 1);
   mbstowcs(pWideString, threadName, len(threadName));
   r = SetThreadDescription(
-      dwThreadID,
-      pWideString);
+        dwThreadID,
+        pWideString);
 #endif
 }
 
