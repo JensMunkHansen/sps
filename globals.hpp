@@ -144,6 +144,10 @@ class Singleton {
     // dynamically, we can use the standard atexit handler.
     // std::atexit([]()->void { Singleton<T>::InstanceDestroy();});
   }
+
+  // If we set g_instance = nullptr in this method, the mutex need to be recursive
+
+  ~Singleton() = default;
   /**
    * Copy-ctor and assignment could be deleted such that we do not allow copying the singleton
    *
