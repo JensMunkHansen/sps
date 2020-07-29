@@ -18,7 +18,6 @@ class Test : public sps::Singleton<Test> {
   friend class sps::Singleton<Test>;
 };
 
-// Explicit instantiate destructor (otherwise not called)
 template int sps::Singleton<Test>::InstanceDestroy();
 
 template <class T>
@@ -47,6 +46,7 @@ class Defaulted : public sps::Default<Defaulted> {
   float m_data;
 };
 
+// Explicit instantiate destructor (otherwise not called)
 template int sps::Default<Defaulted>::InstanceDestroy();
 
 // My stuff
@@ -58,7 +58,7 @@ void fun() {
 
 TEST(globals_test, singleton_test) {
   // We cannot instantiate templates here
-  //  fun();
+  fun();
 }
 
 void fun0() {

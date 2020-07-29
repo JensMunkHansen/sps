@@ -123,12 +123,15 @@ class Singleton {
   static T* InstanceGet() {
     T* pInstance = g_instance.load(std::memory_order_acquire);
     if (!pInstance) {
-      std::lock_guard<std::mutex> guard(g_mutex);
+      std::lock_guard<std::recursive_mutex> guard(g_mutex);
       pInstance = g_instance.load(std::memory_order_relaxed);
       if (!pInstance) {
-        // On first construction call dtor to enforce instantiation.
-        // Singleton<T>::InstanceDestroy();
-        // To do this, we should replace mutex with a std::recursive_mutex
+        // Enforce explicit instantiation of
+        // Singleton<T>::InstanceDestroy() by calling the function
+        // here once. In this way, the user does not need to remember
+        // to inistantiate the function. Note, this requires the mutex
+        // to be recursive
+        Singleton<T>::InstanceDestroy();
         pInstance = new T;
         g_instance.store(pInstance, std::memory_order_release);
       }
@@ -157,7 +160,8 @@ class Singleton {
 
  private:
   static std::atomic<T*> g_instance;
-  static std::mutex g_mutex;
+  // static std::mutex g_mutex;
+  static std::recursive_mutex g_mutex;
 };
 
 /**
@@ -175,7 +179,7 @@ class Singleton {
 template <class T>
 int Singleton<T>::InstanceDestroy() {
   int retval = -1;
-  std::lock_guard<std::mutex> guard(g_mutex);
+  std::lock_guard<std::recursive_mutex> guard(g_mutex);
   if (g_instance) {
     debug_print("Singleton destroyed");
     delete g_instance;
@@ -189,7 +193,7 @@ template <class T>
 std::atomic<T*> Singleton<T>::g_instance{nullptr};
 
 template <class T>
-std::mutex Singleton<T>::g_mutex;
+std::recursive_mutex Singleton<T>::g_mutex;
 
 
 // Note this a copy-able version of the Singleton above
