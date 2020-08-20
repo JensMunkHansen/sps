@@ -25,6 +25,51 @@
 #include <sps/win32/memory>
 #include <sps/unix/memory>
 
+// TODO: Enable this
+#if 0
+namespace sps {
+template <class T>
+void fillmem(T* t, int val, std::size_t size){
+  static_assert(std::is_trivially_copyable<T>::value, "will trigger UB when calling memset on it");
+  std::memset(t, val, size);
+}
+
+template <typename T, class = typename std::enable_if<!std::is_pointer<T>::value>::type>
+void fillmem(T& t, int val = 0, std::size_t size = sizeof(T)){
+  static_assert(std::is_trivially_copyable<T>::value, "will trigger UB when calling memset on it");
+  assert(size <= sizeof(T));
+  fillmem(std::addressof(t), val, size);
+}
+
+template <class T>
+void fillmem(T&, std::size_t, int) = delete;
+
+#pragma GCC poison memset
+
+template <typename T, class = typename std::enable_if<!std::is_pointer<T>::value>::type>
+void fillmem(T& t, int val = 0, std::size_t size = sizeof(T)){
+  static_assert(std::is_trivially_copyable<T>::value, "will trigger UB when calling memset on it");
+  assert(size <= sizeof(T));
+  fillmem(&t, val, size);
+}
+
+template<class T>
+void fillmem(T* t, int val, std::size_t size){
+  static_assert(std::is_trivially_copyable<T>::value, "will trigger UB when calling memset on it");
+  std::fill_n(reinterpret_cast<unsigned char*>(t), size, val);
+}
+
+template<class T>
+void fillmem(T&, std::size_t, int) = delete;
+
+// MSVC
+#pragma deprecated("token")
+#pragma warning(error: 4995)
+
+}  // namespace sps
+#endif
+
+
 // Just a note: replace memset, memcpy, memcmp, memmove with std::fill(_n), std::copy,
 // and std::equal(std::lexicographical_compare), std::move
 

@@ -16,16 +16,16 @@ class LogWorker: public QObject {
 // interface
 class LogService : public QObject {
   Q_OBJECT
-public:
+ public:
   explicit LogService(QObject *parent = nullptr);
   ~LogService();
 
-signals:
+ signals:
   // to use the service, just call this signal to send a request:
   // logService->logEvent("event");
   void logEvent(const QString &event);
 
-private:
+ private:
   QThread *thread;
   LogWorker *worker;
 };
