@@ -1,7 +1,7 @@
 #pragma once
 
 class EmitSomethingIF {
-public:
+ public:
   virtual ~EmitSomethingIF() = default;
  signals:
   virtual void someThingHappened() = 0;

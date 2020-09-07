@@ -37,8 +37,8 @@ LogService::LogService(QObject *parent) : QObject(parent) {
 }
 
 LogService::~LogService() {
-    thread->quit();
-    thread->wait();
+  thread->quit();
+  thread->wait();
 }
 
 
@@ -49,10 +49,10 @@ int main(int argc, char* argv[]) {
 
   bool exitFlag = false;
 
-  auto f = std::async(std::launch::async, [&exitFlag]{
-                                            std::getchar();
-                                            exitFlag = true;
-                                          });
+  auto f = std::async(std::launch::async, [&exitFlag] {
+    std::getchar();
+    exitFlag = true;
+  });
 
   QTimer exitTimer;
   exitTimer.setInterval(500);
@@ -60,10 +60,10 @@ int main(int argc, char* argv[]) {
 
   QObject::connect(&exitTimer,
                    &QTimer::timeout,
-                   [&app, &exitFlag] {
-                     if (exitFlag)
-                       app.quit();
-                   });
+  [&app, &exitFlag] {
+    if (exitFlag)
+      app.quit();
+  });
 
   exitTimer.start();
 

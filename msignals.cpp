@@ -479,7 +479,8 @@ bool pack_r2c(const sps::signal1D<T> &a, sps::signal1D<std::complex<T> >& c)
     }
     c.data = (std::complex<T>*) SPS_MM_MALLOC(c.nbytes, 16);
   }
-  memcpy(c.data,a.data,a.ndata * sizeof(T));
+  // New warning -Wclass-memaccess
+  memcpy(c.data, reinterpret_cast<const char*>(a.data), a.ndata * sizeof(T));
   return true;
 }
 

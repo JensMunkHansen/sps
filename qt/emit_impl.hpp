@@ -5,7 +5,7 @@
 class EmitSomethingImpl : public QObject, public EmitSomethingIF {
   Q_OBJECT
   Q_INTERFACES("EmitSomethingIF")
-  public:
-  signals:
+ public:
+ signals:
   void someThingHappened();
 };
