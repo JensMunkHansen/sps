@@ -2,11 +2,6 @@
 
 cmake_minimum_required(VERSION 3.0)
 
-# UseSWIG
-#if (${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.13")
-#  cmake_policy(SET CMP0078 OLD)
-#endif()
-
 set(project_policies CMP0078 CMP0086)
 foreach(policy ${project_policies})
   if(POLICY ${policy})
@@ -261,10 +256,9 @@ if (BUILD_SPS_TEST)
 
   include_directories(${GTEST_INCLUDE_DIRS})
 
-  if (1)
-    add_executable(indexed_types_test indexed_types_test.cpp)
-    add_gtest_dependencies(indexed_types_test)
-  endif()
+  add_executable(indexed_types_test indexed_types_test.cpp)
+  add_gtest_dependencies(indexed_types_test)
+
   add_executable(extintrin_test extintrin_test.cpp)
   add_gtest_dependencies(extintrin_test)
 
@@ -457,13 +451,7 @@ if (SPS_Signals)
     find_package(PythonLibs)
   else()
     set(Python_ADDITIONAL_VERSIONS 2.7)
-    # HACK
-    if (WIN32)
-      find_package(PythonInterp 2.7 REQUIRED)
-    else()
-      find_package(PythonInterp 2.7 REQUIRED)
-      #find_package(PythonInterp 2.7.9 EXACT REQUIRED)
-    endif()
+    find_package(PythonInterp 2.7 REQUIRED)
     find_package(PythonLibs 2.7 REQUIRED)
   endif()
 
@@ -512,7 +500,6 @@ endif()
 # TODO: Create an "export-set" for SPS and import this in FNM and SOFUS using
 #       find_package or include(sps.cmake)
 
-if (1)
 if( ${PROJECT_NAME} STREQUAL "BFTX")
   install(TARGETS sps
     # IMPORTANT: Add the fnm library to the "export-set"
@@ -544,5 +531,4 @@ if( ${PROJECT_NAME} STREQUAL "Sofus")
     LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib
     PUBLIC_HEADER DESTINATION "${INSTALL_INCLUDE_DIR}/sps"
     COMPONENT dev)
-endif()
 endif()
