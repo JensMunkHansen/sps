@@ -495,6 +495,7 @@ STATIC_INLINE_BEGIN  __m128d _mm_fabs_pd(__m128d x) STATIC_INLINE_END;
  */
 STATIC_INLINE_BEGIN  __m256d _mm256_fabs_pd(__m256d x) STATIC_INLINE_END;
 
+#ifndef _INCLUDED_IMM
 /**
  * Floating point modulo of packed singles
  *
@@ -513,6 +514,7 @@ STATIC_INLINE_BEGIN __m128 _mm_fmod_ps(const __m128& a, const __m128& aDiv) {
   __m128 r = _mm_sub_ps(a, base);
   return r;
 }
+#endif
 
 #ifndef HAVE_SMMINTRIN_H
 //SSE2: multiply 8 16-bit integers and return full 32-bit result in high and low result
