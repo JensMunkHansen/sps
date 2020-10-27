@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file   cenv.h
  * @author Jens Munk Hansen <jens.munk.hansen@gmail.com>
  * @date   Sat Nov 29 17:48:45 2014
@@ -158,7 +158,7 @@ EC++  __embedded_cplusplus  Embedded C++
 // Static inlines
 #if (defined(_MSC_VER) && defined(_WIN32))
 // Note when used inside a namespace, the static is superfluous
-# define STATIC_INLINE_BEGIN static inline //__forceinline
+# define STATIC_INLINE_BEGIN static inline
 # define STATIC_INLINE_END
 #elif (defined(__GNUC__))
 # define STATIC_INLINE_BEGIN static inline
