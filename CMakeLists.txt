@@ -466,6 +466,8 @@ if (SPS_Signals)
     set(CMAKE_SWIG_FLAGS "-D_SWIG_WIN32")
   endif()
 
+  set_property(SOURCE swig_signals.i PROPERTY SWIG_MODULE_NAME "swig_signals")
+
   set_source_files_properties(swig_signals.i PROPERTIES CPLUSPLUS ON)
 
   set(swig_signals_HEADERS

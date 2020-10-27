@@ -91,7 +91,7 @@ class Identifiable {
 };
 
 
-/*! \brief Singleton base class
+/*! \brief Singleton base class. Phoenix singleton
  *
  * @tparam T type of the actual singleton
  *
