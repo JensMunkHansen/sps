@@ -27,6 +27,12 @@ if (SPS_SHARED_LIBS)
   set(SPS_LIB_TYPE SHARED)
 endif()
 
+option (SPS_STRACE "Use strace" OFF)
+set(STRACE 0)
+if (SPS_STRACE)
+  set (STRACE 1)
+endif()
+
 include(CheckIncludeFile)
 include(CheckSymbolExists)
 #include(ValidateHeaders)
@@ -197,6 +203,7 @@ endif()
 
 add_library(sps ${SPS_LIB_TYPE} ${sps_HEADERS} ${sps_SOURCES})
 
+set_source_files_properties(strace.cpp PROPERTIES COMPILE_FLAGS "-Wno-error=restrict")
 if (0) #UNIX AND NOT WIN32 AND NOT CYGWIN)
   set(bum)
   validate_headers(

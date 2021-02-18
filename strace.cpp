@@ -60,6 +60,9 @@
 #pragma GCC poison malloc realloc free backtrace_symbols  \
   printf fprintf sprintf snprintf scanf sscanf
 
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+// strcat
+
 #ifndef STATIC_INLINE
 # define STATIC_INLINE __attribute__((always_inline)) static inline
 #endif
