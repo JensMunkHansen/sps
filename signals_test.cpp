@@ -127,7 +127,7 @@ T test_mfft(const size_t n) {
 
   T max_diff = 0.0f;
 
-  result = mifft<T>(b, 2*n, c);
+  result = result && mifft<T>(b, 2*n, c);
 
 #if 0
   for (size_t i = 0 ; i < n ; i++) {
