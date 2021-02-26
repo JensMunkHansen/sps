@@ -987,7 +987,7 @@ STATIC_INLINE_BEGIN int _mm_any_eq( __m128 a, __m128 b ) {
 # pragma clang diagnostic push
 # pragma clang diagnostic ignored "-Wdeprecated-register"
 #endif
-  register __m128 mask = _mm_cmpeq_ps( a, b );
+  __m128 mask = _mm_cmpeq_ps( a, b );
 #ifdef __clang__
 # pragma clang diagnostic pop
 #endif
