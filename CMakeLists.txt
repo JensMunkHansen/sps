@@ -430,6 +430,27 @@ endif()
   add_test(NAME    macro_test
            COMMAND macro_test)
 
+  if (0)
+    # Using fixtures
+    add_executable(test test.cpp)   # Adds target test
+    add_test(test_build             # Add a test_build "test" that runs CMake to build target test
+      "${CMAKE_COMMAND}"
+      --build "${CMAKE_BINARY_DIR}"
+      --config "$<CONFIG>"
+      --target test
+      )
+    set_tests_properties(test_build PROPERTIES FIXTURES_SETUP    test_fixture) # Marks test_build to be a setup task of fixture test_build
+    add_test(test test) # add a test that just runs test
+    set_tests_properties(test       PROPERTIES FIXTURES_REQUIRED test_fixture) # Marks the test "test" to need fixture test_fixture.
+
+    # Does not require you to build-all to build tests
+    ADD_TEST(ctest_build_test_code
+      "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target test_code)
+    ADD_TEST(ctest_run_test_code test_code)
+    SET_TESTS_PROPERTIES(ctest_run_test_code
+      PROPERTIES DEPENDS ctest_build_test_code)
+
+  endif()
   if (SPS_Signals)
     add_test(NAME    signals_test
              COMMAND signals_test)
@@ -439,6 +460,11 @@ endif()
            COMMAND string_test)
   # Link to threading library (general)
   set( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${CMAKE_THREAD_LIBS_INIT}")
+
+  # Add here any target - preferable all the tests
+  add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND}
+    DEPENDS string_test)
+
 endif()
 
 # SWIG Target
