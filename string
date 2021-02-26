@@ -45,7 +45,7 @@ std::string stringFormatInternal(const std::string& format, Args&& ... args)
 #ifdef CXX17
 template<typename ... Args>
 std::string string_format(std::string fmt, Args&& ... args) {
-  return details::stringFormatInternal(fmt, convert(std::forward<Args>(args))...);
+  return details::stringFormatInternal(fmt, sps::details::convert(std::forward<Args>(args))...);
 }
 #elif defined(CXX14) | defined(CXX11)
 template<typename ... Args>

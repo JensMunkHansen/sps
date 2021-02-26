@@ -445,7 +445,7 @@ endif()
 
     # Does not require you to build-all to build tests
     ADD_TEST(ctest_build_test_code
-      "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target test_code)
+      "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target test_code --config "$<CONFIG>")
     ADD_TEST(ctest_run_test_code test_code)
     SET_TESTS_PROPERTIES(ctest_run_test_code
       PROPERTIES DEPENDS ctest_build_test_code)
