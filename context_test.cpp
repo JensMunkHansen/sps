@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
   // sps::EventIF* pEvent = nullptr;
   // sps::Event::Create(&pEvent, pContext);
 
-  typedef int (*Callback)(void*);
+  // typedef int (*Callback)(void*);
 
   // RegCallback ( int (*fptr)(void*), status, userdata, event)
 
