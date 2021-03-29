@@ -477,18 +477,11 @@ if (SPS_Signals)
     add_definitions(-DSWIG_PYTHON_INTERPRETER_NO_DEBUG)
   endif()
 
-  if (NOT DEFINED SWIG_DIR)
-    if (UNIX AND NOT CYGWIN)
-      set(SWIG_EXECUTABLE swig3.0) # Not compatible with swig4.0 yet
-      set(SWIG_DIR /usr/share/swig)
-    endif()
-
-    find_package(SWIG 3.0.12 EXACT REQUIRED)
-    include(${SWIG_USE_FILE})
-  endif()
+  find_package(SWIG)
+  include(${SWIG_USE_FILE})
 
   if (ENABLE_PYTHON3)
-    set(Python_ADDITIONAL_VERSIONS 3.4 3.5 3.6 3.7 3.8)
+    set(Python_ADDITIONAL_VERSIONS 3.4 3.5 3.6 3.7 3.8 3.9)
     find_package(PythonInterp 3 REQUIRED)
     find_package(PythonLibs)
   else()
