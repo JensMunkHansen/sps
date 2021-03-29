@@ -57,7 +57,7 @@
 
 #include <thread>
 
-#ifdef __linux__
+#if 0 //def __linux__
 STATIC_INLINE_BEGIN pid_t gettid(void) {
   pid_t pid;
   CallErr(pid = syscall, (__NR_gettid));
