@@ -485,7 +485,7 @@ if (SPS_Signals)
   include(${SWIG_USE_FILE})
 
   if (ENABLE_PYTHON3)
-    set(Python_ADDITIONAL_VERSIONS 3.4 3.5 3.6 3.7 3.8 3.9)
+    set(Python_ADDITIONAL_VERSIONS 3.4 3.5 3.6 3.7 3.9)
     find_package(PythonInterp 3 REQUIRED)
     find_package(PythonLibs)
   else()
@@ -495,6 +495,7 @@ if (SPS_Signals)
   endif()
 
   include_directories(${PYTHON_INCLUDE_PATH})
+  include_directories(${PYTHON_INCLUDE_DIRS})
 
   if (MSVC)
     set(CMAKE_SWIG_FLAGS "-D_SWIG_WIN32")
