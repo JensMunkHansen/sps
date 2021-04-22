@@ -2,6 +2,10 @@
 
 cmake_minimum_required(VERSION 3.0)
 
+if (NOT DEFINED ENABLE_PYTHON3)
+  set(ENABLE_PYTHON3 ON)
+endif()
+
 set(CMAKE_CXX_STANDARD 17)
 
 set(project_policies CMP0078 CMP0086)
