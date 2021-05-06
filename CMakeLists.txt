@@ -496,6 +496,7 @@ if (SPS_Signals)
 
   include_directories(${PYTHON_INCLUDE_PATH})
   include_directories(${PYTHON_INCLUDE_DIRS})
+  include_directories(${PYTHON_INCLUDE_DIR})
 
   if (MSVC)
     set(CMAKE_SWIG_FLAGS "-D_SWIG_WIN32")
