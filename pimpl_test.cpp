@@ -22,6 +22,8 @@ void PimplTestPrivate::init() {
 }
 
 PimplTest::PimplTest() : d_ptr(new PimplTestPrivate(*this)) {
+  // alternatively
+  // this->d_ptr = std::make_unique<PimplTestPrivate>(*this);
   SPS_D(PimplTest);
   d->init();
 }
