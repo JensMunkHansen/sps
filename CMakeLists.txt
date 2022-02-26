@@ -363,6 +363,19 @@ endif()
     target_link_libraries(mimo_test dl)
   endif()
 
+  set(siso_test_SOURCES
+    siso_test.cpp
+    )
+  if (UNIX AND NOT WIN32 AND NOT CYGWIN)
+    set(siso_test_SOURCES "${siso_test_SOURCES}" "strace.cpp")
+  endif()
+
+  add_executable(siso_test ${siso_test_SOURCES})
+  add_gtest_dependencies(siso_test)
+  if (UNIX AND NOT WIN32 AND NOT CYGWIN)
+    target_link_libraries(siso_test dl)
+  endif()
+
   add_executable(dispatcher_test resource.cpp context.cpp dispatcher_test.cpp)
   add_gtest_dependencies(dispatcher_test)
   if (UNIX)
@@ -418,6 +431,9 @@ endif()
 
   add_test(NAME    mimo_test
            COMMAND mimo_test)
+
+  add_test(NAME    siso_test
+           COMMAND siso_test)
 
   add_test(NAME    globals_test
            COMMAND globals_test)
