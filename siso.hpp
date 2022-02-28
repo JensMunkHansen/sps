@@ -21,7 +21,7 @@ namespace sps {
 template <typename T, size_t Size,
           bool = std::is_copy_constructible<T>::value>
 //          std::enable_if_t<std::is_floating_point<T>::value, bool> = true>
-          //std::enable_if<Size > 1, int>::type = 0>
+//std::enable_if<Size > 1, int>::type = 0>
 
 class ISRSWRingBuffer {
  public:
