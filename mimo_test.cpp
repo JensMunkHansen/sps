@@ -82,6 +82,46 @@ TEST(mimo_test, circular_buffer) {
   EXPECT_EQ(val, 2);
 }
 
+// Add two threads
+static void thread_push_circular(void* arg, size_t count) {
+  auto pQueue = (sps::MRMWCircularBuffer<int, 10>*) arg;
+  for (size_t i = 0 ; i < count ; i++) {
+    int value = int(i);
+    pQueue->push(value);
+  }
+}
+
+static void thread_try_pop_circular(void* arg, size_t count) {
+  auto pQueue = (sps::MRMWCircularBuffer<int, 10>*) arg;
+  int value = 0;
+  for (size_t i = 0 ; i < count ; i++) {
+    pQueue->try_pop(value);
+    // Important - if not popping, the pusher will hang and wait
+    std::this_thread::sleep_for(std::chrono::milliseconds{10});
+  }
+}
+
+
+TEST(mimo_test, circular_buffer2) {
+  sps::MRMWCircularBuffer<int, 10> queue;
+  std::thread first(thread_push_circular, (void*) &queue, 100);
+  std::this_thread::sleep_for(std::chrono::milliseconds{10});
+  std::thread second(thread_try_pop_circular, (void*) &queue, 100);
+  first.join();
+  second.join();
+  EXPECT_EQ(1, 1);
+}
+
+TEST(mimo_test, circular_buffer3) {
+  sps::MRMWCircularBuffer<int, 10> queue;
+  std::thread first(thread_push_circular, (void*) &queue, 100);
+  queue.invalidate();
+  first.join();
+  EXPECT_EQ(1, 1);
+}
+
+
+
 #if 0
 static void thread_pop(void* arg) {
   auto pQueue = (sps::MRMWQueue<float>*) arg;
