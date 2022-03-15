@@ -118,6 +118,7 @@ unique_aligned_array<T> unique_aligned_array_create(size_t n) {
 }
 
 template <class T, size_t D, class = typename std::enable_if<std::is_pod<T>::value>::type>
+//template <class T, size_t D, std::enable_if_t<std::is_pod<T>::value, bool> = true>
 class unique_aligned_multi_array {
 };
 

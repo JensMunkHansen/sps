@@ -577,8 +577,7 @@ class MRMWCircularBuffer :
       m_unread--;
       m_cond_not_full.notify_one();
       return true;
-    }
-    else {
+    } else {
       return false;
     }
   }

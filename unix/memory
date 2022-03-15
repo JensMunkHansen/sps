@@ -53,7 +53,8 @@ unique_aligned_array<T> unique_aligned_array_create(size_t n) {
 
 //! Aligned multi-dimensional array
 /*! Aligned multi-dimensional array, which is automatically deleted like a unique ptr */
-template <typename T, size_t D, class = typename std::enable_if<std::is_pod<T>::value>::type>
+//template <typename T, size_t D, class = typename std::enable_if<std::is_pod<T>::value>::type>
+template <typename T, size_t D, typename = std::enable_if_t<std::is_pod<T>::value> >
 class unique_aligned_multi_array {
 };
 
