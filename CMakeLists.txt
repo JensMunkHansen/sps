@@ -70,7 +70,7 @@ else()
     "${PROJECT_SOURCE_DIR}")  # to find sps/xxx.h
 endif()
 
-find_package(FFTW REQUIRED)
+find_package(FFTW REQUIRED COMPONENTS FLOAT_LIB DOUBLE_LIB)
 if (WIN32)
   # TODO: Support non-default install locations on *NIX
   include_directories(${FFTW_INCLUDES})
@@ -500,19 +500,10 @@ if (SPS_Signals)
   find_package(SWIG)
   include(${SWIG_USE_FILE})
 
-  if (ENABLE_PYTHON3)
-    set(Python_ADDITIONAL_VERSIONS 3.4 3.5 3.6 3.7 3.9)
-    find_package(PythonInterp 3 REQUIRED)
-    find_package(PythonLibs)
-  else()
-    set(Python_ADDITIONAL_VERSIONS 2.7)
-    find_package(PythonInterp 2.7 REQUIRED)
-    find_package(PythonLibs 2.7 REQUIRED)
-  endif()
+  find_package(Python3 COMPONENTS Interpreter Development NumPy)
 
-  include_directories(${PYTHON_INCLUDE_PATH})
-  include_directories(${PYTHON_INCLUDE_DIRS})
-  include_directories(${PYTHON_INCLUDE_DIR})
+  include_directories(${Python3_INCLUDE_DIRS})
+  include_directories(${Python3_NumPy_INCLUDE_DIRS})
 
   if (MSVC)
     set(CMAKE_SWIG_FLAGS "-D_SWIG_WIN32")
