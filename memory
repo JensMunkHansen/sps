@@ -22,8 +22,10 @@
 #include <type_traits>
 
 #include <sps/align.hpp>
+
 #include <sps/win32/memory>
 #include <sps/unix/memory>
+
 
 // TODO: Enable this
 #if 0
@@ -199,6 +201,14 @@ private:
 
   using sps::win32::unique_aligned_multi_array;
   using sps::win32::unique_aligned_multi_array_create;
+#if 0  
+  using sps::nix::unique_aligned_array;
+  using sps::nix::unique_aligned_array_create;
+
+  using sps::nix::unique_aligned_multi_array;
+  using sps::nix::unique_aligned_multi_array_create;
+#endif
+
 #else
   #error This library needs at least a C++11 compliant compiler
 #endif
