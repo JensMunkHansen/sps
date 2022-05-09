@@ -15,6 +15,7 @@
 
 #include <sps/smath.hpp>
 
+#include <iostream>
 
 namespace std {
 template struct SPS_EXPORT std::pair<float, float>;

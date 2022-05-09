@@ -20,6 +20,9 @@ TEST(smath_test, test_alignment) {
   ASSERT_EQ((uintptr_t)&p0[0] & 0x0F, 0U);
   sps::point_t<float> p1{1.0f, 2.0f, 3.0f};
   ASSERT_EQ((uintptr_t)&p1[0] & 0x0F, 0U);
+  sps::point_t<float> a = {};
+  ASSERT_EQ(a[0], 0.0f);
+  SPS_UNREFERENCED_PARAMETER(a);
 }
 
 TEST(smath_test, test_basis_vectors_double) {

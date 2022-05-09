@@ -40,6 +40,14 @@
 #endif
 
 #ifdef _MSC_VER
+#include <stdlib.h>
+static inline double drand48(void) {
+  return (rand() / (RAND_MAX + 1.0));
+}
+#endif
+
+
+#ifdef _MSC_VER
 inline int c99_vsnprintf(char* str, size_t size, const char* format, va_list ap)
 {
   int count = -1;
@@ -71,3 +79,4 @@ inline int c99_snprintf(char* str, size_t size, const char* format, ...)
 #endif
 
 #endif // C99
+

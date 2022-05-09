@@ -412,7 +412,7 @@ STATIC_INLINE_BEGIN void _mm_sin_cos_pd(__m128d d, __m128d* s_, __m128d* c_) {
   _mm_store_ps(fdata,c_ps);
   *c_ = _mm_set_pd(fdata[1],fdata[0]);
 }
-
+#ifndef _INCLUDED_IMM
 /**
  * Accurate sine
  *
@@ -511,6 +511,7 @@ STATIC_INLINE_BEGIN __m128 _mm_cos_ps(__m128 d) {
   return u;
 }
 
+#endif
 
 #define _PS_CONST_TYPE(Name, Type, Val)                                 \
   static const ALIGN16_BEGIN Type _ps_##Name[4] ALIGN16_END = { Val, Val, Val, Val }
@@ -662,6 +663,8 @@ STATIC_INLINE_BEGIN __m128 _mm_exp_approx_ps(__m128 x) {
 #define L2Lf 1.428606765330187045e-06f
 #define R_LN2f 1.442695040888963407359924681001892137426645954152985934135449406931f
 
+#ifndef _INCLUDED_IMM
+
 STATIC_INLINE_BEGIN __m128 _mm_exp_ps(__m128 d) {
   __m128i q = _mm_cvtps_epi32(_mm_mul_ps(d, _mm_set1_ps(R_LN2f)));
   __m128 s, u;
@@ -684,6 +687,8 @@ STATIC_INLINE_BEGIN __m128 _mm_exp_ps(__m128 d) {
   return u;
 }
 
+#endif
+
 /*
 STATIC_INLINE_BEGIN __m256i _mm256_cvtpd_epi64(__m256d d) {
 
@@ -694,6 +699,8 @@ STATIC_INLINE_BEGIN __m256d _mm256_madd_pd(__m256d a, __m256d b, __m256d c) {
   return _mm256_add_pd(_mm256_mul_pd(a,b),c);
 }
 
+// TODO: Check properly for this function
+#ifndef _INCLUDED_IMM
 STATIC_INLINE_BEGIN __m256d _mm256_exp_pd(__m256d d) {
   __m256d u;
   v4d _d;
@@ -725,7 +732,7 @@ STATIC_INLINE_BEGIN __m256d _mm256_exp_pd(__m256d d) {
 #endif
   return u;
 }
-
+#endif
 
 
 
@@ -1049,6 +1056,8 @@ STATIC_INLINE_BEGIN __m128 _mm_cbrtf_ps(__m128 d) {
 # pragma warning( disable : 4756 )
 # pragma warning( disable : 4056 )
 #endif
+
+#ifndef _INCLUDED_IMM
 /**
  * Logarithm of packed singles
  *
@@ -1081,6 +1090,8 @@ STATIC_INLINE_BEGIN __m128 _mm_log_ps(__m128 d) {
 
   return x;
 }
+#endif
+
 #ifdef _MSC_VER
 # pragma warning( pop )
 #endif
