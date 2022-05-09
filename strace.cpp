@@ -60,6 +60,9 @@
 #pragma GCC poison malloc realloc free backtrace_symbols  \
   printf fprintf sprintf snprintf scanf sscanf
 
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+// strcat
+
 #ifndef STATIC_INLINE
 # define STATIC_INLINE __attribute__((always_inline)) static inline
 #endif
@@ -528,7 +531,7 @@ int STrace::init() {
   if (!m_bInitialized) {
     // Store old state, once
     sigaction(SIGABRT, NULL, &m_sa_abrt);
-    sigaction(SIGSEGV, NULL, &m_sa_abrt);
+    sigaction(SIGSEGV, NULL, &m_sa_segv); // TODO: Was m_sa_abrt
     // TEST
     sigaction(SIGFPE, NULL, &m_sa_fpe);
 

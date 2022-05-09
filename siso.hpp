@@ -18,7 +18,11 @@
 #include <utility>  // std::move
 
 namespace sps {
-template <typename T, size_t Size, bool = std::is_copy_constructible<T>::value>
+template <typename T, size_t Size,
+          bool = std::is_copy_constructible<T>::value>
+//          std::enable_if_t<std::is_floating_point<T>::value, bool> = true>
+//std::enable_if<Size > 1, int>::type = 0>
+
 class ISRSWRingBuffer {
  public:
   /**
@@ -111,8 +115,8 @@ class SRSWRingBuffer :
   std::atomic<std::uint32_t> m_iRead;
   T m_Buffer[Size];
 
-  std::int32_t increment(int n) {
-    return (n + 1) % Size;
+  std::uint32_t increment(std::uint32_t n) {
+    return (n + 1U) % Size;
   }
 
  public:
@@ -123,6 +127,7 @@ class SRSWRingBuffer :
    * @return
    */
   SRSWRingBuffer() {
+    static_assert(Size > 1 && "Buffer must be atleast of size 2");
     m_iWrite.store(0);
     m_iRead.store(0);
   }
@@ -132,11 +137,12 @@ class SRSWRingBuffer :
   }
 #ifdef CXX11
   /**
-   * Push element onto queue (screws up if copy-constructible)
+   * Push element onto queue
    *
    * @param source
    */
   bool try_push(T&& source) SPS_OVERRIDE {
+    // Verified for non-copy-constructible object
     const auto current_tail = m_iWrite.load();
     const auto next_tail = increment(current_tail);
     if (next_tail != m_iRead.load()) {
