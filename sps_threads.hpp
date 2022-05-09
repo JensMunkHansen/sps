@@ -58,11 +58,13 @@
 #include <thread>
 
 #ifdef __linux__
+/*
 STATIC_INLINE_BEGIN pid_t gettid(void) {
   pid_t pid;
   CallErr(pid = syscall, (__NR_gettid));
   return pid;
 }
+*/
 #endif
 
 STATIC_INLINE_BEGIN int setcpuid(int cpu_id) {
