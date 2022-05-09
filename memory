@@ -25,10 +25,9 @@
 
 #ifdef WIN32
 # include <sps/win32/memory>
+#else
+# include <sps/unix/memory>
 #endif
-
-#include <sps/unix/memory>
-
 
 // TODO: Enable this
 #if 0
