@@ -23,7 +23,10 @@
 
 #include <sps/align.hpp>
 
-#include <sps/win32/memory>
+#ifdef WIN32
+# include <sps/win32/memory>
+#endif
+
 #include <sps/unix/memory>
 
 
