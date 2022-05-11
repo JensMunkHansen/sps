@@ -481,7 +481,7 @@ if (SPS_Signals)
 
   # Figure out why cstdarg => FILE__ undefined
   if (MSVC)
-    add_definitions(-DSWIG_PYTHON_INTERPRETER_NO_DEBUG)
+    # add_definitions(-DSWIG_PYTHON_INTERPRETER_NO_DEBUG)
   endif()
 
   find_package(SWIG)
@@ -517,7 +517,7 @@ endif()
     set_source_files_properties( ${swig_generated_file_fullname} PROPERTIES COMPILE_FLAGS "/wd6246 /wd6244 /wd6011 /wd4459 /wd4701 /wd4127 /wd4456")
 
     # Allow to debug under windows, if debug versions of Python are missing
-    string(REPLACE "_d" "" Python3_LIBRARIES "${Python3_LIBRARIES}")
+    # string(REPLACE "_d" "" Python3_LIBRARIES "${Python3_LIBRARIES}")
   endif()
 
   swig_link_libraries(swig_signals sps ${FFTW_LIBRARIES} ${Python3_LIBRARIES})
