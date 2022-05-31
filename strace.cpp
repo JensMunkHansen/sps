@@ -146,6 +146,7 @@ STrace::~STrace() {
 /// @brief Used to workaround backtrace() usage of malloc().
 void* STrace::mallocHook(size_t size,
                          const void* caller ) {
+  (void)caller;
   char* malloc_buffer = memory_ + kNeededMemory - 512;
   if (size > 512U) {
     const char* msg = "malloc() replacement function should not return "
@@ -204,6 +205,7 @@ sps::STrace::straceErrorCodes STrace::OptionSet(straceOption opt, int val) {
 }
 
 void STrace::signalHandler(int sig, ::siginfo_t* info, void* secret) {
+  (void)info;
   // Stop all other running threads by forking
   pid_t forkedPid = fork();
   if (forkedPid != 0) {
