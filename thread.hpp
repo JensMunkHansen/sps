@@ -57,7 +57,7 @@ class thread {
 
   HRESULT hr = ::GetThreadDescription(ThreadHandle, &data);
   if (SUCCEEDED(hr)) {
-    wprintf(“%ls\m”, data);
+    wprintf("%ls\m", data);
     LocalFree(data);
   }
 #endif
@@ -119,9 +119,9 @@ class thread {
 #else
     :
     m_thread(
-     [func = std::forward<F>(f), flag = &m_active](Args && ... args)
-     // Compiles using _MSCVER = 2000 if f is replaced with func
-     noexcept(noexcept(f(std::forward<Args>(args)...))) {
+      [func = std::forward<F>(f), flag = &m_active](Args && ... args)
+      // Compiles using _MSCVER = 2000 if f is replaced with func
+      noexcept(noexcept(f(std::forward<Args>(args)...))) {
     func(std::forward<Args>(args)...);
     flag->store(false, std::memory_order_release);
   },

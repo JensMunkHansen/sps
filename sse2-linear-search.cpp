@@ -75,7 +75,7 @@ Find(const float (&value)[4], int indices[4]) const {
   auto offset = (16 - misalignment) / 4;
   i += offset;
 
-  for (; i < m_nData ; i += 4) {
+  for (; i < (int)m_nData ; i += 4) {
     arrVec = _mm_loadu_ps(static_cast<const float*>(ptr + i));
     allfound = 1;
     for (size_t j = 0 ; j < 4 ; j++) {
@@ -113,7 +113,7 @@ int SSE2LinearSearch<int32_t,0>::operator=(const int32_t& key) const {
 
   auto offset = (16 - misalignment) / 4;
   i += offset;
-  for (; i < m_nData ; i += 16) {
+  for (; i < (int)m_nData ; i += 16) {
     auto av0 = _mm_load_si128(reinterpret_cast<const __m128i*>(ptr + i));
     auto av1 = _mm_load_si128(reinterpret_cast<const __m128i*>(ptr + i + 4));
     auto av2 = _mm_load_si128(reinterpret_cast<const __m128i*>(ptr + i + 8));

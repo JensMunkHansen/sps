@@ -28,7 +28,7 @@
 #include <mutex>
 #include <condition_variable>
 
-// TODO(JMH): Export only interface and use C library
+// TODO(JMH): Export only ProgressBarInterface and not ProgressBar and ProgressBarStdOut
 
 namespace sps {
 class ProgressBar : public ProgressBarInterface {

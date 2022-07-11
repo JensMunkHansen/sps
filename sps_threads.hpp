@@ -57,14 +57,6 @@
 
 #include <thread>
 
-#ifdef __linux__
-STATIC_INLINE_BEGIN pid_t gettid(void) {
-  pid_t pid;
-  CallErr(pid = syscall, (__NR_gettid));
-  return pid;
-}
-#endif
-
 STATIC_INLINE_BEGIN int setcpuid(int cpu_id) {
 #ifdef __GNUG__
 # ifndef __CYGWIN__
@@ -117,7 +109,7 @@ STATIC_INLINE_BEGIN int setcpuid(int cpu_id) {
  * @return
  */
 STATIC_INLINE_BEGIN unsigned int controlfp(unsigned int newCtrlWordBits = EM_INEXACT,
-  unsigned int mask = MCW_EM) {
+    unsigned int mask = MCW_EM) {
 #ifdef _MSC_VER
   unsigned int curCtrlWordBits = 0;
   errno_t retval = _controlfp_s(&curCtrlWordBits, newCtrlWordBits, mask);
@@ -201,7 +193,6 @@ unsigned int __stdcall launch_member_function(void *obj)
 
 // Naming threads - consider upgrading to using SetThreadDescription
 #ifdef _WIN32
-
 # pragma warning(push)
 # pragma warning(disable : 6320)
 
@@ -236,6 +227,16 @@ STATIC_INLINE_BEGIN void SetThreadName(uint32_t dwThreadID,
                    reinterpret_cast<ULONG_PTR*>(&info));
   } __except(EXCEPTION_EXECUTE_HANDLER) {
   }
+#ifdef WIN10
+#include <processthreadsapi.h>
+  HRESULT r;
+  // wchar_t
+  wchar_t* pWideString = alloca(len(threadName)*sizeof(wchar_t) + 1);
+  mbstowcs(pWideString, threadName, len(threadName));
+  r = SetThreadDescription(
+        dwThreadID,
+        pWideString);
+#endif
 }
 
 STATIC_INLINE_BEGIN void SetThreadName(const char* threadName) {

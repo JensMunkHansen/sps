@@ -2,6 +2,19 @@
 
 cmake_minimum_required(VERSION 3.0)
 
+if (NOT DEFINED ENABLE_PYTHON3)
+  set(ENABLE_PYTHON3 ON)
+endif()
+
+set(CMAKE_CXX_STANDARD 17)
+
+set(project_policies CMP0078 CMP0086)
+foreach(policy ${project_policies})
+  if(POLICY ${policy})
+    cmake_policy(SET ${policy} NEW)
+  endif()
+endforeach()
+
 include(cmake/utils.cmake)
 include(cmake/simd.cmake)
 include(cmake/gtest_macros.cmake)
@@ -18,6 +31,12 @@ option (SPS_SHARED_LIBS "Build Shared Libraries" OFF)
 set(SPS_LIB_TYPE STATIC)
 if (SPS_SHARED_LIBS)
   set(SPS_LIB_TYPE SHARED)
+endif()
+
+option (SPS_STRACE "Use strace" OFF)
+set(STRACE 0)
+if (SPS_STRACE)
+  set (STRACE 1)
 endif()
 
 include(CheckIncludeFile)
@@ -51,7 +70,7 @@ else()
     "${PROJECT_SOURCE_DIR}")  # to find sps/xxx.h
 endif()
 
-find_package(FFTW REQUIRED)
+find_package(FFTW REQUIRED COMPONENTS FLOAT_LIB DOUBLE_LIB)
 if (WIN32)
   # TODO: Support non-default install locations on *NIX
   include_directories(${FFTW_INCLUDES})
@@ -190,6 +209,7 @@ endif()
 
 add_library(sps ${SPS_LIB_TYPE} ${sps_HEADERS} ${sps_SOURCES})
 
+set_source_files_properties(strace.cpp PROPERTIES COMPILE_FLAGS "-Wno-error=restrict")
 if (0) #UNIX AND NOT WIN32 AND NOT CYGWIN)
   set(bum)
   validate_headers(
@@ -249,10 +269,9 @@ if (BUILD_SPS_TEST)
 
   include_directories(${GTEST_INCLUDE_DIRS})
 
-  if (1)
-    add_executable(indexed_types_test indexed_types_test.cpp)
-    add_gtest_dependencies(indexed_types_test)
-  endif()
+  add_executable(indexed_types_test indexed_types_test.cpp)
+  add_gtest_dependencies(indexed_types_test)
+
   add_executable(extintrin_test extintrin_test.cpp)
   add_gtest_dependencies(extintrin_test)
 
@@ -264,6 +283,11 @@ if (BUILD_SPS_TEST)
 
   add_executable(memory_test memory_test.cpp)
   target_link_libraries(memory_test ${GTEST_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+
+if (NOT WIN32)
+  add_executable(functional_test functional_test.cpp)
+  target_link_libraries(functional_test ${GTEST_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+endif()
 
   add_executable(multi_malloc_test multi_malloc_test.cpp)
   add_gtest_dependencies(multi_malloc_test)
@@ -304,10 +328,13 @@ if (BUILD_SPS_TEST)
   add_executable(macro_test macro_test.cpp)
   add_gtest_dependencies(macro_test)
 
+  add_executable(string_test string_test.cpp)
+  add_gtest_dependencies(string_test)
+
   if (UNIX)
     add_executable(weak_binder_test weak_binder_test.cpp)
     set_target_properties(weak_binder_test PROPERTIES
-      CXX_STANDARD 14)
+      CXX_STANDARD 17)
     add_gtest_dependencies(weak_binder_test)
   endif()
   set(sgc_test_SOURCES
@@ -392,6 +419,9 @@ if (BUILD_SPS_TEST)
   add_test(NAME    mimo_test
            COMMAND mimo_test)
 
+  add_test(NAME    siso_test
+           COMMAND siso_test)
+
   add_test(NAME    globals_test
            COMMAND globals_test)
 
@@ -407,13 +437,41 @@ if (BUILD_SPS_TEST)
   add_test(NAME    macro_test
            COMMAND macro_test)
 
+  if (0)
+    # Using fixtures
+    add_executable(test test.cpp)   # Adds target test
+    add_test(test_build             # Add a test_build "test" that runs CMake to build target test
+      "${CMAKE_COMMAND}"
+      --build "${CMAKE_BINARY_DIR}"
+      --config "$<CONFIG>"
+      --target test
+      )
+    set_tests_properties(test_build PROPERTIES FIXTURES_SETUP    test_fixture) # Marks test_build to be a setup task of fixture test_build
+    add_test(test test) # add a test that just runs test
+    set_tests_properties(test       PROPERTIES FIXTURES_REQUIRED test_fixture) # Marks the test "test" to need fixture test_fixture.
+
+    # Does not require you to build-all to build tests
+    ADD_TEST(ctest_build_test_code
+      "${CMAKE_COMMAND}" --build ${CMAKE_BINARY_DIR} --target test_code --config "$<CONFIG>")
+    ADD_TEST(ctest_run_test_code test_code)
+    SET_TESTS_PROPERTIES(ctest_run_test_code
+      PROPERTIES DEPENDS ctest_build_test_code)
+
+  endif()
   if (SPS_Signals)
     add_test(NAME    signals_test
              COMMAND signals_test)
   endif()
 
+  add_test(NAME string_test
+           COMMAND string_test)
   # Link to threading library (general)
   set( CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${CMAKE_THREAD_LIBS_INIT}")
+
+  # Add here any target - preferable all the tests
+  add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND}
+    DEPENDS string_test)
+
 endif()
 
 # SWIG Target
@@ -423,34 +481,24 @@ if (SPS_Signals)
 
   # Figure out why cstdarg => FILE__ undefined
   if (MSVC)
-    add_definitions(-DSWIG_PYTHON_INTERPRETER_NO_DEBUG)
+    if(_DEBUG_USING_PYTHON_RELEASE_RUNTIME)
+      add_definitions(-DSWIG_PYTHON_INTERPRETER_NO_DEBUG)
+    endif()
   endif()
 
-  find_package(SWIG REQUIRED)
+  find_package(SWIG)
   include(${SWIG_USE_FILE})
 
-  if (ENABLE_PYTHON3)
-    set(Python_ADDITIONAL_VERSIONS 3.5 3.7)
-    find_package(PythonInterp 3 REQUIRED)
-    find_package(PythonLibs)
-  else()
-    set(Python_ADDITIONAL_VERSIONS 2.7)
-    # HACK
-    if (WIN32)
-      find_package(PythonInterp 2.7 REQUIRED)
-    else()
-      find_package(PythonInterp 2.7 REQUIRED)
-      #find_package(PythonInterp 2.7.9 EXACT REQUIRED)
-    endif()
-    find_package(PythonLibs 2.7 REQUIRED)
-  endif()
+  find_package(Python3 COMPONENTS Interpreter Development NumPy)
 
-  include_directories(${PYTHON_INCLUDE_PATH})
+  include_directories(${Python3_INCLUDE_DIRS})
+  include_directories(${Python3_NumPy_INCLUDE_DIRS})
 
   if (MSVC)
     set(CMAKE_SWIG_FLAGS "-D_SWIG_WIN32")
   endif()
 
+  set_property(SOURCE swig_signals.i PROPERTY SWIG_MODULE_NAME swig_signals)
   set_source_files_properties(swig_signals.i PROPERTIES CPLUSPLUS ON)
 
   set(swig_signals_HEADERS
@@ -468,19 +516,21 @@ endif()
 
   if (MSVC)
     # Potential uninitialized variable in SWIG_AsVal_
-    set_source_files_properties( ${swig_generated_file_fullname} PROPERTIES COMPILE_FLAGS "/wd6246 /wd6244 /wd6011 /wd4459 /wd4701 /wd4127 /wd4456")
+    set_source_files_properties( ${swig_generated_file_fullname} PROPERTIES COMPILE_FLAGS "/wd6246 /wd6244 /wd6011 /wd4459 /wd4701 /wd4706 /wd4127 /wd4456")
 
     # Allow to debug under windows, if debug versions of Python are missing
-    string(REPLACE "_d" "" PYTHON_LIBRARIES "${PYTHON_LIBRARIES}")
+    if(_DEBUG_USING_PYTHON_RELEASE_RUNTIME)
+      string(REPLACE "_d" "" Python3_LIBRARIES "${Python3_LIBRARIES}")
+    endif()
   endif()
 
-  swig_link_libraries(swig_signals sps ${FFTW_LIBRARIES} ${PYTHON_LIBRARIES})
+  swig_link_libraries(swig_signals sps ${FFTW_LIBRARIES} ${Python3_LIBRARIES})
 
   if (WIN32)
     # pyconfig.h is not autogenerated on Windows. To avoid warnings, we
     # add a compiler directive
     get_directory_property(DirDefs COMPILE_DEFINITIONS )
-    set_target_properties(_swig_signals PROPERTIES
+    set_target_properties(${SWIG_MODULE_swig_signals_REAL_NAME} PROPERTIES
       COMPILE_DEFINITIONS "${DirDefs};HAVE_ROUND")
   endif()
 
@@ -503,7 +553,7 @@ endif()
 if( ${PROJECT_NAME} STREQUAL "fnm")
   install(TARGETS sps
     # IMPORTANT: Add the fnm library to the "export-set"
-    EXPORT SofusTargets
+    EXPORT FnmTargets
     RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
     ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib
     LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib

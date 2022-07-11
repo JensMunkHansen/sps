@@ -133,8 +133,7 @@ class indexed_auto_ptr {
    *
    * @throw std::runtime_error
    */
-  static indexed_auto_ptr* from_index(const indexed_type_index index )
-  throw(std::runtime_error);
+  static indexed_auto_ptr* from_index(const indexed_type_index index );
 
   /**
    * Convert indexed_auto_ptr<T> to an index.
@@ -193,8 +192,7 @@ template <typename T> indexed_type_index create_handle(T* t) {
  *
  * @return
  */
-template <typename T> T& get_object(const indexed_type_index index)
-throw(std::runtime_error) {
+template <typename T> T& get_object(const indexed_type_index index) {
   indexed_auto_ptr<T>* handle = indexed_auto_ptr<T>::from_index(index);
   return handle->get_object();
 }
@@ -208,8 +206,7 @@ throw(std::runtime_error) {
  *
  * @throw std::runtime_error
  */
-template <typename T> void destroy_object(const indexed_type_index index)
-throw(std::runtime_error) {
+template <typename T> void destroy_object(const indexed_type_index index) {
   indexed_auto_ptr<T>* handle = indexed_auto_ptr<T>::from_index(index);
   // If no exception is thrown using from_index at index, it is okay to
   // reset the pointer
@@ -232,8 +229,7 @@ throw(std::runtime_error) {
  * @throw std::runtime_error
  */
 template <typename T>
-indexed_type_index clone_object(const indexed_type_index index)
-throw(std::runtime_error) {
+indexed_type_index clone_object(const indexed_type_index index) {
   indexed_auto_ptr<T>* curHandle = indexed_auto_ptr<T>::from_index(index);
   T* clone = curHandle->get_object().clone();
   indexed_auto_ptr<T>* newHandle = new indexed_auto_ptr<T>(clone);
@@ -348,8 +344,7 @@ std::vector<indexed_auto_ptr<T>*> indexed_auto_ptr_collector<T>::objvector;
 
 template <typename T>
 indexed_auto_ptr<T>*
-indexed_auto_ptr<T>::from_index(const indexed_type_index index)
-throw(std::runtime_error) {
+indexed_auto_ptr<T>::from_index(const indexed_type_index index) {
   // Find object in static vector
   indexed_auto_ptr* obj = NULL;
 
