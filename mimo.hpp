@@ -69,7 +69,8 @@ namespace sps {
 #ifdef CXX11
 using std::is_copy_constructible;
 #else
-# error Implement sps::is_copy_constructible in c98.hpp
+# include <sps/c98.hpp>
+using sps::is_copy_constructible;
 #endif
 
 /*! \brief Multi-Reader-Multi-Writer Queue interface
@@ -399,6 +400,8 @@ class IMRMWCircularBuffer {
    */
   virtual bool pop(T& destination) = 0;
 
+  virtual bool try_pop(T& destination) = 0;
+
 #ifdef CXX11
   /**
    * Push element onto ring buffer.
@@ -473,6 +476,10 @@ class MRMWCircularBuffer :
   std::condition_variable m_cond_not_full;
   std::atomic<bool> m_valid{true};           ///< State for invalidation
 
+  size_type capacity() const {
+    return m_capacity;
+  }
+
   bool is_not_empty() const {
     return m_unread > 0;
   }
@@ -505,9 +512,11 @@ class MRMWCircularBuffer :
     if (!m_valid) {
       return false;
     }
+
     m_container.push(std::move(source));
     m_unread++;
     m_cond_not_empty.notify_one();
+    printf("%d\n", m_unread);
     return true;
   }
 #else
@@ -556,6 +565,24 @@ class MRMWCircularBuffer :
     m_cond_not_full.notify_one();
     return true;
   }
+
+  bool try_pop(T& destination) SPS_OVERRIDE {
+    std::lock_guard<std::mutex> guard(m_mutex);
+    // Lock is now reacquired
+    if (!m_valid) {
+      return false;
+    } else if (this->is_not_empty()) {
+      destination = std::move(m_container.front());
+      m_container.pop();
+      m_unread--;
+      m_cond_not_full.notify_one();
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+
 
   /**
    * Destructor. Invalidate and empty queue

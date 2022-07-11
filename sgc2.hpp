@@ -40,9 +40,9 @@ class GarbageCollected : public CRTP<T, GarbageCollected> {
  protected:
   GarbageCollected() :
 #ifdef SPS_TYPE_ID_NAME
-      type(typeid(T).name())
+    type(typeid(T).name())
 #else
-      type(&typeid(T))
+    type(&typeid(T))
 #endif
   {
     this->signature = this;
@@ -74,8 +74,8 @@ class GarbageCollected : public CRTP<T, GarbageCollected> {
     delete obj;
   }
 
-  static GarbageCollected* FromIndex(const indexed_type_index index)
-      throw(std::runtime_error);
+  static GarbageCollected* FromIndex(const indexed_type_index index);
+  //throw(std::runtime_error);
 
   int ToIndex(indexed_type_index* index);
 
@@ -88,7 +88,8 @@ class GarbageCollected : public CRTP<T, GarbageCollected> {
 };
 
 template <typename T> void Destroy(const indexed_type_index index)
-throw(std::runtime_error) {
+//throw(std::runtime_error)
+{
   GarbageCollected<T>* handle = GarbageCollected<T>::FromIndex(index);
   if (handle) {
     GarbageCollector<T>::objvector[index] = nullptr;
@@ -192,7 +193,8 @@ std::vector<GarbageCollected<T>*> GarbageCollector<T>::objvector;
 template <typename T>
 GarbageCollected<T>*
 GarbageCollected<T>::FromIndex(const sps::indexed_type_index index)
-throw(std::runtime_error) {
+//throw(std::runtime_error)
+{
   // Find object in static vector
   GarbageCollected* obj = NULL;
 
@@ -248,10 +250,10 @@ int GarbageCollected<T>::ToIndex(indexed_type_index* index) {
                  GarbageCollector<T>::objvector.end(), this);
   if (it != GarbageCollector<T>::objvector.end()) {
     *index =
-        indexed_type_index(
-            std::distance(
-            GarbageCollector<T>::objvector.begin(),
-            it));
+      indexed_type_index(
+        std::distance(
+          GarbageCollector<T>::objvector.begin(),
+          it));
     return 0;
   } else {
     fprintf(stderr, "Invalid index.\n");
@@ -266,8 +268,8 @@ int GarbageCollected<T>::ToIndex(indexed_type_index* index) {
 //  TODO(JEM): introduce indexed after garbage collected
 //  If an object is typed (using typename) gc is using it
 class GCTestObject :
-    public sps::GarbageCollected<GCTestObject>,
-    public sps::Shared<GCTestObject> {
+  public sps::GarbageCollected<GCTestObject>,
+  public sps::Shared<GCTestObject> {
  public:
   GCTestObject() {
     std::cout << "GCTestObject" << std::endl;

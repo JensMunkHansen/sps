@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file   cenv.h
  * @author Jens Munk Hansen <jens.munk.hansen@gmail.com>
  * @date   Sat Nov 29 17:48:45 2014
@@ -110,7 +110,8 @@ MSVC++ 5.0  _MSC_VER == 1100
 #  define SPS_REGISTER #register
 #  define SPS_OVERRIDE
 # endif
-# if (__cplusplus >= 201402L)
+// TODO: Do this correctly for Microsucks
+# if (__cplusplus >= 201402L) || (_MSC_VER >= 1900)
 #  define CXX14 14
 # endif
 # if (__cplusplus >= 201703L)
@@ -157,7 +158,7 @@ EC++  __embedded_cplusplus  Embedded C++
 // Static inlines
 #if (defined(_MSC_VER) && defined(_WIN32))
 // Note when used inside a namespace, the static is superfluous
-# define STATIC_INLINE_BEGIN static inline //__forceinline
+# define STATIC_INLINE_BEGIN static inline
 # define STATIC_INLINE_END
 #elif (defined(__GNUC__))
 # define STATIC_INLINE_BEGIN static inline
@@ -409,4 +410,6 @@ const auto highLevelF = lowLevelF;
 /* tab-width: 2 */
 /* c-basic-offset: 2 */
 /* End: */
+
+
 

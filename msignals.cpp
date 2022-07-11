@@ -111,8 +111,7 @@ class Signal1DPlan<float> {
 
   static const bool reuse = true;
 
-  static void DestroyPlans()
-  {
+  static void DestroyPlans() {
     for (size_t i = 0 ; i < nFFTLengths ; i++) {
       if (forward[i]) {
         fftwf_destroy_plan(forward[i]);
@@ -125,15 +124,13 @@ class Signal1DPlan<float> {
     }
   }
 
-  static Signal1DPlan& Instance()
-  {
+  static Signal1DPlan& Instance() {
     // A singleton cannot be made thread_local
     static Signal1DPlan singleton;
     return singleton;
   }
 
-  fftwf_plan& Forward(size_t size, float* in, std::complex<float>* out)
-  {
+  fftwf_plan& Forward(size_t size, float* in, std::complex<float>* out) {
     // Check power of two
     assert(size && ((size & (size-1))) ==0);
     size_t index = (size_t)log2(size);
@@ -160,8 +157,7 @@ class Signal1DPlan<float> {
     }
   }
 
-  fftwf_plan& Backward(size_t size, std::complex<float>* in, float* out)
-  {
+  fftwf_plan& Backward(size_t size, std::complex<float>* in, float* out) {
     // Check power of two
     assert(size && ((size & (size-1))) ==0);
     size_t index = (size_t)log2(size);
@@ -193,15 +189,13 @@ class Signal1DPlan<float> {
   }
 
  private:
-  Signal1DPlan()
-  {
+  Signal1DPlan() {
 #if USE_FFTW_THREADS
     int state = fftw_init_threads();
     fftw_plan_with_nthreads(4);
 #endif
   }
-  ~Signal1DPlan()
-  {
+  ~Signal1DPlan() {
 #if USE_FFTW_THREADS
     fftw_cleanup_threads();
 #else
@@ -242,8 +236,7 @@ class Signal1DPlan<double> {
   static __THREAD fftw_plan forward[Signal1DPlan<double>::nFFTLengths];
   static __THREAD fftw_plan backward[Signal1DPlan<double>::nFFTLengths];
 
-  static Signal1DPlan& Instance()
-  {
+  static Signal1DPlan& Instance() {
     // Apparently, the singleton cannot be made thread_local
     static Signal1DPlan singleton;
     return singleton;
@@ -262,8 +255,7 @@ class Signal1DPlan<double> {
   }
   */
 
-  fftw_plan& Forward(size_t size, double* in, std::complex<double>* out)
-  {
+  fftw_plan& Forward(size_t size, double* in, std::complex<double>* out) {
     // Check power of two
     assert(size && ((size & (size-1))) ==0);
     size_t index = (size_t)log2(size);
@@ -276,8 +268,7 @@ class Signal1DPlan<double> {
     }
   }
 
-  fftw_plan& Backward(size_t size, std::complex<double>* in, double* out)
-  {
+  fftw_plan& Backward(size_t size, std::complex<double>* in, double* out) {
     // Check power of two
     assert(size && ((size & (size-1))) ==0);
     size_t index = (size_t)log2(size);
@@ -292,8 +283,7 @@ class Signal1DPlan<double> {
 
  private:
   Signal1DPlan() {}
-  ~Signal1DPlan()
-  {
+  ~Signal1DPlan() {
     for (size_t i = 0 ; i < nFFTLengths ; i++) {
       if (forward[i]) {
         fftw_destroy_plan(forward[i]);
@@ -321,30 +311,27 @@ template class Signal1DPlan<float>;
 template class Signal1DPlan<double>;
 
 template <typename T>
-STATIC_INLINE_BEGIN T* _mm_padarray(const T* input, const size_t len, const size_t newlen)
-{
+STATIC_INLINE_BEGIN T* _mm_padarray(const T* input, const size_t len, const size_t newlen) {
   T* output = (T*) SPS_MM_MALLOC(newlen*sizeof(T),16);
 #if 0
   memset(output, 0, newlen*sizeof(T));
   memcpy(output, (void*)input, len*sizeof(T));
 #else
-  memcpy(output, (void*)input, len*sizeof(T));
-  memset(&output[len], 0, (newlen-len)*sizeof(T));
+  memcpy(reinterpret_cast<char*>(output), (void*)input, len*sizeof(T));
+  memset(reinterpret_cast<char*>(&output[len]), 0, (newlen-len)*sizeof(T));
 #endif
   return output;
 }
 
 template <typename T>
-void DivideArray(T *Data, size_t NumEl, T Divisor)
-{
+void DivideArray(T *Data, size_t NumEl, T Divisor) {
   size_t n;
   for(n = 0; n < NumEl; n++)
     Data[n] /= Divisor;
 }
 
 template <>
-void DivideArray<float>(float *Data, size_t NumEl, float Divisor)
-{
+void DivideArray<float>(float *Data, size_t NumEl, float Divisor) {
 
   // TODO: Consider using _mm_loadu_ps for the first (if any)
 
@@ -387,8 +374,7 @@ void DivideArray<float>(float *Data, size_t NumEl, float Divisor)
 }
 
 template <>
-void DivideArray<double>(double *Data, size_t NumEl, double Divisor)
-{
+void DivideArray<double>(double *Data, size_t NumEl, double Divisor) {
 
   const size_t align = 16;
   const uintptr_t mask = ~(uintptr_t)(align - 1);
@@ -432,8 +418,7 @@ template <class T>
 signal1D<T>::signal1D() : data(NULL), offset(0), ndata(0), nbytes(0) {}
 
 template <class T>
-signal1D<T>::signal1D(size_t ndata) : data(NULL), offset(0), ndata(ndata)
-{
+signal1D<T>::signal1D(size_t ndata) : data(NULL), offset(0), ndata(ndata) {
   nbytes = 16 * (ndata * sizeof(T) + 15) / 16;
   data = (T*) _mm_malloc(nbytes,16);
 #ifndef NDEBUG
@@ -442,8 +427,7 @@ signal1D<T>::signal1D(size_t ndata) : data(NULL), offset(0), ndata(ndata)
 }
 
 template <class T>
-signal1D<T>::signal1D(size_t ndata, size_t _nbytes) : data(NULL), offset(0), ndata(ndata), nbytes(0)
-{
+signal1D<T>::signal1D(size_t ndata, size_t _nbytes) : data(NULL), offset(0), ndata(ndata), nbytes(0) {
   nbytes = 16 * (ndata * sizeof(T) + 15) / 16;
   nbytes = std::max<size_t>(_nbytes,nbytes);
   data = (T*) _mm_malloc(nbytes,16);
@@ -453,8 +437,7 @@ signal1D<T>::signal1D(size_t ndata, size_t _nbytes) : data(NULL), offset(0), nda
 }
 
 template <class T>
-signal1D<T>::~signal1D()
-{
+signal1D<T>::~signal1D() {
   if (data) {
     _mm_free(data);
     data = NULL;
@@ -465,8 +448,7 @@ signal1D<T>::~signal1D()
 #if defined(__GNUG__) || (defined(_MSC_VER) && (_MSC_VER >= 1800))
 
 template <typename T>
-bool pack_r2c(const sps::signal1D<T> &a, sps::signal1D<std::complex<T> >& c)
-{
+bool pack_r2c(const sps::signal1D<T> &a, sps::signal1D<std::complex<T> >& c) {
 
   size_t nbytes = 16 * (a.ndata * sizeof(T) + 15) / 16;
   c.ndata = a.ndata / 2;
@@ -479,13 +461,13 @@ bool pack_r2c(const sps::signal1D<T> &a, sps::signal1D<std::complex<T> >& c)
     }
     c.data = (std::complex<T>*) SPS_MM_MALLOC(c.nbytes, 16);
   }
-  memcpy(c.data,a.data,a.ndata * sizeof(T));
+  // New warning -Wclass-memaccess
+  memcpy(c.data, reinterpret_cast<const char*>(a.data), a.ndata * sizeof(T));
   return true;
 }
 
 template <typename T>
-bool unpack_c2r(const sps::signal1D<std::complex<T> >& a, sps::signal1D<T> &c)
-{
+bool unpack_c2r(const sps::signal1D<std::complex<T> >& a, sps::signal1D<T> &c) {
 
   size_t nbytes = 16 * (a.ndata * sizeof(std::complex<T>) + 15) / 16;
   c.ndata = 2*a.ndata;
@@ -503,8 +485,7 @@ bool unpack_c2r(const sps::signal1D<std::complex<T> >& a, sps::signal1D<T> &c)
 }
 
 template <> bool
-fft<float>(const sps::signal1D<float> &a, const size_t &n, sps::signal1D<std::complex<float> >& c)
-{
+fft<float>(const sps::signal1D<float> &a, const size_t &n, sps::signal1D<std::complex<float> >& c) {
 
   c.ndata = n/2 + 1;
   c.offset = 0;
@@ -548,8 +529,7 @@ fft<float>(const sps::signal1D<float> &a, const size_t &n, sps::signal1D<std::co
 }
 
 template <> bool
-ifft<float>(const sps::signal1D<std::complex<float> >& a, const size_t &n, sps::signal1D<float> &c)
-{
+ifft<float>(const sps::signal1D<std::complex<float> >& a, const size_t &n, sps::signal1D<float> &c) {
 
   c.ndata = n;
   c.offset = 0;
@@ -592,8 +572,7 @@ ifft<float>(const sps::signal1D<std::complex<float> >& a, const size_t &n, sps::
 }
 
 template <> bool
-fft<double>(const sps::signal1D<double> &a, const size_t &n, sps::signal1D<std::complex<double> >& c)
-{
+fft<double>(const sps::signal1D<double> &a, const size_t &n, sps::signal1D<std::complex<double> >& c) {
 
   c.ndata = n/2 + 1;
   c.offset = 0;
@@ -632,8 +611,7 @@ fft<double>(const sps::signal1D<double> &a, const size_t &n, sps::signal1D<std::
 }
 
 template <> bool
-ifft<double>(const sps::signal1D<std::complex<double> >& a, const size_t &n, sps::signal1D<double> &c)
-{
+ifft<double>(const sps::signal1D<std::complex<double> >& a, const size_t &n, sps::signal1D<double> &c) {
 
   c.ndata = n;
   c.offset = 0;
@@ -678,8 +656,7 @@ ifft<double>(const sps::signal1D<std::complex<double> >& a, const size_t &n, sps
 template <> bool
 conv_fft<float>(const sps::signal1D<float> &a,
                 const sps::signal1D<float> &b,
-                sps::signal1D<float>& c)
-{
+                sps::signal1D<float>& c) {
 
   float *_a = NULL, *_b = NULL;
   fftwf_complex *fft_a = NULL, *fft_b = NULL;
@@ -808,8 +785,7 @@ conv_fft<float>(const sps::signal1D<float> &a,
 template <> bool
 conv_fft<double>(const sps::signal1D<double> &a,
                  const sps::signal1D<double> &b,
-                 sps::signal1D<double>& c)
-{
+                 sps::signal1D<double>& c) {
 
   double *_a = NULL, *_b = NULL;
 
@@ -898,8 +874,7 @@ template <typename T>
 bool conv_fft_fs(const T& fs,
                  const sps::signal1D<T> &a,
                  const sps::signal1D<T> &b,
-                 sps::signal1D<T>& c)
-{
+                 sps::signal1D<T>& c) {
 
   const T invfs = T(1.0) / fs;
   bool retval = conv_fft(a,b,c);
@@ -918,8 +893,7 @@ template <class T>
 msignal1D<T>::msignal1D(size_t ndata) : msignal1D(ndata, 16 * (ndata * sizeof(T) + 15) / 16) {}
 
 template <class T>
-msignal1D<T>& msignal1D<T>::operator=(const msignal1D& a)
-{
+msignal1D<T>& msignal1D<T>::operator=(const msignal1D& a) {
   this->m_data = a.m_data;
   this->offset = a.offset;
   this->ndata  = a.ndata;
@@ -928,8 +902,7 @@ msignal1D<T>& msignal1D<T>::operator=(const msignal1D& a)
 }
 
 template <class T>
-msignal1D<T>::msignal1D(const sps::msignal1D<T>& a)
-{
+msignal1D<T>::msignal1D(const sps::msignal1D<T>& a) {
   this->m_data = a.m_data;
   this->offset = a.offset;
   this->ndata  = a.ndata;
@@ -939,8 +912,7 @@ msignal1D<T>::msignal1D(const sps::msignal1D<T>& a)
 template <class T>
 msignal1D<T>::msignal1D(size_t _ndata, size_t _nbytes) : offset(0),
   ndata(_ndata),
-  nbytes(16 * ( std::max<size_t>(_ndata * sizeof(T),_nbytes) + 15 ) / 16), m_data(NULL)
-{
+  nbytes(16 * ( std::max<size_t>(_ndata * sizeof(T),_nbytes) + 15 ) / 16), m_data(NULL) {
   m_data.reset( (T*) _mm_malloc(nbytes,16), [=](T *p) {
     _mm_free(p);
     p=NULL;
@@ -964,8 +936,7 @@ inline T& msignal1D<T>::operator[](const size_t index)
 */
 
 template <class T>
-void msignal1D<T>::reset(size_t _ndata, size_t _nbytes)
-{
+void msignal1D<T>::reset(size_t _ndata, size_t _nbytes) {
   // Maximum of current and number of elements
   _ndata  = std::max<size_t>(_ndata,ndata);
 
@@ -982,11 +953,10 @@ void msignal1D<T>::reset(size_t _ndata, size_t _nbytes)
   }
   // Reset data
   ndata = _ndata;
-  memset(m_data.get(),0,ndata*sizeof(T));
+  memset(reinterpret_cast<char*>(m_data.get()), 0, ndata*sizeof(T));
 }
 template <class T>
-void msignal1D<T>::reverse()
-{
+void msignal1D<T>::reverse() {
   std::shared_ptr<T> data1 = m_data;
   m_data.reset( (T*) _mm_malloc(nbytes,16), [=](T *p) {
     _mm_free(p);
@@ -998,8 +968,7 @@ void msignal1D<T>::reverse()
 }
 
 template <class T>
-void msignal1D<T>::pad(size_t _nbytes)
-{
+void msignal1D<T>::pad(size_t _nbytes) {
   if ((nbytes > 0) && (_nbytes > nbytes)) {
     // Shallow copy
     std::shared_ptr<T> data1 = m_data;
@@ -1007,15 +976,14 @@ void msignal1D<T>::pad(size_t _nbytes)
       _mm_free(p);
       p=NULL;
     });
-    memset(m_data.get(),0,_nbytes);
-    memcpy(m_data.get(), data1.get(), ndata*sizeof(T));
+    memset(reinterpret_cast<char*>(m_data.get()), 0, _nbytes);
+    memcpy(reinterpret_cast<char*>(m_data.get()), data1.get(), ndata*sizeof(T));
     nbytes = _nbytes;
   }
 }
 
 template <class T>
-msignal1D<T>::~msignal1D()
-{
+msignal1D<T>::~msignal1D() {
   if (ndata) {
     if (m_data) {
       m_data.reset((T*)NULL);
@@ -1024,16 +992,14 @@ msignal1D<T>::~msignal1D()
 }
 
 template <class T>
-void msignal1D<T>::scale(const T& s)
-{
+void msignal1D<T>::scale(const T& s) {
   for (size_t i = 0 ; i < ndata ; i++) {
     m_data.get()[i] *= s;
   }
 }
 
 template <>
-void msignal1D<float>::scale(const float& s)
-{
+void msignal1D<float>::scale(const float& s) {
   __m128 multiplier = _mm_set1_ps(s);
   for (size_t i = 0 ; i < ndata ; i += 4) {
     __m128 va = _mm_load_ps(&(m_data.get()[i]));
@@ -1046,8 +1012,7 @@ void msignal1D<float>::scale(const float& s)
 // TODO: Overwrites output if length is 1 (optimization)
 template<typename T>
 bool mconv_fft_fs(const T& fs,
-                  const msignal1D<T>& a, const msignal1D<T>& b, msignal1D<T>& c)
-{
+                  const msignal1D<T>& a, const msignal1D<T>& b, msignal1D<T>& c) {
 
   const T invfs = T(1.0) / fs;
   bool retval = mconv_fft(a,b,c);
@@ -1067,16 +1032,14 @@ bool mconv_fft_fs(const T& fs,
 
 template <typename T>
 bool conv_fft(const sps::signal1D<T> &a,
-              sps::signal1D<T> &b)
-{
+              sps::signal1D<T> &b) {
   // In-place of second argument
   return true;
 }
 
 template <>
 bool conv_fft_out_in(const signal1D<float> &a,
-                     signal1D<float> &b)
-{
+                     signal1D<float> &b) {
 
   float *_a = NULL, *_b = NULL;
   fftwf_complex *fft_a = NULL;
@@ -1152,8 +1115,7 @@ bool conv_fft_out_in(const signal1D<float> &a,
 
 template <>
 bool conv_fft_out_in(const signal1D<double> &a,
-                     signal1D<double> &b)
-{
+                     signal1D<double> &b) {
   SPS_UNREFERENCED_PARAMETERS(a,b);
   assert(false && "Not implemented");
   return false;
@@ -1162,8 +1124,7 @@ bool conv_fft_out_in(const signal1D<double> &a,
 template <class T>
 void conv_ansi(const T* Signal, size_t SignalLen,
                const T* Kernel, size_t KernelLen,
-               T* Result)
-{
+               T* Result) {
   size_t n;
 
   for (n = 0; n < SignalLen + KernelLen - 1; n++) {
@@ -1183,8 +1144,7 @@ void conv_ansi(const T* Signal, size_t SignalLen,
 template <typename T>
 bool conv(const signal1D<T> &a,
           const signal1D<T> &b,
-          signal1D<T>& c)
-{
+          signal1D<T>& c) {
 
   // check validity of params
   if ((a.data == NULL) || (b.data==NULL)) {
@@ -1252,8 +1212,7 @@ bool conv(const signal1D<T> &a,
 }
 
 template<typename T>
-bool mconv_fft(const msignal1D<T>& a, const msignal1D<T>& b, signal1D<T>& c)
-{
+bool mconv_fft(const msignal1D<T>& a, const msignal1D<T>& b, signal1D<T>& c) {
   bool retval = true;
 
   size_t na = a.ndata;
@@ -1352,8 +1311,7 @@ bool mconv_fft(const msignal1D<T>& a, const msignal1D<T>& b, signal1D<T>& c)
 
 // Make scaling more elegant
 template<typename T>
-bool mconv_fft(const msignal1D<T>& a, const msignal1D<T>& b, msignal1D<T>& c)
-{
+bool mconv_fft(const msignal1D<T>& a, const msignal1D<T>& b, msignal1D<T>& c) {
 
   bool retval = true;
 
@@ -1483,8 +1441,7 @@ bool mconv_fft(const msignal1D<T>& a, const msignal1D<T>& b, msignal1D<T>& c)
 }
 
 template<typename T>
-bool mfft(const msignal1D<T>& a, const size_t& n, msignal1D<std::complex<T> >& c)
-{
+bool mfft(const msignal1D<T>& a, const size_t& n, msignal1D<std::complex<T> >& c) {
 
   bool retval = true;
 
@@ -1524,8 +1481,7 @@ bool mfft(const msignal1D<T>& a, const size_t& n, msignal1D<std::complex<T> >& c
 }
 
 template<typename T>
-bool mifft(const msignal1D<std::complex<T> >& a, const size_t &n, msignal1D<T>& c)
-{
+bool mifft(const msignal1D<std::complex<T> >& a, const size_t &n, msignal1D<T>& c) {
 
   bool retval = true;
 

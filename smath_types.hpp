@@ -85,9 +85,16 @@ SPS_EXPORT point_t : public std::array<T, 4>
 #else
   using std::array<T, 4>::array;
 
-  point_t(std::initializer_list<T> args) :
-    std::array<T, 4>(reinterpret_cast<std::array<T, 4> const&>(
-                       *(args.begin()))) {}
+  // TODO: Not good if called using a list of length 3
+  point_t(std::initializer_list<T> args)
+  //      : std::array<T, 4>(reinterpret_cast<std::array<T, 4> const&>(
+  //            *(args.begin()))) {}
+  {
+    (*this)[0] = args.begin()[0];
+    (*this)[1] = args.begin()[1];
+    (*this)[2] = args.begin()[2];
+  }
+
 #endif
   point_t<T>& operator+=(const point_t<T>& other) {
     (*this)[0] += other[0];

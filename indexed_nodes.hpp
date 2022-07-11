@@ -87,8 +87,7 @@ class indexed_node : public base_node {
    * Dtor
    *
    */
-  ~indexed_node()
-  {
+  ~indexed_node() {
     delete t;        // destroy object
     signature= NULL; // destroy signature
   }
@@ -100,7 +99,7 @@ class indexed_node : public base_node {
    *
    * @return
    */
-  static indexed_node* from_index( const uint64_t index ) throw(std::runtime_error);
+  static indexed_node* from_index( const uint64_t index );
 
   /**
    * Convert node<T> to an index.
@@ -116,8 +115,7 @@ class indexed_node : public base_node {
    *
    * @return
    */
-  T& get_object() const
-  {
+  T& get_object() const {
     return *t;
   }
 
@@ -148,8 +146,7 @@ namespace nodes {
  *
  * @return
  */
-template <typename T> uint64_t create_handle(T* t)
-{
+template <typename T> uint64_t create_handle(T* t) {
   indexed_node<T>* handle = new indexed_node<T>(t);
   return handle->to_index();
 }
@@ -161,8 +158,7 @@ template <typename T> uint64_t create_handle(T* t)
  *
  * @return
  */
-template <typename T> T& get_object(const uint64_t index) throw(std::runtime_error)
-{
+template <typename T> T& get_object(const uint64_t index) {
   indexed_node<T>* handle= indexed_node<T>::from_index(index);
   return handle->get_object();
 }
@@ -174,8 +170,7 @@ template <typename T> T& get_object(const uint64_t index) throw(std::runtime_err
  *
  * @return
  */
-template <typename T> indexed_node<T>& get_node(const uint64_t index) throw(std::runtime_error)
-{
+template <typename T> indexed_node<T>& get_node(const uint64_t index) {
   indexed_node<T>* handle= indexed_node<T>::from_index(index);
   return *handle;
 }
@@ -187,8 +182,7 @@ template <typename T> indexed_node<T>& get_node(const uint64_t index) throw(std:
  *
  * @param index
  */
-template <typename T> void destroy_object(const uint64_t index) throw(std::runtime_error)
-{
+template <typename T> void destroy_object(const uint64_t index) {
   indexed_node<T>* handle= indexed_node<T>::from_index(index);
   delete handle;
 }
@@ -200,8 +194,7 @@ template <typename T> void destroy_object(const uint64_t index) throw(std::runti
  *
  * @return
  */
-template <typename T> uint64_t clone_object(const uint64_t index) throw(std::runtime_error)
-{
+template <typename T> uint64_t clone_object(const uint64_t index) {
   indexed_node<T>* hCurrent = indexed_node<T>::from_index(index);
   T* clone = new T(hCurrent->get_object());
   indexed_node<T>* hClone = new indexed_node<T>(clone);
@@ -221,8 +214,7 @@ class indexed_node_collector {
    * Dtor
    *
    */
-  ~indexed_node_collector()
-  {
+  ~indexed_node_collector() {
     size_t nObjectsCleared = 0;
 
     typename std::vector<indexed_node<T>*>::iterator i;
@@ -241,8 +233,7 @@ class indexed_node_collector {
     }
   }
 
-  static void register_handle (indexed_node<T>* obj)
-  {
+  static void register_handle (indexed_node<T>* obj) {
     static indexed_node_collector singleton(obj);
 
     typename std::vector<indexed_node<T>*>::iterator i;
@@ -264,8 +255,7 @@ class indexed_node_collector {
    *
    * @param obj
    */
-  indexed_node_collector(indexed_node<T>* obj)
-  {
+  indexed_node_collector(indexed_node<T>* obj) {
     char buffer[128];
 #ifdef SPS_TYPE_ID_NAME
     sprintf(buffer, "%zu", strlen(obj->type));
@@ -288,8 +278,7 @@ template <typename T>
 std::vector<indexed_node<T>*> indexed_node_collector<T>::objvector;
 
 template <typename T>
-uint64_t indexed_node<T>::to_index()
-{
+uint64_t indexed_node<T>::to_index() {
   // Find pointer in vector
   auto it = find(indexed_node_collector<T>::objvector.begin(),indexed_node_collector<T>::objvector.end(),this);
   if (it!=indexed_node_collector<T>::objvector.end()) {
