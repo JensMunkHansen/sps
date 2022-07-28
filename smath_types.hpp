@@ -154,8 +154,6 @@ struct SPS_EXPORT mat3_t {
 };
 
 
-
-
 /*! \brief Rectangle
  *
  *
