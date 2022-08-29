@@ -24,7 +24,15 @@ SPS_EXPORT mat3_t {
     }
     return result;
   }
-
+  mat3_t<T> operator+(const mat3_t<T>& other) {
+    mat3_t<T> result;
+    for (size_t i = 0 ; i < 3 ; i++) {
+      for (size_t j = 0 ; j < 3 ; j++) {
+        result[i][j] = (*this)[i][j] + other[i][j];
+      }
+    }
+    return result;
+  }
   point_t<T> operator*(const point_t<T>& vec) {
     point_t<T> result = {T(0.0), T(0.0), T(0.0)};
 
