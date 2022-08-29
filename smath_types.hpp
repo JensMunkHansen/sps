@@ -26,6 +26,7 @@
 #pragma once
 
 #include <sps/sps_export.h>
+#include <sps/math.h>
 
 #ifdef _MSC_VER
 # include <sps/aligned_array.hpp>
@@ -34,6 +35,7 @@
 #endif
 
 #include <sps/memory>   // For sps::aligned
+
 
 #ifdef _WIN32
 namespace sps {
@@ -102,6 +104,16 @@ SPS_EXPORT point_t : public std::array<T, 4>
     (*this)[2] += other[2];
     return *this;
   }
+  T length() {
+    return sqrt((*this)[0]*(*this)[0] +
+                (*this)[1]*(*this)[1] +
+                (*this)[2]*(*this)[2]);
+  }
+  T dist(const sps::point_t<T>& other) {
+    return sqrt(SQUARE((*this)[0] - other[0]) +
+                SQUARE((*this)[1] - other[1]) +
+                SQUARE((*this)[2] - other[2]));
+  }
 };
 
 
@@ -152,8 +164,6 @@ struct SPS_EXPORT mat3_t {
 
   T data[3][3];
 };
-
-
 
 
 /*! \brief Rectangle
