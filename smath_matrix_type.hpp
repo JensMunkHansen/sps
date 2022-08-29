@@ -5,7 +5,11 @@
 
 namespace sps {
 template <typename T>
-struct SPS_EXPORT mat3_t {
+struct
+#ifdef __GNUG__
+__attribute__((aligned(4*sizeof(T))))
+#endif
+SPS_EXPORT mat3_t {
   mat3_t<T> operator*(const mat3_t<T>& other) {
     mat3_t<T> result;
     for (size_t i = 0 ; i < 3 ; i++) {
@@ -34,5 +38,16 @@ struct SPS_EXPORT mat3_t {
 
   T data[3][3];
 };
+
+template <typename T>
+inline mat3_t<T> operator*(const T& s, const mat3_t<T>& mat) {
+  mat3_t<T> result;
+  for (size_t i = 0 ; i < 3 ; i++) {
+    for (size_t j = 0 ; j < 3 ; j++) {
+      result[i] = result[i] * s;
+    }
+  }
+  return result;
+}
 
 }  // namespace sps
