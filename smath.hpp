@@ -493,6 +493,9 @@ template <typename T, RotationConvention conv>
 void SPS_EXPORT rot2euler(const sps::mat3_t<T>& rot,
                           euler_t<T>* euler);
 
+template <typename T>
+bool SPS_EXPORT svd(const sps::mat3_t<T>& mat, sps::mat3_t<T>* u, sps::point_t<T>* s, sps::mat3_t<T>* v);
+  
 /**
  * Rotate point using 3 Euler angles according to the convention.
  *
