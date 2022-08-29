@@ -489,7 +489,12 @@ if (SPS_Signals)
   find_package(SWIG)
   include(${SWIG_USE_FILE})
 
-  find_package(Python3 COMPONENTS Interpreter Development NumPy)
+  if (WIN32)
+    find_package(Python3 COMPONENTS Interpreter Development NumPy)
+  else()
+    # On linux, we require a specific version of Python
+    find_package(Python3 3.9 COMPONENTS Interpreter Development NumPy)
+  endif()
 
   include_directories(${Python3_INCLUDE_DIRS})
   include_directories(${Python3_NumPy_INCLUDE_DIRS})

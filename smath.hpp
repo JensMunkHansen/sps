@@ -41,6 +41,7 @@
 #endif
 
 #include <sps/smath_types.hpp>
+#include <sps/smath_matrix_type.hpp>
 
 #ifdef _WIN32
 # undef max
