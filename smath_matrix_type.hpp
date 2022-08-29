@@ -35,6 +35,12 @@ SPS_EXPORT mat3_t {
     }
     return result;
   }
+  T* operator[](size_t index) {
+    return data[index];
+  }
+  const T* operator[](size_t index) const {
+    return data[index];
+  }
 
   T data[3][3];
 };
