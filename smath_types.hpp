@@ -27,6 +27,7 @@
 
 #include <sps/sps_export.h>
 #include <sps/math.h>
+#include <sps/smath_matrix_type.hpp>
 
 #ifdef _MSC_VER
 # include <sps/aligned_array.hpp>
@@ -113,6 +114,16 @@ SPS_EXPORT point_t : public std::array<T, 4>
     return sqrt(SQUARE((*this)[0] - other[0]) +
                 SQUARE((*this)[1] - other[1]) +
                 SQUARE((*this)[2] - other[2]));
+  }
+  mat3_t<T> dyadic_product(const sps::point_t<T>& other)
+  {
+    mat3_t<T> result;
+    for (size_t i = 0 ; i < 3 ; i++) {
+      for (size_t j = 0 ; j < 3 ; j++) {
+        result.data[i][j] = (*this)[i] * other[j];
+      }
+    }
+    return result;
   }
 };
 
