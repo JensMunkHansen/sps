@@ -133,39 +133,6 @@ const point_t<T> point_t<T>::zaxis = point_t<T>(T(0.0), T(0.0), T(1.0));
 template <typename T>
 using vector_t = point_t<T>;
 
-// Non-optimal
-template <typename T>
-struct SPS_EXPORT mat3_t {
-  mat3_t<T> operator*(const mat3_t<T>& other) {
-    mat3_t<T> result;
-    for (size_t i = 0 ; i < 3 ; i++) {
-      for (size_t j = 0 ; j < 3 ; j++) {
-        result.data[i][j] = T(0.0);
-        for (size_t k = 0 ; k < 3 ; k++) {
-          result.data[i][j] =
-            result.data[i][j]
-            + this->data[i][k] * other.data[k][j];
-        }
-      }
-    }
-    return result;
-  }
-
-  point_t<T> operator*(const point_t<T>& vec) {
-    point_t<T> result = {T(0.0), T(0.0), T(0.0)};
-
-    for (size_t i = 0 ; i < 3 ; i++) {
-      for (size_t j = 0 ; j < 3 ; j++) {
-        result[i] = result[i] + data[i][j] * vec[j];
-      }
-    }
-    return result;
-  }
-
-  T data[3][3];
-};
-
-
 /*! \brief Rectangle
  *
  *

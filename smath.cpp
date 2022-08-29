@@ -25,14 +25,15 @@ template struct SPS_EXPORT std::pair<double, double>;
 namespace sps {
 
 template <typename T>
-bool SPS_EXPORT svd(const sps::mat3_t<T>& mat, sps::mat3_t<T>* u, sps::point_t<T>* s, sps::mat3_t<T>* v) {
+bool SPS_EXPORT svd(const sps::mat3_t<T>& mat, sps::mat3_t<T>* u,
+                    sps::point_t<T>* s, sps::mat3_t<T>* v) {
   SPS_UNREFERENCE_PARAMTERS(mat, u, s, v);
-  
+
   bool retval = false;
   return retval;
 }
 
-  
+
 template <typename T, typename U>
 std::pair<T, T>
 minmax_delay(const T* xs, const U* ws, size_t nData) {
