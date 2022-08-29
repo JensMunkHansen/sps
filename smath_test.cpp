@@ -217,6 +217,7 @@ TEST(smath, intcp_line_rect) {
   intcp_line_rect(rect, y, x, &point);
   std::cout << point << std::endl;
 }
+
 TEST(smath, matmul) {
   sps::mat3_t<float> m0, m1, m2;
   for (size_t i = 0 ; i < 3 ; i++)
@@ -225,8 +226,11 @@ TEST(smath, matmul) {
       m1.data[i][j] = (float) (i*3 + j);
     }
   m2 = m0 * m1;
-  std::cout << "m2: " << m2.data[0][0] << std::endl;
+  //std::cout << "m2[0,0]: " << m2.data[0][0] << std::endl;
+  //std::cout << "m2[0,1]: " << m2.data[0][1] << std::endl;
+  //std::cout << "m2[2,2]: " << m2.data[2][2] << std::endl;
 }
+
 /*
 // TODO: Use this alternative for testing
 T angle = atan2(v,u);

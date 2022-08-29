@@ -17,8 +17,8 @@ SPS_EXPORT mat3_t {
         result.data[i][j] = T(0.0);
         for (size_t k = 0 ; k < 3 ; k++) {
           result.data[i][j] =
-              result.data[i][j]
-              + this->data[i][k] * other.data[k][j];
+            result.data[i][j]
+            + this->data[i][k] * other.data[k][j];
         }
       }
     }
