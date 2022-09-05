@@ -115,9 +115,9 @@ SPS_EXPORT point_t : public std::array<T, 4>
                 SQUARE((*this)[1] - other[1]) +
                 SQUARE((*this)[2] - other[2]));
   }
-  mat3_t<T> dyadic_product(const sps::point_t<T>& other)
+  sps::mat3_t<T> dyadic_product(const sps::point_t<T>& other)
   {
-    mat3_t<T> result;
+    sps::mat3_t<T> result;
     for (size_t i = 0 ; i < 3 ; i++) {
       for (size_t j = 0 ; j < 3 ; j++) {
         result.data[i][j] = (*this)[i] * other[j];

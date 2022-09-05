@@ -25,14 +25,159 @@ template struct SPS_EXPORT std::pair<double, double>;
 namespace sps {
 
 template <typename T>
-bool SPS_EXPORT svd(const sps::mat3_t<T>& mat, sps::mat3_t<T>* u,
-                    sps::point_t<T>* s, sps::mat3_t<T>* v) {
-  SPS_UNREFERENCE_PARAMTERS(mat, u, s, v);
+bool SPS_EXPORT EigenValuesOfSymmetricMatrix(
+    mat3_t<T> matrix,
+    T* eigenValue1,
+    T* eigenValue2,
+    T* eigenValue3)
+{
+  if (!matrix.issymmetric())
+    return false;
 
-  bool retval = false;
-  return retval;
+  // t := Tr(A) / 3
+  T t = matrix.trace() / T(3);
+  // K := A - tI
+  sps::mat3_t<T> mK = matrix - t * sps::mat3_t<T>::identity;
+  // q := |K|/2
+  T q = mK.det()/T(2);
+  // p := Tr(K^2)/6
+  T p = (mK * mK).trace() / T(6.0);
+  // y := Sqrt(p^3 - q^2)
+  T y = p*p*p - q*q;
+  y = y > 0 ? sqrt(y) : T(0);
+
+  // phi := 1/3 * Angle([x,q])
+  T phi = atan2(y, q);
+  if (phi < T(0.0))
+    phi = phi + T(M_PI);
+  phi = phi/T(3.0);
+
+  // Calculate eigen values
+  p = sqrt(p);
+  T f1 = p*cos(phi);
+  T f2 = p*sqrt(3)*fabs(sin(phi));
+
+  eigenValue1 = t + 2*f1;
+  eigenValue2 = t - f1 - f2;
+  eigenValue3 = t - f1 + f2;
+
+  // Sort them in non-decreasing order (we already know dEigen2 <= dEigen3)
+  if (eigenValue1 > eigenValue2)
+  {
+    T temp = eigenValue1;
+    eigenValue1 = eigenValue2;
+    eigenValue2 = temp;
+    if (eigenValue2 > eigenValue3)
+    {
+      temp = eigenValue2;
+      eigenValue2 = eigenValue3;
+      eigenValue3 = temp;
+    }
+  }
+  return true;
 }
 
+
+
+template <typename T>
+bool SPS_EXPORT svd(const sps::mat3_t<T>& mA, sps::mat3_t<T>* u,
+                    sps::point_t<T>* s, sps::mat3_t<T>* v) {
+  SPS_UNREFERENCE_PARAMETERS(mA, u, s, v);
+
+  bool retval = false;
+  sps::mat3_t<T> mT = mA.transpose();
+  sps::mat3_t<T> mSqr = mT * mA;
+
+  // Calculate the eigenvalues
+  T dEigen1, dEigen2, dEigen3;
+  EigenValuesOfSymmetricMatrix(mSqr, &dEigen1, &dEigen2, &dEigen3);
+#if 0
+  //Due to round off error eigenvalues can be negative.
+  dEigen1 = max(dEigen1, 0);
+  dEigen2 = max(dEigen2, 0);
+  dEigen3 = max(dEigen3, 0);
+
+  // Compare them
+  Boolean b12Equal = fabs(dEigen1 - dEigen2) < RealMath.EpsilonDoubleWeak;
+  Boolean b23Equal = fabs(dEigen2 - dEigen3) < RealMath.EpsilonDoubleWeak;
+  // Look at different cases w.r.t. multiplicities
+  if (b12Equal && b23Equal) // One eigen value with multiplicity 3
+  {
+    v = sps::mat3_t<T>.Identity;
+    T d0 = sqrt(dEigen1);
+    d = new Vector3d(d0, d0, d0);
+  }
+  else if (b12Equal) // One eigen value with multiplicity 2 (smallest), one with multiplicity 1
+  {
+    // Find eigen vector for the eigen value of multiplicity 1
+    Vector3d vEigen3 = EigenVectorForEigenValueOfGeometricMultiplicityOne(mSqr, dEigen3);
+    // Expand to an orthonormal basis
+    Vector3d vEigen1 = vEigen3.MakeOrthogonalVector().Normalize();
+    Vector3d vEigen2 = vEigen1.Cross(ref vEigen3).Normalize();
+    v = new sps::mat3_t<T>(vEigen3, vEigen2, vEigen1);
+    T d2 = sqrt(dEigen1);
+    T d0 = sqrt(dEigen3);
+    d = new Vector3d(d0, d2, d2);
+  }
+  else if (b23Equal) // One eigen value with multiplicity 2 (largest), one with multiplicity 1
+  {
+    // Find eigen vector for the eigen value of multiplicity 1
+    Vector3d vEigen1 = EigenVectorForEigenValueOfGeometricMultiplicityOne(mSqr, dEigen1);
+    // Expand to an orthonormal basis
+    Vector3d vEigen2 = vEigen1.MakeOrthogonalVector().Normalize();
+    Vector3d vEigen3 = vEigen1.Cross(ref vEigen2).Normalize();
+    v = new sps::mat3_t<T>(vEigen3, vEigen2, vEigen1);
+    T d2 = sqrt(dEigen1);
+    T d0 = sqrt(dEigen3);
+    d = new Vector3d(d0, d0, d2);
+  }
+  else // Three eigen values of multiplicity 1
+  {
+    // Find eigen vectors for two eigen values of multiplicity 1
+    Vector3d vEigen2 = EigenVectorForEigenValueOfGeometricMultiplicityOne(mSqr, dEigen2);
+    Vector3d vEigen3 = EigenVectorForEigenValueOfGeometricMultiplicityOne(mSqr, dEigen3);
+    // When eigenvalues are near each other, numerical errors in EigenVectorForEigenvalueOfGeometricMultiplicityOne
+    // can become large, and vEigen2 and vEigen3 might not be strictly orthonormal. Apply correction:
+    vEigen3 = (vEigen3 - vEigen2 * vEigen3.Dot(vEigen2)).Normalize();
+
+    // Expand to an orthonormal basis
+    Vector3d vEigen1 = vEigen2.Cross(ref vEigen3).Normalize();
+    v = new sps::mat3_t<T>(vEigen3, vEigen2, vEigen1);
+    d = new Vector3d(sqrt(dEigen3), sqrt(dEigen2), sqrt(dEigen1));
+  }
+
+  if (dEigen3 <= RealMath.EpsilonDoubleWeak) //all singular values are zero
+  {
+    d = Vector3d.Zero;
+    u = sps::mat3_t<T>.Zero;
+    return false;
+  }
+
+  sps::mat3_t<T> uNotNorm = sps::mat3_t<T>.Mult(ref mA, ref v);
+  if (dEigen2 <= RealMath.EpsilonDoubleWeak)
+  {
+    // Since ||uNotNorm.GetCol(0)|| = ||dEigen3 * v.GetCol(0)||, dEigen3 > 0 and v.GetCol(0) is unit,
+    // ||uNotNorm.GetCol(0)|| cannot be zero
+    u = new sps::mat3_t<T>(uNotNorm.GetCol(0).Normalize(), Vector3d.Zero, Vector3d.Zero);
+    d.Y = 0;
+    d.Z = 0;
+    return false;
+  }
+  if (dEigen1 <= RealMath.EpsilonDoubleWeak)
+  {
+    u = new sps::mat3_t<T>(uNotNorm.GetCol(0).Normalize(), uNotNorm.GetCol(1).Normalize(), Vector3d.Zero);
+    d.Z = 0;
+    return false;
+  }
+
+  u = new sps::mat3_t<T>(uNotNorm.GetCol(0).Normalize(), uNotNorm.GetCol(1).Normalize(), uNotNorm.GetCol(2).Normalize());
+  return true;
+#endif
+  return true;
+}
+
+/*
+*/
 
 template <typename T, typename U>
 std::pair<T, T>

@@ -164,6 +164,7 @@ set(sps_HEADERS
   zip
   functional.hpp
   smath_types.hpp
+  smath_matrix_type.hpp
   smath.hpp
   sps_threads.hpp
   multi_malloc.hpp
