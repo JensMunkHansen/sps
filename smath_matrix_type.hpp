@@ -24,17 +24,30 @@ SPS_EXPORT mat3_t {
     }
     return result;
   }
+
+  T* operator[](size_t index) {
+      return data[index];
+  }
+
+  const T* operator[](size_t index) const {
+      return data[index];
+  }
+
   mat3_t<T> operator+(const mat3_t<T>& other) {
     mat3_t<T> result;
     for (size_t i = 0 ; i < 3 ; i++) {
       for (size_t j = 0 ; j < 3 ; j++) {
-        result[i][j] = (*this)[i][j] + other[i][j];
+        result.data[i][j] = (*this).data[i][j] + other.data[i][j];
       }
     }
     return result;
   }
-  point_t<T> operator*(const point_t<T>& vec) {
-    point_t<T> result = {T(0.0), T(0.0), T(0.0)};
+#if 0
+  point_t<T> operator*(const point_t<typename T>& vec) {
+      point_t<T> result;
+      result[0] = T(0.0);
+      result[1] = T(0.0);
+      result[2] = T(0.0);
 
     for (size_t i = 0 ; i < 3 ; i++) {
       for (size_t j = 0 ; j < 3 ; j++) {
@@ -43,13 +56,7 @@ SPS_EXPORT mat3_t {
     }
     return result;
   }
-  T* operator[](size_t index) {
-    return data[index];
-  }
-  const T* operator[](size_t index) const {
-    return data[index];
-  }
-
+#endif
   T data[3][3];
 };
 
