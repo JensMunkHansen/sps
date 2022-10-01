@@ -78,6 +78,7 @@ SPS_EXPORT mat3_t {
     result.data[1][2] = (*this).data[2][1];
     result.data[2][0] = (*this).data[0][2];
     result.data[2][1] = (*this).data[1][2];
+    return result;
   }
   T trace() {
     return (*this).data[0][0] + (*this).data[1][1] + (*this).data[2][2];
