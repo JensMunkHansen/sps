@@ -16,7 +16,7 @@ constexpr void loop(F&& f) {
   detail::loop(std::make_integer_sequence<T, count>{}, std::forward<F>(f));
 }
 
-int main() {
+int main(int argc, char* argv[]) {
   loop<int, 5>([] (auto i) {
     constexpr int it_is_even_constexpr = i;
     std::cout << it_is_even_constexpr << std::endl;

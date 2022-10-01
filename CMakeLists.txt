@@ -438,6 +438,8 @@ endif()
   add_test(NAME    macro_test
            COMMAND macro_test)
 
+  add_executable(sps_unroll_test2 sps_unroll_test2.cpp)
+
   if (0)
     # Using fixtures
     add_executable(test test.cpp)   # Adds target test
