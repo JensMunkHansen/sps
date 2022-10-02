@@ -561,7 +561,7 @@ endif()
 if( ${PROJECT_NAME} STREQUAL "fnm")
   install(TARGETS sps
     # IMPORTANT: Add the fnm library to the "export-set"
-    EXPORT FnmTargets
+    EXPORT SofusTargets
     RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
     ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib
     LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT shlib
