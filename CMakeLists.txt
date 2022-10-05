@@ -296,6 +296,9 @@ endif()
   add_executable(aligned_array_test aligned_array_test.cpp)
   add_gtest_dependencies(aligned_array_test)
 
+  add_executable(align_test align_test.cpp)
+  add_gtest_dependencies(align_test)
+
   add_executable(semaphore_test semaphore_test.cpp)
   add_gtest_dependencies(semaphore_test)
 
