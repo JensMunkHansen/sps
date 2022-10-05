@@ -2,6 +2,7 @@
 
 #include <sps/align_test.hpp>
 #include <cstring>
+#include <iostream>
 
 TEST(align_test, wrong_alignment_throw) {
   try {
@@ -10,6 +11,7 @@ TEST(align_test, wrong_alignment_throw) {
     SPS_ALIGN_TEST(&arr[1], 32);
     ASSERT_TRUE(false);
   } catch (std::exception& e) {
+    std::cout << e.what() << std::endl;
     ASSERT_TRUE(true);
   }
 }
