@@ -3,16 +3,23 @@
 #include <sps/align_test.hpp>
 #include <cstring>
 
-TEST(aligned_test, test_alignment) {
+TEST(align_test, wrong_alignment_throw) {
   try {
     SPS_ALIGNAS(32) float arr[32];
     memset(&arr[0], 0, 32*sizeof(float));
     SPS_ALIGN_TEST(&arr[1], 32);
     ASSERT_TRUE(false);
-  }
-  catch (std::exception& e)
-  {
+  } catch (std::exception& e) {
     ASSERT_TRUE(true);
+  }
+}
+
+TEST(align_test, right_alignment_accept) {
+  SPS_ALIGNAS(32) float arr[32];
+  try {
+    SPS_ALIGN_TEST(&arr[0], 32);
+  } catch(std::exception& e) {
+    ASSERT_TRUE(false);
   }
 }
 
