@@ -28,4 +28,3 @@
 #else
 # define SPS_ALIGN_TEST(pointer, byteAlignment)
 #endif
-
