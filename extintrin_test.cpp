@@ -158,6 +158,45 @@ TEST(extintrin_test, test_tranpose8x8)
   }
 }
 
+TEST(extintrin_test, test_transpose4x8)
+{
+  const size_t N = 8;
+  const size_t M = 4;
+  float xyzs[M][N]{};
+  for (size_t i = 0; i < M; i++) {
+    for (size_t j = 0; j < N; j++) {
+      xyzs[i][j] = (float)((j + 1) * (i + 1));
+    }
+  }
+  __m256 x0 = _mm256_loadu_ps(xyzs[0]);
+  __m256 y0 = _mm256_loadu_ps(xyzs[1]);
+  __m256 z0 = _mm256_loadu_ps(xyzs[2]);
+  __m256 t0 = _mm256_loadu_ps(xyzs[3]);
+
+  // Act
+  _MM_TRANSPOSE8_LANE4_PS(x0, y0, z0, t0);
+  
+  // Store data into array memory
+  alignas(32) float xyzTest[4][8];
+  _mm256_store_ps(xyzTest[0], x0);
+  _mm256_store_ps(xyzTest[1], y0);
+  _mm256_store_ps(xyzTest[2], z0);
+  _mm256_store_ps(xyzTest[3], t0);
+  
+  // Assert
+  for (size_t i = 0; i < 4; i++) {
+    // Test transpose of the first 4x4 matrix
+    for (size_t j = 0; j < 4; j++) {
+      ASSERT_EQ(xyzTest[i][j], xyzs[j][i]);
+    }
+    // Test transpose of the second 4x4 matrix
+    for (size_t j = 5; j < 8; j++) {
+      ASSERT_EQ(xyzTest[i][j], xyzs[j-4][i+4]);
+    }
+  }
+}
+
+
 int main(int argc, char* argv[])
 {
 
