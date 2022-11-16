@@ -51,6 +51,13 @@ void *sps_mm_malloc(const char *file, int line, size_t size, int alignment) {
   return ptr;
 }
 
+// Aligned stack-allocation
+#define sps_mm_alloca(x, _theSize, _theAlignment) do {                  \
+    int _nBytes = _theSize + _theAlignment;                             \
+    void* _ptr = alloca(_nBytes);                                       \
+    _ptr = (void*) ((intptr_t) (_ptr + _theAlignment - 1) & (intptr_t) ~(_theAlignment - 1)); \
+    (x) = _ptr;                                                         \
+  } while (0)
 
 
 /* Local variables: */
@@ -59,4 +66,4 @@ void *sps_mm_malloc(const char *file, int line, size_t size, int alignment) {
 /* c-basic-offset: 2 */
 /* indent-tabs-mode: nil */
 /* End: */
- 
+
