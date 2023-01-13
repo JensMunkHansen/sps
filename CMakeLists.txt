@@ -2,6 +2,12 @@
 
 cmake_minimum_required(VERSION 3.0)
 
+if (NOT DEFINED PROJECT_NAME)
+  project(sps C CXX)
+  set(CMAKE_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/sps)
+  set(CMAKE_CURRENT_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/sps)
+endif()
+
 if (NOT DEFINED ENABLE_PYTHON3)
   set(ENABLE_PYTHON3 ON)
 endif()
@@ -58,7 +64,7 @@ check_include_file(pthread.h HAVE_PTHREAD_H)
 
 # TODO(JMH): Create a sps/sps directory structure
 #            Right now the build directory must be named sps
-if (${PROJECT_NAME} STREQUAL "Project")
+if (${PROJECT_NAME} STREQUAL "sps")
   include_directories(
     "${CMAKE_CURRENT_BINARY_DIR}/..")  # to find sps/config.h
   include_directories(
@@ -379,6 +385,11 @@ endif()
     target_link_libraries(context_test dl)
   endif()
 
+  add_executable(siso_test siso_test.cpp)
+  add_gtest_dependencies(siso_test)
+  if (UNIX)
+    target_link_libraries(siso_test dl)
+  endif()
   if (SPS_Signals)
     add_executable(signals_test signals_test.cpp msignals.cpp)
     add_gtest_dependencies(signals_test)
