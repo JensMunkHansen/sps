@@ -55,7 +55,7 @@ const __m256d _m256_pi_pd         = _mm256_set1_pd(M_PI);      // pi
 const __m256d _m256_1_2pi_pd      = _mm256_set1_pd(M_1_2PI);   // 1 / (2pi)
 const __m256d _m256_pi2_pd        = _mm256_set1_pd(M_PI_2);    // pi/ 2
 
-const __m256d _m256_1_pd         = _mm256_set1_pd(1.0f);
+const __m256d _m256_1_pd         = _mm256_set1_pd(1.0);
 
 
 /**@}*/
