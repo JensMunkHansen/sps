@@ -49,6 +49,7 @@ class optional {
 };
 }  // namespace details
 #ifdef CXX17
+# include <optional>
 template <typename T>
 using optional = std::optional<T>;
 constexpr std::nullopt_t nullopt = std::nullopt;
