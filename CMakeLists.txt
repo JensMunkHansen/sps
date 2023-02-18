@@ -211,7 +211,9 @@ if (HAVE_MQUEUE_H)
 endif()
 
 if (UNIX AND NOT WIN32 AND NOT CYGWIN)
-  set(sps_SOURCES "${sps_SOURCES}" "strace.cpp")
+  if (STRACE)
+    set(sps_SOURCES "${sps_SOURCES}" "strace.cpp")
+  endif()
 endif()
 
 add_library(sps ${SPS_LIB_TYPE} ${sps_HEADERS} ${sps_SOURCES})
@@ -329,8 +331,8 @@ endif()
     set_source_files_properties(allocator_test.cpp PROPERTIES COMPILE_FLAGS "/wd4324")
   endif()
   
-  add_executable(default_test default_test.cpp)
-  add_gtest_dependencies(default_test)
+#  add_executable(default_test default_test.cpp)
+#  add_gtest_dependencies(default_test)
 
   add_executable(aligned_allocator_test aligned_allocator_test.cpp)
   add_gtest_dependencies(aligned_allocator_test)
@@ -351,7 +353,7 @@ endif()
     sgc.cpp
     )
   if (UNIX AND NOT WIN32 AND NOT CYGWIN)
-    set(sgc_test_SOURCES "${sgc_test_SOURCES}" "strace.cpp")
+#    set(sgc_test_SOURCES "${sgc_test_SOURCES}" "strace.cpp")
   endif()
 
   add_executable(sgc_test ${sgc_test_SOURCES})
@@ -364,7 +366,7 @@ endif()
     mimo_test.cpp
     )
   if (UNIX AND NOT WIN32 AND NOT CYGWIN)
-    set(mimo_test_SOURCES "${mimo_test_SOURCES}" "strace.cpp")
+   # set(mimo_test_SOURCES "${mimo_test_SOURCES}" "strace.cpp")
   endif()
 
   add_executable(mimo_test ${mimo_test_SOURCES})
