@@ -83,9 +83,9 @@ MSVC++ 5.0  _MSC_VER == 1100
 #ifdef C99
 # define SPS_FCOMPLEX float _Complex
 #elif defined(_MSC_VER)
+# define _CRT_USE_C_COMPLEX_H 1
 # define SPS_FCOMPLEX _Fcomplex
 #endif
-
 #if defined(__cplusplus)
 # if (__cplusplus >= 201103L)
 #  define CXX11 11
