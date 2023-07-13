@@ -1535,7 +1535,11 @@ STATIC_INLINE_BEGIN void _mm_transpose_8x8_ps(const float a[8][8],
 }
 
 
-#if 0
+//__AVX512CD__
+//__AVX512ER__
+//__AVX512F__
+//__AVX512PF__
+#if defined(__AVX512ER__)
 
 void _mm_transpose_16x16_epi32(const int a[16][16],
                                int b[16][16]) {

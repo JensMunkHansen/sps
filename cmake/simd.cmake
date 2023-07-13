@@ -83,6 +83,19 @@ if (CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|^i[3,6,9]86$")
       }"
       HAVE_FMAINTRIN_H)
 
+  if (HAVE_AVX512_H)
+    set(CMAKE_REQUIRED_FLAGS "-mavx512")
+    check_c_source_runs("
+    #include <immintrin.h>
+    int main()
+    {
+      __m512 res, a;
+      res = _mm512_add_ps(a, _mm512_set1_ps(3.0f));
+      return 0;
+    }"
+    HAVE_AVX512_H)
+  endif()
+    
   # Hack for CYGWIN at work
   if (CYGWIN)
     set(HAVE_ZMMINTRIN_H 1)
