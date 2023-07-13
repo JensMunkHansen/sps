@@ -123,8 +123,9 @@ STATIC_INLINE_BEGIN __m128 _mm_arctan2_ps(__m128 y, __m128 x) STATIC_INLINE_END;
  *
  * @return
  */
+#ifndef _INCLUDED_IMM
 STATIC_INLINE_BEGIN __m128 _mm_exp_ps(__m128 d) STATIC_INLINE_END;
-
+#endif
 
 STATIC_INLINE_BEGIN __m256d _mm256_arccos_pd(__m256d x) {
   // TODO: Increase precision of constants
