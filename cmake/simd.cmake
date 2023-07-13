@@ -123,6 +123,9 @@ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "AMD64")
   
   # AVX
   check_include_file(immintrin.h HAVE_IMMINTRIN_H "/arch:AVX")
+
+  # AVX
+  check_include_file(immintrin.h HAVE_IMMINTRIN_H "/arch:AVX2")
   
   # Intel doesn't allow inclusion of zmmintrin.h
   if (HAVE_IMMINTRIN_H)
