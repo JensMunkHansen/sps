@@ -192,6 +192,9 @@ set(sps_SOURCES
   threadpool.cpp
   # smath_types.cpp - clean up (it is obsolete as is)
 )
+if (WIN32)
+  set(sps_HEADERS = "${sps_HEADERS}" win32/memory)
+endif()
 
 if (USE_PROGRESS_BAR)
   # Must be defined for stand-alone sps library
@@ -211,8 +214,8 @@ if (HAVE_MQUEUE_H)
 endif()
 
 if (UNIX AND NOT WIN32 AND NOT CYGWIN)
-  if (STRACE)
-    set(sps_SOURCES "${sps_SOURCES}" "strace.cpp")
+  if (SPS_STRACE)
+    # set(sps_SOURCES "${sps_SOURCES}" "strace.cpp")
   endif()
 endif()
 
