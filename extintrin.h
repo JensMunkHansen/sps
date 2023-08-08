@@ -157,7 +157,9 @@ typedef union __declspec(intrin_type) _CRT_ALIGN(16) v4f {
   uint8_t             uint8[16];
   uint16_t            uint16[8];
   uint32_t            uint32[4];
-  v4f() {}
+  v4f() {
+    v = _mm_setzero_ps();
+  }
   /** @name Initializers useful for constant initializations
    *
    */
@@ -185,7 +187,9 @@ typedef union __declspec(intrin_type) _CRT_ALIGN(16) v4i {
   uint8_t             uint8[16];
   uint16_t            uint16[8];
   uint32_t            uint32[4];
-  v4i() {}
+  v4i() {
+    v = _mm_setzero_si128();
+  }
   /** @name Initializers useful for constant initializations
    *
    */
@@ -202,10 +206,82 @@ typedef union __declspec(intrin_type) _CRT_ALIGN(16) v4i {
   ///@}
 } v4i;
 
+typedef union __declspec(intrin_type)_CRT_ALIGN(32) v8f {
+  __m256 v;
+  float               f32[8];
+  uint64_t            uint64[4];
+  int8_t              int8[32];
+  int16_t             int16[16];
+  int32_t             int32[8];
+  int64_t             int64[4];
+  uint8_t             uint8[32];
+  uint16_t            uint16[16];
+  uint32_t            uint32[8];
+  v8f() {
+    v = _mm256_setzero_ps();
+  }
+  /** @name Initializers useful for constant initializations
+   *
+   */
+   ///@{
+  v8f(const __m256 &_v) {
+    v = _v;
+  }
+  v8f(const float& f7, const float& f6, const float& f5, const float& f4,
+      const float& f3, const float& f2, const float& f1, const float& f0) {
+    f32[0] = f0;
+    f32[1] = f1;
+    f32[2] = f2;
+    f32[3] = f3;
+    f32[4] = f4;
+    f32[5] = f5;
+    f32[6] = f6;
+    f32[7] = f7;
+  }
+  ///@}
+} v8f;
+
+typedef union __declspec(intrin_type)_CRT_ALIGN(32) v8i {
+  __m256i v;
+  float               f32[8];
+  uint64_t            uint64[4];
+  int8_t              int8[32];
+  int16_t             int16[16];
+  int32_t             int32[8];
+  int64_t             int64[4];
+  uint8_t             uint8[32];
+  uint16_t            uint16[16];
+  uint32_t            uint32[8];
+  v8i() {
+    v = _mm256_setzero_si256();
+  }
+  /** @name Initializers useful for constant initializations
+   *
+   */
+   ///@{
+  v8i(const __m256i & _v) {
+    v = _v;
+  }
+  v8i(const int& i7, const int& i6, const int& i5, const int& i4,
+      const int& i3, const int& i2, const int& i1, const int& i0) {
+    int32[0] = i0;
+    int32[1] = i1;
+    int32[2] = i2;
+    int32[3] = i3;
+    int32[4] = i4;
+    int32[5] = i5;
+    int32[6] = i6;
+    int32[7] = i7;
+  }
+  ///@}
+} v8i;
+
 typedef union __declspec(intrin_type) _CRT_ALIGN(32) v4d {
   __m256d v;
   double               f64[4];
-  v4d() {}
+  v4d() {
+    v = _mm256_setzero_pd();
+  }
   v4d(const __m256d& _v) {
     v = _v;
   }
@@ -223,7 +299,9 @@ typedef union v4f {
   uint8_t             uint8[16];
   uint16_t            uint16[8];
   uint32_t            uint32[4];
-  v4f() {}
+  v4f() {
+    v = _mm_setzero_ps();
+  }
   v4f(const __m128& _v) {
     v = _v;
   }
@@ -240,7 +318,9 @@ typedef union v4i {
   uint8_t             uint8[16];
   uint16_t            uint16[8];
   uint32_t            uint32[4];
-  v4i() {}
+  v4i() {
+    v = _mm_setzero_epi128();
+  }
   /** @name Initializers useful for constant initializations
    *
    */
@@ -260,11 +340,84 @@ typedef union v4i {
 typedef union v4d {
   __m256d v;
   double               f64[4];
-  v4d() {}
+  v4d() {
+    v = _mm256_setzero_pd();
+  }
   v4d(const __m256d& _v) {
     v = _v;
   }
 }  v4d __attribute__ ((aligned (32)));
+
+typedef union v8f {
+  __m256 v;
+  float               f32[8];
+  uint64_t            uint64[4];
+  int8_t              int8[32];
+  int16_t             int16[16];
+  int32_t             int32[8];
+  int64_t             int64[4];
+  uint8_t             uint8[32];
+  uint16_t            uint16[16];
+  uint32_t            uint32[8];
+  v8f() {
+    v = _mm256_setzero_ps();
+  }
+  /** @name Initializers useful for constant initializations
+   *
+   */
+   ///@{
+  v8f(const __m256 & _v) {
+    v = _v;
+  }
+  v8f(const float& f7, const float& f6, const float& f5, const float& f4,
+    const float& f3, const float& f2, const float& f1, const float& f0) {
+    f32[0] = f0;
+    f32[1] = f1;
+    f32[2] = f2;
+    f32[3] = f3;
+    f32[4] = f4;
+    f32[5] = f5;
+    f32[6] = f6;
+    f32[7] = f7;
+  }
+  ///@}
+} v8f __attribute__((aligned(32)));
+
+typedef union v8i {
+  __m256i v;
+  float               f32[8];
+  uint64_t            uint64[4];
+  int8_t              int8[32];
+  int16_t             int16[16];
+  int32_t             int32[8];
+  int64_t             int64[4];
+  uint8_t             uint8[32];
+  uint16_t            uint16[16];
+  uint32_t            uint32[8];
+  v8i() {
+    v = _mm256_setzero_si256();
+  }
+  /** @name Initializers useful for constant initializations
+   *
+   */
+   ///@{
+  v8i(const __m256i & _v) {
+    v = _v;
+  }
+  v8i(const int& i7, const int& i6, const int& i5, const int& i4,
+    const int& i3, const int& i2, const int& i1, const int& i0) {
+    int32[0] = i0;
+    int32[1] = i1;
+    int32[2] = i2;
+    int32[3] = i3;
+    int32[4] = i4;
+    int32[5] = i5;
+    int32[6] = i6;
+    int32[7] = i7;
+  }
+  ///@}
+} v8i __attribute__((aligned(32)));
+
 
 #endif
 
@@ -1382,7 +1535,11 @@ STATIC_INLINE_BEGIN void _mm_transpose_8x8_ps(const float a[8][8],
 }
 
 
-#if 0
+//__AVX512CD__
+//__AVX512ER__
+//__AVX512F__
+//__AVX512PF__
+#if defined(__AVX512ER__)
 
 void _mm_transpose_16x16_epi32(const int a[16][16],
                                int b[16][16]) {
