@@ -223,7 +223,7 @@ typedef union __declspec(intrin_type)_CRT_ALIGN(32) v8f {
   /** @name Initializers useful for constant initializations
    *
    */
-   ///@{
+  ///@{
   v8f(const __m256 &_v) {
     v = _v;
   }
@@ -258,7 +258,7 @@ typedef union __declspec(intrin_type)_CRT_ALIGN(32) v8i {
   /** @name Initializers useful for constant initializations
    *
    */
-   ///@{
+  ///@{
   v8i(const __m256i & _v) {
     v = _v;
   }
@@ -319,7 +319,7 @@ typedef union v4i {
   uint16_t            uint16[8];
   uint32_t            uint32[4];
   v4i() {
-    v = _mm_setzero_epi128();
+    v = _mm_setzero_si128();
   }
   /** @name Initializers useful for constant initializations
    *
@@ -365,12 +365,12 @@ typedef union v8f {
   /** @name Initializers useful for constant initializations
    *
    */
-   ///@{
+  ///@{
   v8f(const __m256 & _v) {
     v = _v;
   }
   v8f(const float& f7, const float& f6, const float& f5, const float& f4,
-    const float& f3, const float& f2, const float& f1, const float& f0) {
+      const float& f3, const float& f2, const float& f1, const float& f0) {
     f32[0] = f0;
     f32[1] = f1;
     f32[2] = f2;
@@ -400,12 +400,12 @@ typedef union v8i {
   /** @name Initializers useful for constant initializations
    *
    */
-   ///@{
+  ///@{
   v8i(const __m256i & _v) {
     v = _v;
   }
   v8i(const int& i7, const int& i6, const int& i5, const int& i4,
-    const int& i3, const int& i2, const int& i1, const int& i0) {
+      const int& i3, const int& i2, const int& i1, const int& i0) {
     int32[0] = i0;
     int32[1] = i1;
     int32[2] = i2;
