@@ -199,7 +199,7 @@ set(sps_SOURCES
   # smath_types.cpp - clean up (it is obsolete as is)
 )
 if (WIN32)
-  set(sps_HEADERS = "${sps_HEADERS}" win32/memory)
+  set(sps_HEADERS "${sps_HEADERS}" win32/memory)
 endif()
 
 if (USE_PROGRESS_BAR)
@@ -224,7 +224,6 @@ if (UNIX AND NOT WIN32 AND NOT CYGWIN)
     # set(sps_SOURCES "${sps_SOURCES}" "strace.cpp")
   endif()
 endif()
-
 add_library(sps ${SPS_LIB_TYPE} ${sps_HEADERS} ${sps_SOURCES})
 
 set_source_files_properties(strace.cpp PROPERTIES COMPILE_FLAGS "-Wno-error=restrict")
