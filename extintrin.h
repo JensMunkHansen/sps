@@ -611,7 +611,7 @@ STATIC_INLINE_BEGIN __m256d _mm256_rcp14_pd(__m256d x) {
 
 // SVML (Intel) provides _mm256_exp_pd in ia32intrin.h
 
-#if !defined(INTEL_COMPILER) && !(defined(_MSC_VER) && (_MSC_VER >= 1914)) && !(defined(__GNUC__) && __GNUC__ > 7)
+#if !defined(INTEL_COMPILER) && !(defined(__clang__)) && !(defined(_MSC_VER) && (_MSC_VER >= 1914)) && !(defined(__GNUC__) && __GNUC__ > 7)
 STATIC_INLINE_BEGIN double
 _mm256_cvtsd_f64(__m256d d) {
   // TODO: Keep input argument in register
@@ -619,6 +619,7 @@ _mm256_cvtsd_f64(__m256d d) {
   _d.v = d;
   return _d.f64[0];
 }
+
 #endif
 
 /**
