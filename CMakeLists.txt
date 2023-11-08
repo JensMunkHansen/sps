@@ -226,7 +226,7 @@ if (UNIX AND NOT WIN32 AND NOT CYGWIN)
 endif()
 add_library(sps ${SPS_LIB_TYPE} ${sps_HEADERS} ${sps_SOURCES})
 
-set_source_files_properties(strace.cpp PROPERTIES COMPILE_FLAGS "-Wno-error=restrict")
+# set_source_files_properties(strace.cpp PROPERTIES COMPILE_FLAGS "-Wno-error=restrict")
 if (0) #UNIX AND NOT WIN32 AND NOT CYGWIN)
   set(bum)
   validate_headers(
