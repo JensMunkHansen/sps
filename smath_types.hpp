@@ -228,14 +228,14 @@ struct __attribute__((aligned(4*sizeof(T)))) SPS_EXPORT element_rect_t
   ///@{
 
   /// Normal vector
-  SPS_ALIGNAS(sizeof(T) * 4) T normal[4] ALIGN32_END;
+  SPS_ALIGNAS(sizeof(T) * 4) T normal[4];
   /// First basis vector
-  SPS_ALIGNAS(sizeof(T) * 4) T uvector[4] ALIGN32_END;
+  SPS_ALIGNAS(sizeof(T) * 4) T uvector[4];
   /// Second basis vector
-  SPS_ALIGNAS(sizeof(T) * 4) T vvector[4] ALIGN32_END;
+  SPS_ALIGNAS(sizeof(T) * 4) T vvector[4];
 
   /// Four vertices, xyz major-order
-  SPS_ALIGNAS(sizeof(T) * 4) T vertices[3][4] ALIGN32_END;
+  SPS_ALIGNAS(sizeof(T) * 4) T vertices[3][4];
 
   ///@}
   T hw;        ///< Half width

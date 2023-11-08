@@ -36,8 +36,8 @@ int main() {
   Float<double> f;
   // Single object
   auto x = aligned::make_unique<double,16>(16.0);
-  printf("0x%x\n", &x);
-  printf("%d\n", (uintptr_t)x.get() % 16);
+  printf("0x%lx\n", reinterpret_cast<uintptr_t>(x.get()));
+  printf("%ld\n", (uintptr_t)x.get() % 16);
 
   // Okay
   auto foo = aligned::make_unique<Foo>(3, 4);
@@ -49,8 +49,8 @@ int main() {
   // Works
   auto z = make_unique_array(std::allocator<Foo>(), 2, 3, 4);
 
-  printf("0x%x\n", (uintptr_t) &(z.get()[0]));
-  printf("%d\n", (uintptr_t) &(z.get()[1]) % 16);
+  printf("0x%lx\n", (uintptr_t) &(z.get()[0]));
+  printf("%ld\n", (uintptr_t) &(z.get()[1]) % 16);
 
 
   auto z0 = make_unique_aligned_array<Foo, 32, int, int>(aligned_allocator<Foo, 32>(), 2, 3, 4);
