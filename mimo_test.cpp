@@ -21,7 +21,7 @@
 
 #include <sps/mimo.hpp>
 
-#if defined(__GNUC__) && !defined(__CYGWIN__)
+#if 0 // defined(__GNUC__) && !defined(__CYGWIN__)
 #include <sps/strace.hpp>
 void Init()     __attribute__((constructor(101)));
 
