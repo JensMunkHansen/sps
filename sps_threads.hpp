@@ -138,14 +138,12 @@ STATIC_INLINE_BEGIN uint64_t sps_rdtsc() {
 STATIC_INLINE_BEGIN int getncpus() {
   int nproc = 0;
 #if defined(__linux__)
-  /*
-    // Why valgrind crashes here
+  // Why valgrind crashes here
   cpu_set_t cpuset;
   CPU_ZERO(&cpuset);
   CallErr(sched_getaffinity,
           (gettid(), sizeof( cpu_set_t ), &cpuset));
-  */
-  nproc = 16;//CPU_COUNT(&cpuset);
+  nproc = CPU_COUNT(&cpuset);
 #elif defined(_WIN32)
   SYSTEM_INFO info;
   GetSystemInfo(&info);
