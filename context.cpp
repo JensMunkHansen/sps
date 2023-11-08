@@ -16,7 +16,7 @@
 #include <sps/context.hpp>
 #include <sps/threadpool.hpp>
 
-#if defined(__GNUC__)
+#if 0 // defined(__GNUC__)
 # if !defined(__CYGWIN__)
 #  include <sps/strace.hpp>
 # endif
@@ -50,7 +50,7 @@ std::mutex g_mutex;
 std::atomic<ThreadPool*> Context::g_threadpool{nullptr};
 
 void Context::ThreadPoolInit() {
-#if defined(__GNUC__) && !defined(__CYGWIN__)
+#if 0 // defined(__GNUC__) && !defined(__CYGWIN__)
 # if !defined(NDEBUG)
   sps::STrace::Instance().Enable();
 # endif
