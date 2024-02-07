@@ -51,17 +51,20 @@ uint32_t bool2int(const size_t d, ...) {
   va_start(ap, d);
 
   uint32_t *d1 = static_cast<uint32_t*>(SPS_MALLOC(d*sizeof(uint32_t)));
-  for (size_t i = 0 ; i < d ; i++) {
-    d1[i] = va_arg(ap, int32_t);
+  if (d1)
+  {
+    for (size_t i = 0 ; i < d ; i++) {
+      d1[i] = va_arg(ap, int32_t);
+    }
+    
+    mask = d1[0];
+    for (size_t i = 1 ; i < d ; i++) {
+      mask = mask << 1;
+      mask = mask ^ d1[i];
+    }
+    free(d1);
+    va_end(ap);
   }
-
-  mask = d1[0];
-  for (size_t i = 1 ; i < d ; i++) {
-    mask = mask << 1;
-    mask = mask ^ d1[i];
-  }
-  free(d1);
-  va_end(ap);
   return mask;
 }
 #ifdef __GNUC__
