@@ -1,3 +1,4 @@
+#include "sps/cenv.h"
 #include <gtest/gtest.h>
 
 #include <sps/align.hpp>
@@ -29,6 +30,7 @@ TEST(aligned_allocator, unique_aligned_array_test_max_align) {
 
 int main(int argc, char* argv[]) {
   float* p = (float*) alloca(4*sizeof(float));
+  SPS_UNREFERENCED_PARAMETER(p);
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

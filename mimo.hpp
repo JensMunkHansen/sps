@@ -516,7 +516,6 @@ class MRMWCircularBuffer :
     m_container.push(std::move(source));
     m_unread++;
     m_cond_not_empty.notify_one();
-    printf("%d\n", m_unread);
     return true;
   }
 #else
