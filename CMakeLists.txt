@@ -21,17 +21,18 @@ foreach(policy ${project_policies})
   endif()
 endforeach()
 
-include(cmake/utils.cmake)
-include(cmake/simd.cmake)
-include(cmake/gtest_macros.cmake)
-include(GenerateExportHeader)
-
 set(CMAKE_DEBUG_POSTFIX "")
 
 set(CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake"
   )
+
+include(utils)
+include(cmake/simd.cmake)
+include(gtest_macros)
+include(GenerateExportHeader)
+
 
 option (SPS_SHARED_LIBS "Build Shared Libraries" OFF)
 set(SPS_LIB_TYPE STATIC)
@@ -47,7 +48,7 @@ endif()
 
 include(CheckIncludeFile)
 include(CheckSymbolExists)
-#include(ValidateHeaders)
+include(ValidateHeaders)
 
 check_symbol_exists(itoa stdlib.h HAVE_ITOA)
 check_symbol_exists(utoa stdlib.h HAVE_UTOA)
@@ -61,20 +62,6 @@ check_include_file(stdint.h HAVE_STDINT_H)
 check_include_file(mqueue.h HAVE_MQUEUE_H)
 check_include_file(signal.h HAVE_SIGNAL_H)
 check_include_file(pthread.h HAVE_PTHREAD_H)
-
-# TODO(JMH): Create a sps/sps directory structure
-#            Right now the build directory must be named sps
-if (${PROJECT_NAME} STREQUAL "sps")
-  include_directories(
-    "${CMAKE_CURRENT_BINARY_DIR}/..")  # to find sps/config.h
-  include_directories(
-    "${CMAKE_CURRENT_SOURCE_DIR}/..")  # to find sps/xxx.h
-else()
-  include_directories(
-    "${PROJECT_BINARY_DIR}")  # to find sps/config.h
-  include_directories(
-    "${PROJECT_SOURCE_DIR}")  # to find sps/xxx.h
-endif()
 
 find_package(FFTW REQUIRED COMPONENTS FLOAT_LIB DOUBLE_LIB)
 if (WIN32)
@@ -224,10 +211,15 @@ if (UNIX AND NOT WIN32 AND NOT CYGWIN)
     # set(sps_SOURCES "${sps_SOURCES}" "strace.cpp")
   endif()
 endif()
+
 add_library(sps ${SPS_LIB_TYPE} ${sps_HEADERS} ${sps_SOURCES})
+target_include_directories(sps INTERFACE
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/..>
+  $<INSTALL_INTERFACE:include>)
 
 # set_source_files_properties(strace.cpp PROPERTIES COMPILE_FLAGS "-Wno-error=restrict")
-if (0) #UNIX AND NOT WIN32 AND NOT CYGWIN)
+if (0)#UNIX AND NOT WIN32 AND NOT CYGWIN)
   set(bum)
   validate_headers(
     bum

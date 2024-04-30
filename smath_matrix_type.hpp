@@ -1,6 +1,7 @@
 #pragma once
 
 #include <sps/sps_export.h>
+#include <cstddef>
 
 namespace sps {
 
