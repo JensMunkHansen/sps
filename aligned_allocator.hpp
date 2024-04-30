@@ -30,7 +30,9 @@
 #include <sps/cenv.h>        // SPS_UNREFERENCED_PARAMETER
 #include <sps/mm_malloc.h>   // Required for _mm_malloc() and _mm_free()
 
+#ifdef CXX17
 // TODO(JMH): Use std::aligned_alloc if C++17
+#endif
 
 #include <cstddef>           // Required for size_t and ptrdiff_t and NULL
 #include <new>               // Required for placement new and std::bad_alloc
