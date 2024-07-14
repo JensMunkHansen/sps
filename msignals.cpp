@@ -422,7 +422,9 @@ signal1D<T>::signal1D(size_t ndata) : data(NULL), offset(0), ndata(ndata) {
   nbytes = 16 * (ndata * sizeof(T) + 15) / 16;
   data = (T*) _mm_malloc(nbytes,16);
 #ifndef NDEBUG
+SPS_RELAXED_MEMSET_BEGIN  
   memset(data,0,nbytes);
+SPS_RELAXED_MEMSET_END
 #endif
 }
 
@@ -432,7 +434,9 @@ signal1D<T>::signal1D(size_t ndata, size_t _nbytes) : data(NULL), offset(0), nda
   nbytes = std::max<size_t>(_nbytes,nbytes);
   data = (T*) _mm_malloc(nbytes,16);
 #ifndef NDEBUG
+SPS_RELAXED_MEMSET_BEGIN  
   memset(data,0,nbytes);
+SPS_RELAXED_MEMSET_END
 #endif
 }
 
@@ -713,8 +717,9 @@ conv_fft<float>(const sps::signal1D<float> &a,
       c.nbytes = nbytes;
       c.data = (float*) _mm_malloc(c.nbytes,16);
     }
-
+SPS_RELAXED_MEMSET_BEGIN  
     memset(c.data,0,c.nbytes);
+SPS_RELAXED_MEMSET_END
     Signal1DPlan<float>& p = Signal1DPlan<float>::Instance();
 
     fftwf_plan forward = p.Forward(n,_a,(std::complex<float>*)fft_a);
