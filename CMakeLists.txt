@@ -56,7 +56,7 @@ check_symbol_exists(ptoa stdlib.h HAVE_PTOA)
 
 option (SPS_Signals "Include signal processing" ON)
 
-option (BUILD_SPS_TEST "Build SPS tests" OFF)
+option (BUILD_SPS_TEST "Build SPS tests" ON)
 
 check_include_file(stdint.h HAVE_STDINT_H)
 check_include_file(mqueue.h HAVE_MQUEUE_H)
@@ -213,10 +213,15 @@ if (UNIX AND NOT WIN32 AND NOT CYGWIN)
 endif()
 
 add_library(sps ${SPS_LIB_TYPE} ${sps_HEADERS} ${sps_SOURCES})
-target_include_directories(sps INTERFACE
+target_include_directories(sps PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/..>
   $<INSTALL_INTERFACE:include>)
+
+if (${PROJECT_NAME} STREQUAL sps)
+  include_directories("${CMAKE_CURRENT_SOURCE_DIR}/..")
+  include_directories("${CMAKE_CURRENT_BINARY_DIR}/..")
+endif()
 
 # set_source_files_properties(strace.cpp PROPERTIES COMPILE_FLAGS "-Wno-error=restrict")
 if (0)#UNIX AND NOT WIN32 AND NOT CYGWIN)

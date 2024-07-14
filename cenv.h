@@ -179,6 +179,24 @@ EC++  __embedded_cplusplus  Embedded C++
 # define SPS_ASS_ALIGNED(x,y)  (x)
 #endif
 
+#ifdef __GNUG__
+# define SPS_RELAXED_MEMSET_BEGIN \
+  _Pragma("GCC diagnostic push") 
+  _Pragma("GCC diagnostic ignored \"-Wclass-memaccess\"")
+# define SPS_RELAXED_MEMSET_END \
+  _Pragma("GCC diagnostic pop")
+#elif defined(__clang__)
+# define SPS_RELAXED_MEMSET_BEGIN \
+#pragma clang diagnostic push \
+#pragma clang diagnostic ignored "-Wclass-memaccess"
+# define SPS_RELAXED_MEMSET_END \
+#pragma clang diagnostic pop
+#else
+# define SPS_RELAXED_MEMSET_BEGIN
+# define SPS_RELAXED_MEMSET_END
+#endif
+
+
 
 #define __BEGIN__       {
 #define __END__         goto exit; exit: ; }
