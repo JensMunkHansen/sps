@@ -195,6 +195,7 @@ private:
 template <class T>
 int Singleton<T>::InstanceDestroy()
 {
+#if 0
   int retval = -1;
   std::lock_guard<std::recursive_mutex> guard(g_mutex);
   if (g_instance)
@@ -205,6 +206,15 @@ int Singleton<T>::InstanceDestroy()
     retval = 0;
   }
   return retval;
+#else
+  T* pInstance = g_instance.exchange(nullptr, std::memory_order_acq_rel);
+  if (pInstance)
+  {
+    delete pInstance;
+    g_instance.store(nullptr, std::memory_order_release); // Ensure pointer is nullified
+  }
+  return 0;
+#endif
 }
 
 template <class T>

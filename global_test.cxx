@@ -73,7 +73,7 @@ public:
         Singleton<T>::InstanceDestroy();
 
         pInstance = new T;
-        g_instance.store(pInstance, std::memory_order_release);
+        g_instance.store(pInstance, std::memory_order_relaxed);
 
         // Add the destructor function to the global registry
         SingletonRegistry::RegisterDestructor([]() { InstanceDestroy(); });
