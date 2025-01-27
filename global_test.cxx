@@ -1,5 +1,6 @@
 #include <atomic>
 #include <functional>
+#include <iostream>
 #include <list>
 #include <memory>
 #include <mutex>
@@ -111,12 +112,27 @@ class Test : public Singleton<Test>
 {
 public:
 private:
-  Test() { m_float = 2.0f; }
   float m_float;
+  float* m_heapFloat;
+  Test()
+    : m_heapFloat(nullptr)
+  {
+    m_float = 2.0f;
+    m_heapFloat = new float;
+  }
+  ~Test()
+  {
+    std::cout << "Destroyed\n";
+    delete m_heapFloat;
+    m_heapFloat = nullptr;
+  }
   Test& operator=(const Test& rhs) = delete;
 
   friend class Singleton<Test>;
 };
+
+// Explicit instantiate destructor (otherwise not called)
+// template int Singleton<Test>::InstanceDestroy();
 
 template <class T>
 class TTest : public Singleton<TTest<T>>
@@ -128,12 +144,13 @@ public:
 private:
   friend class Singleton<TTest<T>>;
 };
+// template int Singleton<TTest<float>>::InstanceDestroy();
 
 int main()
 {
   Test* test = Test::InstanceGet();
   TTest<float>* ttest = TTest<float>::InstanceGet();
 
-  SingletonRegistry::DestroyAllInstances();
+  // SingletonRegistry::DestroyAllInstances();
   return 0;
 }
