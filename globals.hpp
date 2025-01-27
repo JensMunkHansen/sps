@@ -26,70 +26,77 @@
  *  You should have received a copy of the GNU General Public License
  *  along with SOFUS.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <sps/cenv.h>  // SPS_ATTR_DESTRUCTOR
+#include <sps/cenv.h> // SPS_ATTR_DESTRUCTOR
 #include <sps/debug.h>
 
 #ifdef _MSC_VER
-# include <cstdlib>  // atexit
+#include <cstdlib> // atexit
 #endif
 
 #include <atomic>
-#include <mutex>
 #include <iostream>
+#include <mutex>
 
-namespace sps {
+namespace sps
+{
 /*
   Template <struct V> is not allowed so this gives a warning, when V is a struct
 */
 #ifdef _MSC_VER
-# pragma warning(push)
-# pragma warning(disable : 4099)
+#pragma warning(push)
+#pragma warning(disable : 4099)
 #elif __clang__
-# pragma clang diagnostic push
-# pragma clang diagnostic ignored "-Wmismatched-tags"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmismatched-tags"
 #endif
 
-template <typename T, template <typename> class V> class globalstruct {
- public:
+template <typename T, template <typename> class V>
+class globalstruct
+{
+public:
   static std::atomic<class V<T>*> pVar;
- private:
+
+private:
   globalstruct() = delete;
   globalstruct(const globalstruct& rhs) = delete;
   void operator=(const globalstruct& rhs) = delete;
 };
 
 #ifdef _MSC_VER
-# pragma warning(pop)
+#pragma warning(pop)
 #elif __clang__
-# pragma clang diagnostic pop
+#pragma clang diagnostic pop
 #endif
 
-
-class Identifiable {
- private:
-  static std::uint32_t UIDCreate() {
-    static std::atomic<std::uint32_t> g_uid = {0};
+class Identifiable
+{
+private:
+  static std::uint32_t UIDCreate()
+  {
+    static std::atomic<std::uint32_t> g_uid = { 0 };
     std::uint32_t retval = std::atomic_fetch_add(&g_uid, 1U);
-    if (retval + 1 == 0) {
+    if (retval + 1 == 0)
+    {
       exit(-1);
     }
     return retval;
   }
- protected:
-  Identifiable() {
+
+protected:
+  Identifiable()
+  {
     // A unique is guaranteed, but many temporaries are created
     //    std::cout << "Identifiable created" << std::endl;
     m_Id = UIDCreate();
     //    std::cout << "m_Id: " << m_Id << std::endl;
   }
- public:
-  std::uint32_t IDGet() const {
-    return m_Id;
-  }
- private:
+
+public:
+  std::uint32_t IDGet() const { return m_Id; }
+
+private:
   std::uint32_t m_Id;
 };
-
 
 /*! \brief Singleton base class. Phoenix singleton
  *
@@ -111,8 +118,9 @@ class Identifiable {
  * is unfortunate.
  */
 template <class T>
-class Singleton {
- public:
+class Singleton
+{
+public:
   /**
    * InstanceGet
    *
@@ -120,17 +128,25 @@ class Singleton {
    *
    * @return Pointer to singleton instance
    */
-  static T* InstanceGet() {
+  static T* InstanceGet()
+  {
     T* pInstance = g_instance.load(std::memory_order_acquire);
-    if (!pInstance) {
+    if (!pInstance)
+    {
       std::lock_guard<std::recursive_mutex> guard(g_mutex);
+      /*
+         Note, we use a lock, so a relaxed order is okay. All
+         modifications to g_instance is has been finalized when we
+         acquire the mutex.
+      */
       pInstance = g_instance.load(std::memory_order_relaxed);
-      if (!pInstance) {
+      if (!pInstance)
+      {
         // Enforce explicit instantiation of
         // Singleton<T>::InstanceDestroy() by calling the function
         // here once. In this way, the user does not need to remember
         // to inistantiate the function. Note, this requires the mutex
-        // to be recursive
+        // to be recursive!!!
         Singleton<T>::InstanceDestroy();
         pInstance = new T;
         g_instance.store(pInstance, std::memory_order_release);
@@ -141,8 +157,9 @@ class Singleton {
 
   static int InstanceDestroy() SPS_ATTR_DESTRUCTOR;
 
- protected:
-  Singleton() {
+protected:
+  Singleton()
+  {
     // If we never include this in a DLL, which is loaded
     // dynamically, we can use the standard atexit handler.
     // std::atexit([]()->void { Singleton<T>::InstanceDestroy();});
@@ -152,15 +169,14 @@ class Singleton {
 
   ~Singleton() = default;
   /**
-   * Copy-ctor and assignment could be deleted such that we do not allow copying the singleton
+   * Copy-ctor and assignment are deleted such that we do not allow copying the singleton
    *
    */
-  Singleton(Singleton const &) = delete;
-  Singleton& operator=(Singleton const &) = delete;
+  Singleton(Singleton const&) = delete;
+  Singleton& operator=(Singleton const&) = delete;
 
- private:
+private:
   static std::atomic<T*> g_instance;
-  // static std::mutex g_mutex;
   static std::recursive_mutex g_mutex;
 };
 
@@ -177,10 +193,12 @@ class Singleton {
  * @return error code
  */
 template <class T>
-int Singleton<T>::InstanceDestroy() {
+int Singleton<T>::InstanceDestroy()
+{
   int retval = -1;
   std::lock_guard<std::recursive_mutex> guard(g_mutex);
-  if (g_instance) {
+  if (g_instance)
+  {
     debug_print("Singleton destroyed");
     delete g_instance;
     g_instance = nullptr;
@@ -190,16 +208,16 @@ int Singleton<T>::InstanceDestroy() {
 }
 
 template <class T>
-std::atomic<T*> Singleton<T>::g_instance{nullptr};
+std::atomic<T*> Singleton<T>::g_instance{ nullptr };
 
 template <class T>
 std::recursive_mutex Singleton<T>::g_mutex;
 
-
 // Note this a copy-able version of the Singleton above
 template <class T>
-class Default {
- public:
+class Default
+{
+public:
   /**
    * InstanceGet
    *
@@ -207,12 +225,20 @@ class Default {
    *
    * @return Pointer to singleton instance
    */
-  static T* InstanceGet() {
+  static T* InstanceGet()
+  {
     T* pInstance = g_instance.load(std::memory_order_acquire);
-    if (!pInstance) {
+    if (!pInstance)
+    {
       std::lock_guard<std::mutex> guard(g_mutex);
+      /*
+         Note, we use a lock, so a relaxed order is okay. All
+         modifications to g_instance is has been finalized when we
+         acquire the mutex.
+      */
       pInstance = g_instance.load(std::memory_order_relaxed);
-      if (!pInstance) {
+      if (!pInstance)
+      {
         pInstance = new T;
         g_instance.store(pInstance, std::memory_order_release);
       }
@@ -220,27 +246,30 @@ class Default {
     return pInstance;
   }
 
+  /**
+   * InstanceDestroy
+   *
+   * The attribute ensures that the destructor is called when the DLL is unloaded
+   */
   static int InstanceDestroy() SPS_ATTR_DESTRUCTOR;
 
-  ~Default() {
-    debug_print("\n");
-  }
+  ~Default() { debug_print("\n"); }
 
- protected:
-  Default() {
-    debug_print("\n");
-  }
+protected:
+  Default() { debug_print("\n"); }
 
- private:
-  static std::atomic<T*> g_instance;  // Default instance
-  static std::mutex g_mutex;  // Mutex for accessing default instance
+private:
+  static std::atomic<T*> g_instance; // Default instance
+  static std::mutex g_mutex;         // Mutex for accessing default instance
 };
 
 template <class T>
-int Default<T>::InstanceDestroy() {
+int Default<T>::InstanceDestroy()
+{
   int retval = -1;
   std::lock_guard<std::mutex> guard(g_mutex);
-  if (g_instance) {
+  if (g_instance)
+  {
     debug_print("Default destroyed");
     delete g_instance;
     g_instance = nullptr;
@@ -250,12 +279,12 @@ int Default<T>::InstanceDestroy() {
 }
 
 template <class T>
-std::atomic<T*> Default<T>::g_instance{nullptr};
+std::atomic<T*> Default<T>::g_instance{ nullptr };
 
 template <class T>
 std::mutex Default<T>::g_mutex;
 
-}  // namespace sps
+} // namespace sps
 
 /* Local variables: */
 /* indent-tabs-mode: nil */
