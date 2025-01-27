@@ -6,7 +6,12 @@
 #include <mutex>
 
 // On window, we need a different way to ensure dtors are called when unloading a DLL
+#ifdef _MSC_VER
+#define SPS_ATTR_DESTRUCTOR
+// TODO: On microsoft one needs to handle load/unload of DLL's
+#else
 #define SPS_ATTR_DESTRUCTOR __attribute__((destructor(101)))
+#endif
 
 class SingletonRegistry
 {
@@ -108,6 +113,7 @@ std::atomic<T*> Singleton<T>::g_instance{ nullptr };
 template <class T>
 std::recursive_mutex Singleton<T>::g_mutex;
 
+// Any singleton is now a Phoenix singleton
 class Test : public Singleton<Test>
 {
 public:
@@ -131,9 +137,6 @@ private:
   friend class Singleton<Test>;
 };
 
-// Explicit instantiate destructor (otherwise not called)
-// template int Singleton<Test>::InstanceDestroy();
-
 template <class T>
 class TTest : public Singleton<TTest<T>>
 {
@@ -144,13 +147,13 @@ public:
 private:
   friend class Singleton<TTest<T>>;
 };
-// template int Singleton<TTest<float>>::InstanceDestroy();
 
 int main()
 {
   Test* test = Test::InstanceGet();
   TTest<float>* ttest = TTest<float>::InstanceGet();
 
-  // SingletonRegistry::DestroyAllInstances();
+  SingletonRegistry::DestroyAllInstances();
+  std::cout << "Before exit\n";
   return 0;
 }
