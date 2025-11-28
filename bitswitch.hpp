@@ -20,6 +20,7 @@ namespace sps {
 #ifdef __GNUC__
 # pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wparentheses"
+# pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
 constexpr uint32_t basis = 0;
 
@@ -28,7 +29,7 @@ bin2int_compile_time(char const* str,
                      uint32_t last_value = basis) {
   return *str ?
          bin2int_compile_time(str + 1,
-                              (last_value << 1) ^ ((uint8_t)*str) - 48) :
+                              (last_value << 1) ^ (static_cast<uint8_t>(*str)) - 48) :
          last_value;
 }
 
@@ -40,31 +41,32 @@ uint32_t bool2int(const bool* bools, const size_t length) {
   uint32_t mask = static_cast<uint32_t>(bools[0]);
   for (size_t i = 1 ; i < length ; i++) {
     mask = mask << 1;
-    mask = mask ^ (uint32_t) bools[i];
+    mask = mask ^ static_cast<uint32_t>(bools[i]);
   }
   return mask;
 }
 
 uint32_t bool2int(const size_t d, ...) {
-  uint32_t mask;
   va_list ap;             /* varargs list traverser */
   va_start(ap, d);
 
   uint32_t *d1 = static_cast<uint32_t*>(SPS_MALLOC(d*sizeof(uint32_t)));
-  if (d1)
-  {
-    for (size_t i = 0 ; i < d ; i++) {
-      d1[i] = va_arg(ap, int32_t);
-    }
-    
-    mask = d1[0];
-    for (size_t i = 1 ; i < d ; i++) {
-      mask = mask << 1;
-      mask = mask ^ d1[i];
-    }
-    free(d1);
+  if (!d1) {
     va_end(ap);
+    return 0;
   }
+
+  for (size_t i = 0 ; i < d ; i++) {
+    d1[i] = va_arg(ap, int32_t);
+  }
+
+  uint32_t mask = d1[0];
+  for (size_t i = 1 ; i < d ; i++) {
+    mask = mask << 1;
+    mask = mask ^ d1[i];
+  }
+  free(d1);
+  va_end(ap);
   return mask;
 }
 #ifdef __GNUC__

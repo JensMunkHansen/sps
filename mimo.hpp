@@ -30,6 +30,14 @@
 
 #pragma once
 
+// Suppress warning about overloaded virtual functions being hidden.
+// The interface classes use intentional design with different push() overloads.
+#ifdef __GNUC__
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Woverloaded-virtual"
+# pragma GCC diagnostic ignored "-Wsuggest-override"
+#endif
+
 #include <sps/cenv.h>
 #include <sps/sps_export.h>
 
@@ -646,6 +654,10 @@ class MRMWCircularBuffer <T, Size, overwrite, true> : public MRMWCircularBuffer<
 
 
 }  // namespace sps
+
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
 
 /* Local variables: */
 /* indent-tabs-mode: nil */

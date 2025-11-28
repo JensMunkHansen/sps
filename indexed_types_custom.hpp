@@ -19,8 +19,8 @@
 namespace sps {
   class bad_indexed_auto_ptr : public std::exception {
   public:
-    char const*
-    what() const noexcept
+    const char*
+    what() const noexcept override
     {
       return "sps::bad_indexed_auto_ptr";
     }

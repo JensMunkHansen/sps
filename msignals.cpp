@@ -896,7 +896,7 @@ template <class T>
 msignal1D<T>::msignal1D() : offset(0), ndata(0), nbytes(0), m_data(NULL) {}
 
 template <class T>
-msignal1D<T>::msignal1D(size_t ndata) : msignal1D(ndata, 16 * (ndata * sizeof(T) + 15) / 16) {}
+msignal1D<T>::msignal1D(size_t n) : msignal1D(n, 16 * (n * sizeof(T) + 15) / 16) {}
 
 template <class T>
 msignal1D<T>& msignal1D<T>::operator=(const msignal1D& a) {

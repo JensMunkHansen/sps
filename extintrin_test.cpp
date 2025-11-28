@@ -25,14 +25,14 @@ void _mm_mul_epi32_full_test()
   ALIGN16_BEGIN int32_t bs[4] ALIGN16_END;
 
   for (size_t i = 0 ; i < 4 ; i++) {
-    as[i] = (int32_t) dis(gen);
-    bs[i] = (int32_t) dis(gen);
-    int64_t c = ((int64_t)as[i]) * ((int64_t)bs[i]);
+    as[i] = static_cast<int32_t>(dis(gen));
+    bs[i] = static_cast<int32_t>(dis(gen));
+    int64_t c = static_cast<int64_t>(as[i]) * static_cast<int64_t>(bs[i]);
     std::cout << "a: " << as[i] << " b: " << bs[i] << " c: " << c << std::endl;
   }
 
-  __m128i a = _mm_load_si128((__m128i*)as);
-  __m128i b = _mm_load_si128((__m128i*)bs);
+  __m128i a = _mm_load_si128(reinterpret_cast<__m128i*>(as));
+  __m128i b = _mm_load_si128(reinterpret_cast<__m128i*>(bs));
 
   __m128i c1 = _mm_setzero_si128();
   __m128i c2 = _mm_setzero_si128();
@@ -57,9 +57,9 @@ void sad(const uint8_t* input, uint8_t* output)
       r[k] = t0 + t1 + t2 + t3
     }
   */
-  __m128i xm0 = _mm_load_si128((__m128i*)input);
-  __m128i xm1 = _mm_load_si128((__m128i*)(input+16));
-  __m128i xm2 = _mm_load_si128((__m128i*)(input+32));
+  __m128i xm0 = _mm_load_si128(reinterpret_cast<const __m128i*>(input));
+  __m128i xm1 = _mm_load_si128(reinterpret_cast<const __m128i*>(input+16));
+  __m128i xm2 = _mm_load_si128(reinterpret_cast<const __m128i*>(input+32));
 
   __m128i xm3 = _mm_mpsadbw_epu8(xm1, xm0, 0);
   __m128i xm4 = _mm_mpsadbw_epu8(xm1, xm0, 5);
@@ -70,9 +70,9 @@ void sad(const uint8_t* input, uint8_t* output)
   __m128i xm7 = _mm_mpsadbw_epu8(xm5, xm0, 7);
   xm7 = _mm_add_epi16(xm7, xm6);
   int offset = 0;
-  _mm_store_si128((__m128i *)(output+offset), xm4);
+  _mm_store_si128(reinterpret_cast<__m128i*>(output+offset), xm4);
   // Increase 16-bytes (was 8)
-  _mm_store_si128((__m128i *)(output+offset+16), xm7);
+  _mm_store_si128(reinterpret_cast<__m128i*>(output+offset+16), xm7);
   return;
 }
 
@@ -88,7 +88,7 @@ TEST(extintrin_test, test_rsqrt_nr)
     x = float(i+1)/100.0f;
     vx = _mm_set1_ps(x);
     vr = _mm_rsqrt_nr_ps(vx);
-    memcpy(vout,(void*)&vr,16);
+    memcpy(vout, &vr, 16);
     diff = fabs(vout[0]- 1.0f/sqrtf(x));
     max_diff[0] = std::max<float>(diff, max_diff[1]);
   }
@@ -109,7 +109,7 @@ TEST(extintrin_test, test_rsqrt)
     x = float(i+1)/100.0f;
     vx = _mm_set1_ps(x);
     vr = _mm_rsqrt_ps(vx);
-    memcpy(vout,(void*)&vr,16);
+    memcpy(vout, &vr, 16);
     diff = fabs(vout[0]- 1.0f/sqrtf(x));
     max_diff[0] = std::max<float>(diff, max_diff[0]);
   }
@@ -165,7 +165,7 @@ TEST(extintrin_test, test_transpose4x8)
   float xyzs[M][N]{};
   for (size_t i = 0; i < M; i++) {
     for (size_t j = 0; j < N; j++) {
-      xyzs[i][j] = (float)((j + 1) * (i + 1));
+      xyzs[i][j] = static_cast<float>((j + 1) * (i + 1));
     }
   }
   __m256 x0 = _mm256_loadu_ps(xyzs[0]);
