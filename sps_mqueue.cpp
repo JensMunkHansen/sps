@@ -39,7 +39,7 @@ int mq_clear(const char* qname)
   return EXIT_SUCCESS;
 }
 #else
-int mq_clear(const char* qname)
+int mq_clear(const char* /* qname */)
 {
   return EXIT_FAILURE;
 }

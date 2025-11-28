@@ -133,7 +133,7 @@ class Signal1DPlan<float> {
   fftwf_plan& Forward(size_t size, float* in, std::complex<float>* out) {
     // Check power of two
     assert(size && ((size & (size-1))) ==0);
-    size_t index = (size_t)log2(size);
+    size_t index = static_cast<size_t>(log2(size));
 
     if (Signal1DPlan<float>::reuse == false) {
       fftwf_destroy_plan(forward[index]);
@@ -146,12 +146,12 @@ class Signal1DPlan<float> {
       std::lock_guard<std::mutex> guard(g_plan_mutex);
 
       if (Signal1DPlan<float>::measure) {
-        float* dummy = (float*) _mm_malloc(size*sizeof(float),16);
+        float* dummy = static_cast<float*>(_mm_malloc(size*sizeof(float),16));
         memcpy(dummy, in, size*sizeof(float));
-        forward[index] = fftwf_plan_dft_r2c_1d((int)size, dummy, reinterpret_cast<fftwf_complex*>(out), SPS_FFTW_ACCURATE);
+        forward[index] = fftwf_plan_dft_r2c_1d(static_cast<int>(size), dummy, reinterpret_cast<fftwf_complex*>(out), SPS_FFTW_ACCURATE);
         _mm_free(dummy);
       } else {
-        forward[index] = fftwf_plan_dft_r2c_1d((int)size, in, reinterpret_cast<fftwf_complex*>(out), SPS_FFTW_FAST);
+        forward[index] = fftwf_plan_dft_r2c_1d(static_cast<int>(size), in, reinterpret_cast<fftwf_complex*>(out), SPS_FFTW_FAST);
       }
       return forward[index];
     }
@@ -160,7 +160,7 @@ class Signal1DPlan<float> {
   fftwf_plan& Backward(size_t size, std::complex<float>* in, float* out) {
     // Check power of two
     assert(size && ((size & (size-1))) ==0);
-    size_t index = (size_t)log2(size);
+    size_t index = static_cast<size_t>(log2(size));
 
     if (Signal1DPlan<float>::reuse == false) {
       fftwf_destroy_plan(backward[index]);
@@ -177,12 +177,12 @@ class Signal1DPlan<float> {
 
         size_t nComplex = size/2 + 1;
         size_t nbytes = 16 * ((nComplex+1)*sizeof(std::complex<float>) + 15) / 16;
-        std::complex<float>* dummy = (std::complex<float>*) _mm_malloc(nbytes,16);
+        std::complex<float>* dummy = static_cast<std::complex<float>*>(_mm_malloc(nbytes,16));
         memcpy(dummy, in, nComplex*sizeof(std::complex<float>));
-        backward[index] = fftwf_plan_dft_c2r_1d((int)size, reinterpret_cast<fftwf_complex*>(dummy), out, SPS_FFTW_ACCURATE);
+        backward[index] = fftwf_plan_dft_c2r_1d(static_cast<int>(size), reinterpret_cast<fftwf_complex*>(dummy), out, SPS_FFTW_ACCURATE);
         _mm_free(dummy);
       } else {
-        backward[index] = fftwf_plan_dft_c2r_1d((int)size, reinterpret_cast<fftwf_complex*>(in), out, SPS_FFTW_FAST);
+        backward[index] = fftwf_plan_dft_c2r_1d(static_cast<int>(size), reinterpret_cast<fftwf_complex*>(in), out, SPS_FFTW_FAST);
       }
       return backward[index];
     }
@@ -258,12 +258,12 @@ class Signal1DPlan<double> {
   fftw_plan& Forward(size_t size, double* in, std::complex<double>* out) {
     // Check power of two
     assert(size && ((size & (size-1))) ==0);
-    size_t index = (size_t)log2(size);
+    size_t index = static_cast<size_t>(log2(size));
     if (forward[index]) {
       return forward[index];
     } else {
       std::lock_guard<std::mutex> guard(g_plan_mutex);
-      forward[index] = fftw_plan_dft_r2c_1d((int)size, in, reinterpret_cast<fftw_complex*>(out), SPS_FFTW_FAST);
+      forward[index] = fftw_plan_dft_r2c_1d(static_cast<int>(size), in, reinterpret_cast<fftw_complex*>(out), SPS_FFTW_FAST);
       return forward[index];
     }
   }
@@ -271,12 +271,12 @@ class Signal1DPlan<double> {
   fftw_plan& Backward(size_t size, std::complex<double>* in, double* out) {
     // Check power of two
     assert(size && ((size & (size-1))) ==0);
-    size_t index = (size_t)log2(size);
+    size_t index = static_cast<size_t>(log2(size));
     if (backward[index]) {
       return backward[index];
     } else {
       std::lock_guard<std::mutex> guard(g_plan_mutex);
-      backward[index] = fftw_plan_dft_c2r_1d((int)size, reinterpret_cast<fftw_complex*>(in), out, SPS_FFTW_FAST);
+      backward[index] = fftw_plan_dft_c2r_1d(static_cast<int>(size), reinterpret_cast<fftw_complex*>(in), out, SPS_FFTW_FAST);
       return backward[index];
     }
   }
@@ -307,17 +307,18 @@ __THREAD fftw_plan Signal1DPlan<double>::backward[Signal1DPlan<double>::nFFTLeng
 
 
 
-template class Signal1DPlan<float>;
-template class Signal1DPlan<double>;
+// These are explicit specializations (not instantiations), so no need to instantiate
+// template class Signal1DPlan<float>;
+// template class Signal1DPlan<double>;
 
 template <typename T>
 STATIC_INLINE_BEGIN T* _mm_padarray(const T* input, const size_t len, const size_t newlen) {
-  T* output = (T*) SPS_MM_MALLOC(newlen*sizeof(T),16);
+  T* output = static_cast<T*>(SPS_MM_MALLOC(newlen*sizeof(T),16));
 #if 0
   memset(output, 0, newlen*sizeof(T));
-  memcpy(output, (void*)input, len*sizeof(T));
+  memcpy(output, reinterpret_cast<const void*>(input), len*sizeof(T));
 #else
-  memcpy(reinterpret_cast<char*>(output), (void*)input, len*sizeof(T));
+  memcpy(reinterpret_cast<char*>(output), reinterpret_cast<const void*>(input), len*sizeof(T));
   memset(reinterpret_cast<char*>(&output[len]), 0, (newlen-len)*sizeof(T));
 #endif
   return output;
@@ -336,17 +337,17 @@ void DivideArray<float>(float *Data, size_t NumEl, float Divisor) {
   // TODO: Consider using _mm_loadu_ps for the first (if any)
 
   const size_t align = 16;
-  const uintptr_t mask = ~(uintptr_t)(align - 1);
+  const uintptr_t mask = ~static_cast<uintptr_t>(align - 1);
 
-  float *aligned_ptr = (float *)(((uintptr_t)Data+align-1) & mask); // mask is 0x0F
+  float *aligned_ptr = reinterpret_cast<float *>((reinterpret_cast<uintptr_t>(Data)+align-1) & mask); // mask is 0x0F
 
   // Offset before first aligned address
-  size_t offset = (size_t) ((uintptr_t)aligned_ptr - (uintptr_t) Data) / sizeof(float);
+  size_t offset = static_cast<size_t>((reinterpret_cast<uintptr_t>(aligned_ptr) - reinterpret_cast<uintptr_t>(Data)) / sizeof(float));
 
   const float inv_Divisor = 1.0f / Divisor;
 
   // Number of unaligned values before alignment (if any)
-  int nCount = (int) std::min<size_t>(NumEl,offset);
+  int nCount = static_cast<int>(std::min<size_t>(NumEl,offset));
 
   int n = 0;
   for (n=0 ; n < nCount ; n++) {
@@ -356,20 +357,20 @@ void DivideArray<float>(float *Data, size_t NumEl, float Divisor) {
   const __m128 divisor = _mm_set1_ps(inv_Divisor);
 
   // Number of aligned values after first aligned address (TODO: Verify)
-  nCount = int( NumEl - (align/sizeof(float) - 1) - offset);
+  nCount = static_cast<int>(NumEl - (align/sizeof(float) - 1) - offset);
 
   // Shouldn't it be
-  nCount = int((align/sizeof(float)) * ((NumEl - offset) / (align / sizeof(float))));
+  nCount = static_cast<int>((align/sizeof(float)) * ((NumEl - offset) / (align / sizeof(float))));
 
   // Only works for alignment equal to 16 (SSE2,SSE4)
-  for (; n < nCount ; n += align/sizeof(float)) {
+  for (; n < nCount ; n += static_cast<int>(align/sizeof(float))) {
     __m128 va = _mm_load_ps(&aligned_ptr[n]);
     va = _mm_mul_ps(va, divisor);
     _mm_store_ps(&aligned_ptr[n],va);
   }
 
   // Remaining unaligned values (if any)
-  for(; n < (int)NumEl; n++)
+  for(; n < static_cast<int>(NumEl); n++)
     Data[n] *= inv_Divisor;
 }
 
@@ -377,21 +378,21 @@ template <>
 void DivideArray<double>(double *Data, size_t NumEl, double Divisor) {
 
   const size_t align = 16;
-  const uintptr_t mask = ~(uintptr_t)(align - 1);
+  const uintptr_t mask = ~static_cast<uintptr_t>(align - 1);
 
-  double *aligned_ptr = (double *)(((uintptr_t)Data+align-1) & mask);
+  double *aligned_ptr = reinterpret_cast<double *>((reinterpret_cast<uintptr_t>(Data)+align-1) & mask);
 
   int n = 0;
 
-  size_t offset = (size_t) ((uintptr_t)aligned_ptr - (uintptr_t) Data) / sizeof(double);
+  size_t offset = static_cast<size_t>((reinterpret_cast<uintptr_t>(aligned_ptr) - reinterpret_cast<uintptr_t>(Data)) / sizeof(double));
 
   const double inv_Divisor = 1.0 / Divisor;
 
   // Number of unaligned values before alignment (if any)
-  int nCount = int(std::min<size_t>(NumEl,offset));
+  int nCount = static_cast<int>(std::min<size_t>(NumEl,offset));
 
   // Shouldn't it be
-  nCount = int((align/sizeof(double)) * ((NumEl - offset) / (align / sizeof(double))));
+  nCount = static_cast<int>((align/sizeof(double)) * ((NumEl - offset) / (align / sizeof(double))));
 
   for (n=0 ; n < nCount ; n++) {
     Data[n] *= inv_Divisor;
@@ -400,17 +401,17 @@ void DivideArray<double>(double *Data, size_t NumEl, double Divisor) {
   const __m128d divisor = _mm_set1_pd(inv_Divisor);
 
   // Number of aligned values after first aligned address
-  nCount = (int) NumEl - (align/sizeof(double) - 1) - (int) offset;
+  nCount = static_cast<int>(NumEl) - static_cast<int>(align/sizeof(double) - 1) - static_cast<int>(offset);
 
   // Divide aligned values (continue from above)
-  for (; n < nCount ; n += align/sizeof(double)) {
+  for (; n < nCount ; n += static_cast<int>(align/sizeof(double))) {
     __m128d va = _mm_load_pd(&aligned_ptr[n]);
     va = _mm_mul_pd(va, divisor);
     _mm_store_pd(&aligned_ptr[n],va);
   }
 
   // Remaining unaligned values (if any)
-  for(; n < (int)NumEl; n++)
+  for(; n < static_cast<int>(NumEl); n++)
     Data[n] *= inv_Divisor;
 }
 
@@ -420,9 +421,9 @@ signal1D<T>::signal1D() : data(NULL), offset(0), ndata(0), nbytes(0) {}
 template <class T>
 signal1D<T>::signal1D(size_t ndata) : data(NULL), offset(0), ndata(ndata) {
   nbytes = 16 * (ndata * sizeof(T) + 15) / 16;
-  data = (T*) _mm_malloc(nbytes,16);
+  data = static_cast<T*>(_mm_malloc(nbytes,16));
 #ifndef NDEBUG
-SPS_RELAXED_MEMSET_BEGIN  
+SPS_RELAXED_MEMSET_BEGIN
   memset(data,0,nbytes);
 SPS_RELAXED_MEMSET_END
 #endif
@@ -432,9 +433,9 @@ template <class T>
 signal1D<T>::signal1D(size_t ndata, size_t _nbytes) : data(NULL), offset(0), ndata(ndata), nbytes(0) {
   nbytes = 16 * (ndata * sizeof(T) + 15) / 16;
   nbytes = std::max<size_t>(_nbytes,nbytes);
-  data = (T*) _mm_malloc(nbytes,16);
+  data = static_cast<T*>(_mm_malloc(nbytes,16));
 #ifndef NDEBUG
-SPS_RELAXED_MEMSET_BEGIN  
+SPS_RELAXED_MEMSET_BEGIN
   memset(data,0,nbytes);
 SPS_RELAXED_MEMSET_END
 #endif
@@ -463,7 +464,7 @@ bool pack_r2c(const sps::signal1D<T> &a, sps::signal1D<std::complex<T> >& c) {
       _mm_free(c.data);
       c.data = NULL;
     }
-    c.data = (std::complex<T>*) SPS_MM_MALLOC(c.nbytes, 16);
+    c.data = static_cast<std::complex<T>*>(SPS_MM_MALLOC(c.nbytes, 16));
   }
   // New warning -Wclass-memaccess
   memcpy(c.data, reinterpret_cast<const char*>(a.data), a.ndata * sizeof(T));
@@ -482,7 +483,7 @@ bool unpack_c2r(const sps::signal1D<std::complex<T> >& a, sps::signal1D<T> &c) {
       _mm_free(c.data);
       c.data = NULL;
     }
-    c.data = (T*) SPS_MM_MALLOC(c.nbytes, 16);
+    c.data = static_cast<T*>(SPS_MM_MALLOC(c.nbytes, 16));
   }
   memcpy(c.data, a.data, a.ndata * sizeof(std::complex<T>));
   return true;
@@ -510,17 +511,17 @@ fft<float>(const sps::signal1D<float> &a, const size_t &n, sps::signal1D<std::co
       if (c.nbytes < nbytes) {
         _mm_free(c.data);
         c.nbytes = nbytes;
-        c.data = (std::complex<float>*) _mm_malloc(c.nbytes,16);
+        c.data = static_cast<std::complex<float>*>(_mm_malloc(c.nbytes,16));
       }
     } else {
       c.nbytes = nbytes;
-      c.data = (std::complex<float>*) _mm_malloc(c.nbytes,16);
+      c.data = static_cast<std::complex<float>*>(_mm_malloc(c.nbytes,16));
     }
 
     // Pad array if necessary
     pad_a = a.nbytes < n * sizeof(float);
     _a = pad_a ? _mm_padarray<float>(a.data, a.ndata, n) : a.data;
-    assert(((uintptr_t)_a & 0x0F) == 0 && "Data must be aligned");
+    assert((reinterpret_cast<uintptr_t>(_a) & 0x0F) == 0 && "Data must be aligned");
 
     // No need for zeroing output (TEST - NOW WE ZERO OUTPUT)
     //memset(c.data,0,c.ndata * sizeof(std::complex<float>));
@@ -550,17 +551,17 @@ ifft<float>(const sps::signal1D<std::complex<float> >& a, const size_t &n, sps::
       if (c.nbytes != nbytes) {
         _mm_free(c.data);
         c.nbytes = nbytes;
-        c.data = (float*) _mm_malloc(c.nbytes,16);
+        c.data = static_cast<float*>(_mm_malloc(c.nbytes,16));
       }
     } else {
       c.nbytes = nbytes;
-      c.data = (float*) _mm_malloc(c.nbytes,16);
+      c.data = static_cast<float*>(_mm_malloc(c.nbytes,16));
     }
 
     // Pad array if necessary
     pad_a = a.nbytes < (n/2 + 1) * sizeof(std::complex<float>);
     _a = pad_a ? _mm_padarray<std::complex<float> >(a.data, a.ndata, n/2 + 1) : a.data;
-    assert(((uintptr_t)_a & 0x0F) == 0 && "Data must be aligned");
+    assert((reinterpret_cast<uintptr_t>(_a) & 0x0F) == 0 && "Data must be aligned");
 
     // Not necessary
     // memset(c.data,0,sizeof(float) * n);
@@ -593,16 +594,16 @@ fft<double>(const sps::signal1D<double> &a, const size_t &n, sps::signal1D<std::
       if (c.nbytes != nbytes) {
         _mm_free(c.data);
         c.nbytes = nbytes;
-        c.data = (std::complex<double>*) _mm_malloc(c.nbytes,16);
+        c.data = static_cast<std::complex<double>*>(_mm_malloc(c.nbytes,16));
       }
     } else {
       c.nbytes = nbytes;
-      c.data = (std::complex<double>*) _mm_malloc(c.nbytes,16);
+      c.data = static_cast<std::complex<double>*>(_mm_malloc(c.nbytes,16));
     }
 
     pad_a = a.nbytes < n * sizeof(double);
     _a = pad_a ? _mm_padarray<double>(a.data, a.ndata, n) : a.data;
-    assert(((uintptr_t)_a & 0x0F) == 0 && "Data must be aligned");
+    assert((reinterpret_cast<uintptr_t>(_a) & 0x0F) == 0 && "Data must be aligned");
 
     // Not necessary
     //      memset(c.data,0,c.ndata * sizeof(std::complex<double>));
@@ -631,16 +632,16 @@ ifft<double>(const sps::signal1D<std::complex<double> >& a, const size_t &n, sps
       if (c.nbytes != nbytes) {
         _mm_free(c.data);
         c.nbytes = nbytes;
-        c.data = (double*) _mm_malloc(c.nbytes,16);
+        c.data = static_cast<double*>(_mm_malloc(c.nbytes,16));
       }
     } else {
       c.nbytes = nbytes;
-      c.data = (double*) _mm_malloc(c.nbytes,16);
+      c.data = static_cast<double*>(_mm_malloc(c.nbytes,16));
     }
 
     pad_a = a.nbytes < (n/2 + 1) * sizeof(std::complex<double>);
     _a = pad_a ? _mm_padarray<std::complex<double> >(a.data, a.ndata, n/2 + 1) : a.data;
-    assert(((uintptr_t)_a & 0x0F) == 0 && "Data must be aligned");
+    assert((reinterpret_cast<uintptr_t>(_a) & 0x0F) == 0 && "Data must be aligned");
 
     // Not necessary
     //      memset(c.data,0,sizeof(double) * n);
@@ -685,15 +686,15 @@ conv_fft<float>(const sps::signal1D<float> &a,
     pad_a = a.nbytes < n * sizeof(float);
     // Ups
     _a = pad_a ? _mm_padarray<float>(a.data, n_a, n) : a.data;
-    assert(((uintptr_t)_a & 0x0F) == 0 && "Data must be aligned");
+    assert((reinterpret_cast<uintptr_t>(_a) & 0x0F) == 0 && "Data must be aligned");
 
     pad_b = b.nbytes < n * sizeof(float);
     _b = pad_b ? _mm_padarray<float>(b.data, n_b, n) : b.data;
-    assert(((uintptr_t)_b & 0x0F) == 0 && "Data must be aligned");
+    assert((reinterpret_cast<uintptr_t>(_b) & 0x0F) == 0 && "Data must be aligned");
 
     // One extra complex point added to use fast complex multiply (we multiply two at a time)
-    fft_a = (fftwf_complex*) SPS_MM_MALLOC(sizeof(fftwf_complex) * ((n/2+1) + 1),16);
-    fft_b = (fftwf_complex*) SPS_MM_MALLOC(sizeof(fftwf_complex) * ((n/2+1) + 1),16);
+    fft_a = static_cast<fftwf_complex*>(SPS_MM_MALLOC(sizeof(fftwf_complex) * ((n/2+1) + 1),16));
+    fft_b = static_cast<fftwf_complex*>(SPS_MM_MALLOC(sizeof(fftwf_complex) * ((n/2+1) + 1),16));
 
     // TEST TO ZERO ARRAYS
     //memset(fft_a, 0, sizeof(fftwf_complex) * ((n/2+1) + 1));
@@ -707,23 +708,23 @@ conv_fft<float>(const sps::signal1D<float> &a,
 
     // IS IT AN ISSUE THAT WE REALLOC OUTPUT
     if (c.data) {
-      assert(((uintptr_t)c.data & 0x0F) == 0 && "Data must be aligned");
+      assert((reinterpret_cast<uintptr_t>(c.data) & 0x0F) == 0 && "Data must be aligned");
       if (c.nbytes < nbytes) { // Was != nbytes
         _mm_free(c.data);
         c.nbytes = nbytes;
-        c.data = (float*) _mm_malloc(c.nbytes,16);
+        c.data = static_cast<float*>(_mm_malloc(c.nbytes,16));
       }
     } else {
       c.nbytes = nbytes;
-      c.data = (float*) _mm_malloc(c.nbytes,16);
+      c.data = static_cast<float*>(_mm_malloc(c.nbytes,16));
     }
 SPS_RELAXED_MEMSET_BEGIN  
     memset(c.data,0,c.nbytes);
 SPS_RELAXED_MEMSET_END
     Signal1DPlan<float>& p = Signal1DPlan<float>::Instance();
 
-    fftwf_plan forward = p.Forward(n,_a,(std::complex<float>*)fft_a);
-    fftwf_plan backward= p.Backward(n,(std::complex<float>*)fft_a,c.data);
+    fftwf_plan forward = p.Forward(n,_a,reinterpret_cast<std::complex<float>*>(fft_a));
+    fftwf_plan backward= p.Backward(n,reinterpret_cast<std::complex<float>*>(fft_a),c.data);
     fftwf_execute_dft_r2c(forward, _a, fft_a);
     fftwf_execute_dft_r2c(forward, _b, fft_b); // Error here???
 
@@ -753,15 +754,15 @@ SPS_RELAXED_MEMSET_END
     DivideArray<float>(c.data, n-1, float(n));
 
 #else
-    __m128 divisor = _mm_set1_ps(1.0f / float(n));
+    __m128 divisor = _mm_set1_ps(1.0f / static_cast<float>(n));
 
     for (size_t i = 0 ; i < (n/2+1)+1 ; i+=2) {
-      __m128 vec_a = _mm_load_ps((float*)&fft_a[i]);
-      __m128 vec_b = _mm_load_ps((float*)&fft_b[i]);
+      __m128 vec_a = _mm_load_ps(reinterpret_cast<float*>(&fft_a[i]));
+      __m128 vec_b = _mm_load_ps(reinterpret_cast<float*>(&fft_b[i]));
       vec_b = _mm_mul_ps(
                 _mm_mulcmplx_ps(vec_a,vec_b),
                 divisor);
-      _mm_store_ps((float*)&fft_a[i][0],vec_b);
+      _mm_store_ps(reinterpret_cast<float*>(&fft_a[i][0]),vec_b);
     }
 #endif
     fftwf_execute_dft_c2r(backward, fft_a, c.data);
@@ -815,8 +816,8 @@ conv_fft<double>(const sps::signal1D<double> &a,
     _b = pad_b ? _mm_padarray<double>(b.data, n_b, n) : b.data;
 
     // Here FFTW is used (no need to memset)
-    fft_a = (fftw_complex*)SPS_MM_MALLOC(sizeof(fftw_complex) * (n/2+1),16);
-    fft_b = (fftw_complex*) _mm_malloc(sizeof(fftw_complex) * (n/2+1),16);
+    fft_a = static_cast<fftw_complex*>(SPS_MM_MALLOC(sizeof(fftw_complex) * (n/2+1),16));
+    fft_b = static_cast<fftw_complex*>(_mm_malloc(sizeof(fftw_complex) * (n/2+1),16));
 
 
 
@@ -830,16 +831,16 @@ conv_fft<double>(const sps::signal1D<double> &a,
       if (c.nbytes != nbytes) {
         _mm_free(c.data);
         c.nbytes = nbytes;
-        c.data = (double*) _mm_malloc(c.nbytes,16);
+        c.data = static_cast<double*>(_mm_malloc(c.nbytes,16));
       }
     } else {
       c.nbytes = nbytes;
-      c.data = (double*) _mm_malloc(c.nbytes,16);
+      c.data = static_cast<double*>(_mm_malloc(c.nbytes,16));
     }
 
     Signal1DPlan<double>& p = Signal1DPlan<double>::Instance();
-    fftw_plan forward = p.Forward(n,_a,(std::complex<double>*)fft_a);
-    fftw_plan backward= p.Backward(n,(std::complex<double>*)fft_a, c.data);
+    fftw_plan forward = p.Forward(n,_a,reinterpret_cast<std::complex<double>*>(fft_a));
+    fftw_plan backward= p.Backward(n,reinterpret_cast<std::complex<double>*>(fft_a), c.data);
 
     fftw_execute_dft_r2c(forward, _a, fft_a);
     fftw_execute_dft_r2c(forward, _b, fft_b);
@@ -918,7 +919,7 @@ template <class T>
 msignal1D<T>::msignal1D(size_t _ndata, size_t _nbytes) : offset(0),
   ndata(_ndata),
   nbytes(16 * ( std::max<size_t>(_ndata * sizeof(T),_nbytes) + 15 ) / 16), m_data(NULL) {
-  m_data.reset( (T*) _mm_malloc(nbytes,16), [=](T *p) {
+  m_data.reset( static_cast<T*>(_mm_malloc(nbytes,16)), [=](T *p) {
     _mm_free(p);
     p=NULL;
   });
@@ -951,7 +952,7 @@ void msignal1D<T>::reset(size_t _ndata, size_t _nbytes) {
   // Re-alloc if needed
   if (_nbytes > nbytes) {
     nbytes = _nbytes;
-    m_data.reset( (T*) _mm_malloc(nbytes,16), [=](T *p) {
+    m_data.reset( static_cast<T*>(_mm_malloc(nbytes,16)), [=](T *p) {
       _mm_free(p);
       p=NULL;
     });
@@ -963,7 +964,7 @@ void msignal1D<T>::reset(size_t _ndata, size_t _nbytes) {
 template <class T>
 void msignal1D<T>::reverse() {
   std::shared_ptr<T> data1 = m_data;
-  m_data.reset( (T*) _mm_malloc(nbytes,16), [=](T *p) {
+  m_data.reset( static_cast<T*>(_mm_malloc(nbytes,16)), [=](T *p) {
     _mm_free(p);
     p=NULL;
   });
@@ -977,7 +978,7 @@ void msignal1D<T>::pad(size_t _nbytes) {
   if ((nbytes > 0) && (_nbytes > nbytes)) {
     // Shallow copy
     std::shared_ptr<T> data1 = m_data;
-    m_data.reset( (T*) _mm_malloc(_nbytes,16), [=](T *p) {
+    m_data.reset( static_cast<T*>(_mm_malloc(_nbytes,16)), [=](T *p) {
       _mm_free(p);
       p=NULL;
     });
@@ -991,7 +992,7 @@ template <class T>
 msignal1D<T>::~msignal1D() {
   if (ndata) {
     if (m_data) {
-      m_data.reset((T*)NULL);
+      m_data.reset(static_cast<T*>(NULL));
     }
   }
 }
@@ -1036,8 +1037,8 @@ bool mconv_fft_fs(const T& fs,
 }
 
 template <typename T>
-bool conv_fft(const sps::signal1D<T> &a,
-              sps::signal1D<T> &b) {
+bool conv_fft(const sps::signal1D<T> &/* a */,
+              sps::signal1D<T> &/* b */) {
   // In-place of second argument
   return true;
 }
@@ -1072,37 +1073,37 @@ bool conv_fft_out_in(const signal1D<float> &a,
       // We need to reallocate
       float* pTmp = b.data;
       b.nbytes = 16 * (nInternal * sizeof(float) + 15) / 16;
-      b.data = (float*)SPS_MM_MALLOC(b.nbytes,16);
+      b.data = static_cast<float*>(SPS_MM_MALLOC(b.nbytes,16));
       memset(b.data,0,nInternal*sizeof(float));
-      memcpy(b.data,(void*)pTmp,n_b*sizeof(float));
+      memcpy(b.data,reinterpret_cast<void*>(pTmp),n_b*sizeof(float));
       _mm_free(pTmp);
     }
     _b =  b.data;
 
     // One extra point added to use fast complex multiply (we multiply two at a time)
-    fft_a = (fftwf_complex*) SPS_MM_MALLOC(sizeof(fftwf_complex) * ((n/2+1) + 1),16);
+    fft_a = static_cast<fftwf_complex*>(SPS_MM_MALLOC(sizeof(fftwf_complex) * ((n/2+1) + 1),16));
 
     b.ndata = n_a+n_b-1;
     b.offset = a.offset + b.offset;
 
     Signal1DPlan<float>& p = Signal1DPlan<float>::Instance();
 
-    fftwf_plan forward = p.Forward(n,_a, (std::complex<float>*)fft_a);
-    fftwf_plan backward = p.Backward(n,(std::complex<float>*)_b,_b);
+    fftwf_plan forward = p.Forward(n,_a, reinterpret_cast<std::complex<float>*>(fft_a));
+    fftwf_plan backward = p.Backward(n,reinterpret_cast<std::complex<float>*>(_b),_b);
 
     fftwf_execute_dft_r2c(forward, _a, fft_a);
-    fftwf_execute_dft_r2c(forward, _b, (fftwf_complex*)_b);
+    fftwf_execute_dft_r2c(forward, _b, reinterpret_cast<fftwf_complex*>(_b));
 
-    __m128 divisor = _mm_set1_ps(1.0f / float(n));
+    __m128 divisor = _mm_set1_ps(1.0f / static_cast<float>(n));
 
     for (size_t i = 0 ; i < (n/2+1)+1 ; i+=2) {
-      __m128 vec_a = _mm_load_ps((float*)&fft_a[i]);
-      __m128 vec_b = _mm_load_ps((float*)&_b[2*i]);
+      __m128 vec_a = _mm_load_ps(reinterpret_cast<float*>(&fft_a[i]));
+      __m128 vec_b = _mm_load_ps(reinterpret_cast<float*>(&_b[2*i]));
       vec_b = _mm_mul_ps(_mm_mulcmplx_ps(vec_a, vec_b),divisor);
-      _mm_store_ps((float*)&_b[2*i], vec_b);
+      _mm_store_ps(reinterpret_cast<float*>(&_b[2*i]), vec_b);
     }
 
-    fftwf_execute_dft_c2r(backward, (fftwf_complex*)_b, _b);
+    fftwf_execute_dft_c2r(backward, reinterpret_cast<fftwf_complex*>(_b), _b);
     break;
   }
   if (pad_a)
@@ -1156,8 +1157,8 @@ bool conv(const signal1D<T> &a,
     return false;
   }
 
-  int na = (int)a.ndata;
-  int nb = (int)b.ndata;
+  int na = static_cast<int>(a.ndata);
+  int nb = static_cast<int>(b.ndata);
 
   T* _a = a.data;
   T* _b = b.data;
@@ -1169,11 +1170,11 @@ bool conv(const signal1D<T> &a,
     if (c.nbytes != nbytes) {
       _mm_free(c.data);
       c.nbytes = nbytes;
-      c.data = (T*) SPS_MM_MALLOC(c.nbytes,16);
+      c.data = static_cast<T*>(SPS_MM_MALLOC(c.nbytes,16));
     }
   } else {
     c.nbytes = nbytes;
-    c.data = (T*) SPS_MM_MALLOC(c.nbytes,16);
+    c.data = static_cast<T*>(SPS_MM_MALLOC(c.nbytes,16));
   }
 
   memset(c.data,0,(na+nb-1)*sizeof(T));
@@ -1254,10 +1255,10 @@ bool mconv_fft(const msignal1D<T>& a, const msignal1D<T>& b, signal1D<T>& c) {
     if (c.data) {
       if (c.nbytes < a.ndata*sizeof(T)) {
         _mm_free(c.data);
-        c.data = (T*) SPS_MM_MALLOC(a.ndata*sizeof(T),16);
+        c.data = static_cast<T*>(SPS_MM_MALLOC(a.ndata*sizeof(T),16));
       }
     } else {
-      c.data = (T*) SPS_MM_MALLOC(a.ndata*sizeof(T),16);
+      c.data = static_cast<T*>(SPS_MM_MALLOC(a.ndata*sizeof(T),16));
     }
     if (nb == 1) {
       scale = b.m_data.get()[0];
@@ -1273,10 +1274,10 @@ bool mconv_fft(const msignal1D<T>& a, const msignal1D<T>& b, signal1D<T>& c) {
     if (c.data) {
       if (c.nbytes < b.ndata*sizeof(T)) {
         _mm_free(c.data);
-        c.data = (T*) SPS_MM_MALLOC(b.ndata*sizeof(T),16);
+        c.data = static_cast<T*>(SPS_MM_MALLOC(b.ndata*sizeof(T),16));
       }
     } else {
-      c.data = (T*) SPS_MM_MALLOC(b.ndata*sizeof(T),16);
+      c.data = static_cast<T*>(SPS_MM_MALLOC(b.ndata*sizeof(T),16));
     }
     if (na == 1) {
       scale = a.m_data.get()[0];
@@ -1337,7 +1338,7 @@ bool mconv_fft(const msignal1D<T>& a, const msignal1D<T>& b, msignal1D<T>& c) {
 
   if (c.nbytes < nbytes) {
     c.nbytes = nbytes;
-    c.m_data = std::shared_ptr<T>( (T*) _mm_malloc(c.nbytes,16), [=](T *p) {
+    c.m_data = std::shared_ptr<T>( static_cast<T*>(_mm_malloc(c.nbytes,16)), [=](T *p) {
       _mm_free(p);
       p = NULL;
     });
@@ -1457,7 +1458,7 @@ bool mfft(const msignal1D<T>& a, const size_t& n, msignal1D<std::complex<T> >& c
 
   if (c.nbytes < nbytes) {
     c.nbytes = nbytes;
-    c.m_data = std::shared_ptr<std::complex<T>>( (std::complex<T>*) _mm_malloc(c.nbytes,16), [=](std::complex<T> *p) {
+    c.m_data = std::shared_ptr<std::complex<T>>( static_cast<std::complex<T>*>(_mm_malloc(c.nbytes,16)), [=](std::complex<T> *p) {
       _mm_free(p);
       p = NULL;
     });
@@ -1496,7 +1497,7 @@ bool mifft(const msignal1D<std::complex<T> >& a, const size_t &n, msignal1D<T>& 
 
   if (c.nbytes < nbytes) {
     c.nbytes = nbytes;
-    c.m_data = std::shared_ptr<T>( (T*) _mm_malloc(c.nbytes,16), [=](T *p) {
+    c.m_data = std::shared_ptr<T>( static_cast<T*>(_mm_malloc(c.nbytes,16)), [=](T *p) {
       _mm_free(p);
       p = NULL;
     });
@@ -1525,8 +1526,9 @@ bool mifft(const msignal1D<std::complex<T> >& a, const size_t &n, msignal1D<T>& 
   return retval;
 }
 
-template void SPS_EXPORT DivideArray<float>(float *Data, size_t NumEl, float Divisor);
-template void SPS_EXPORT DivideArray<double>(double *Data, size_t NumEl, double Divisor);
+// These are explicit specializations (not primary templates), instantiation has no effect
+// template void SPS_EXPORT DivideArray<float>(float *Data, size_t NumEl, float Divisor);
+// template void SPS_EXPORT DivideArray<double>(double *Data, size_t NumEl, double Divisor);
 
 template struct signal1D<float>;
 template struct signal1D<double>;
@@ -1548,29 +1550,30 @@ template bool SPS_EXPORT conv<double>(const signal1D<double> &a,
                                       const signal1D<double> &b,
                                       signal1D<double>& c);
 
-template bool SPS_EXPORT conv_fft<float>(const signal1D<float> &a,
-    const signal1D<float> &b,
-    signal1D<float>& c);
+// These are explicit specializations (not primary templates), instantiation has no effect
+// template bool SPS_EXPORT conv_fft<float>(const signal1D<float> &a,
+//     const signal1D<float> &b,
+//     signal1D<float>& c);
 
 template bool SPS_EXPORT conv_fft_fs<float>(const float &fs,
     const signal1D<float> &a,
     const signal1D<float> &b,
     sps::signal1D<float>& c);
 
-template bool SPS_EXPORT conv_fft<double>(const sps::signal1D<double> &a,
-    const sps::signal1D<double> &b,
-    sps::signal1D<double>& c);
+// template bool SPS_EXPORT conv_fft<double>(const sps::signal1D<double> &a,
+//     const sps::signal1D<double> &b,
+//     sps::signal1D<double>& c);
 
 template bool SPS_EXPORT conv_fft_fs<double>(const double &fs,
     const signal1D<double> &a,
     const signal1D<double> &b,
     signal1D<double>& c);
 
-template bool SPS_EXPORT conv_fft_out_in<float>(const sps::signal1D<float> &a,
-    sps::signal1D<float> &b);
+// template bool SPS_EXPORT conv_fft_out_in<float>(const sps::signal1D<float> &a,
+//     sps::signal1D<float> &b);
 
-template bool SPS_EXPORT conv_fft_out_in<double>(const sps::signal1D<double> &a,
-    sps::signal1D<double> &b);
+// template bool SPS_EXPORT conv_fft_out_in<double>(const sps::signal1D<double> &a,
+//     sps::signal1D<double> &b);
 
 // TEST adding SPS_EXPORT
 //template class std::shared_ptr<float>;
@@ -1610,11 +1613,13 @@ template bool SPS_EXPORT mconv_fft_fs<double>(const double& fs,
     const msignal1D<double> &b,
     msignal1D<double>& c);
 
-template bool SPS_EXPORT fft<float>(const signal1D<float>& a, const size_t &n, signal1D<std::complex<float> >& c);
-template bool SPS_EXPORT fft<double>(const signal1D<double>& a, const size_t &n, signal1D<std::complex<double> >& c);
-template bool SPS_EXPORT ifft<float>(const signal1D<std::complex<float> >& a, const size_t &n, signal1D<float>& c);
-template bool SPS_EXPORT ifft<double>(const signal1D<std::complex<double> >& a, const size_t &n, signal1D<double>& c);
+// These are explicit specializations (not primary templates), instantiation has no effect
+// template bool SPS_EXPORT fft<float>(const signal1D<float>& a, const size_t &n, signal1D<std::complex<float> >& c);
+// template bool SPS_EXPORT fft<double>(const signal1D<double>& a, const size_t &n, signal1D<std::complex<double> >& c);
+// template bool SPS_EXPORT ifft<float>(const signal1D<std::complex<float> >& a, const size_t &n, signal1D<float>& c);
+// template bool SPS_EXPORT ifft<double>(const signal1D<std::complex<double> >& a, const size_t &n, signal1D<double>& c);
 
+// pack_r2c and unpack_c2r are template functions, keep these
 template bool SPS_EXPORT pack_r2c<double>(const signal1D<double>& a, signal1D<std::complex<double> >& c);
 template bool SPS_EXPORT unpack_c2r<double>(const signal1D<std::complex<double> >& a, signal1D<double>& c);
 template bool SPS_EXPORT pack_r2c<float>(const signal1D<float>& a, signal1D<std::complex<float> >& c);
@@ -1627,15 +1632,17 @@ template bool SPS_EXPORT mifft<double>(const msignal1D<std::complex<double> >& a
 
 }
 
-namespace std {
-#ifdef _MSC_VER
-template class std::complex<float>;
-template class std::complex<double>;
-#else
-template struct std::complex<float>;
-template struct std::complex<double>;
-#endif
-}
+// std::complex<float> and std::complex<double> are already explicit specializations
+// in the standard library, so explicit instantiation has no effect
+// namespace std {
+// #ifdef _MSC_VER
+// template class std::complex<float>;
+// template class std::complex<double>;
+// #else
+// template struct std::complex<float>;
+// template struct std::complex<double>;
+// #endif
+// }
 
 #ifdef _MSC_VER
 # pragma warning(pop)

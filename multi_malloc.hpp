@@ -94,7 +94,7 @@ void* __mm_multi_malloc(size_t d, va_list ap) {
   }
 
   /* grab actual array memory */
-  max *= sizeof(T) * (size_t) (sa * ( ( (*q) + (sa-1) ) / sa ) );
+  max *= sizeof(T) * static_cast<size_t>(sa * ( ( (*q) + (sa-1) ) / sa ) );
   r[0] = static_cast<char*>(SPS_MM_MALLOC(max * sizeof(char), Alignment));
 
   /*
@@ -102,7 +102,7 @@ void* __mm_multi_malloc(size_t d, va_list ap) {
    * use it to scan down each array rather than having to go across and
    * then down
    */
-  r = (char **) tree;     /* back to the beginning of list of arrays */
+  r = reinterpret_cast<char **>(tree);     /* back to the beginning of list of arrays */
   q = d1;                 /* back to the first dimension */
   max = 1;
   for (i = 0; i < d - 2; i++, q++) {
@@ -125,7 +125,7 @@ void* __mm_multi_malloc(size_t d, va_list ap) {
       *s1 = (t += sizeof (char **) **(q + 1));
       s1++;
     }
-    r = (char **) r[0];     /* step through to begining of next
+    r = reinterpret_cast<char **>(r[0]);     /* step through to begining of next
                              * dimension array */
   }
 
@@ -138,7 +138,7 @@ void* __mm_multi_malloc(size_t d, va_list ap) {
 
   free(d1);
 
-  return ((void *)tree);              /* return base pointer */
+  return static_cast<void *>(tree);              /* return base pointer */
 }
 
 /**
@@ -199,7 +199,7 @@ void _mm_multi_free(void *r, size_t d) {
   void *next = NULL;
   size_t i;
 
-  for (p = (void **)r, i = 0; i < d; p = (void **) next, i++)
+  for (p = reinterpret_cast<void **>(r), i = 0; i < d; p = reinterpret_cast<void **>(next), i++)
     if (p != NULL) {
       next = *p;
       _mm_free(p);  // Removed a & before p
@@ -247,7 +247,7 @@ void* _mm_multi_malloc_nc(size_t d, ...) {
   size_t sa;              /* elements per alignment */
 
   va_start(ap, d);
-  d1 = (size_t *) malloc(d*sizeof(size_t));
+  d1 = static_cast<size_t *>(malloc(d*sizeof(size_t)));
 
   for (i = 0; i < d; i++)
     d1[i] = va_arg(ap, size_t);
@@ -269,19 +269,19 @@ void* _mm_multi_malloc_nc(size_t d, ...) {
      * but the last */
     max *= sa * (((*q)+(sa-1))/sa);
     //
-    r[0] = (char *)_mm_malloc(max * sizeof(char **), Alignment);
-    r = (char **) r[0];     /* step through to beginning of next
+    r[0] = static_cast<char *>(_mm_malloc(max * sizeof(char **), Alignment));
+    r = reinterpret_cast<char **>(r[0]);     /* step through to beginning of next
                              * dimension array */
   }
-  max *= sizeof(T) * (size_t) (sa * (((*q)+(sa-1))/sa));        /* grab actual array memory */
-  r[0] = (char *)_mm_malloc(max * sizeof(char), Alignment);
+  max *= sizeof(T) * static_cast<size_t>(sa * (((*q)+(sa-1))/sa));        /* grab actual array memory */
+  r[0] = static_cast<char *>(_mm_malloc(max * sizeof(char), Alignment));
 
   /*
    * r is now set to point to the beginning of each array so that we can
    * use it to scan down each array rather than having to go across and
    * then down
    */
-  r = (char **) tree;     /* back to the beginning of list of arrays */
+  r = reinterpret_cast<char **>(tree);     /* back to the beginning of list of arrays */
   q = d1;                 /* back to the first dimension */
   max = 1;
   for (i = 0; i < d - 2; i++, q++) {
@@ -304,7 +304,7 @@ void* _mm_multi_malloc_nc(size_t d, ...) {
       *s1 = (t += sizeof (char **) *  (sa * (((*q+1)+(sa-1))/sa)) );
       s1++;
     }
-    r = (char **) r[0];     /* step through to begining of next
+    r = reinterpret_cast<char **>(r[0]);     /* step through to begining of next
                              * dimension array */
   }
   max *= sa * (((*q)+(sa-1))/sa);              /* max is total number of elements in the
@@ -317,7 +317,7 @@ void* _mm_multi_malloc_nc(size_t d, ...) {
   va_end(ap);
   free(d1);
 
-  return ((void *)tree);              /* return base pointer */
+  return static_cast<void *>(tree);              /* return base pointer */
 }
 
 /**
@@ -336,7 +336,7 @@ void _mm_multi_free_nc(void *r, size_t d) {
   void *next = NULL;
   size_t i;
 
-  for (p = (void **)r, i = 0; i < d; p = (void **) next, i++)
+  for (p = reinterpret_cast<void **>(r), i = 0; i < d; p = reinterpret_cast<void **>(next), i++)
     if (p != NULL) {
       next = *p;
       _mm_free(p);  // Remove a & before p
@@ -358,7 +358,7 @@ sps::test::deleted_unique_multi_array<T> deleted_aligned_multi_array(size_t _d, 
   va_list ap;
   va_start(ap, _d);
   auto retval =
-    deleted_unique_multi_array<T>((T*)__mm_multi_malloc<T>(d, ap), [](T* f)->void {_mm_multi_free<T>((void*)f, d);});
+    deleted_unique_multi_array<T>(static_cast<T*>(__mm_multi_malloc<T>(d, ap)), [](T* f)->void {_mm_multi_free<T>(static_cast<void*>(f), d);});
   va_end(ap);
   return retval;
 }
@@ -375,8 +375,8 @@ using deleted_unique_multi_array2 = std::unique_ptr<T[][b], std::function< void(
 
 template<typename T, size_t a, size_t b> // size_t... and using const size_t ndims = sizeof...(size_t)
 sps::test::deleted_unique_multi_array2<T,a,b> deleted_aligned_multi_array2() {
-  return deleted_unique_multi_array2<T,a,b>( (T (*)[b]) _mm_multi_malloc<T>(2, a, b),
-         [](T (*f)[b])->void {_mm_multi_free<T>( (void*)&(f[0][0]), 2);});
+  return deleted_unique_multi_array2<T,a,b>( reinterpret_cast<T (*)[b]>(_mm_multi_malloc<T>(2, a, b)),
+         [](T (*f)[b])->void {_mm_multi_free<T>( static_cast<void*>(&(f[0][0])), 2);});
 }
 
 template<typename T, size_t a, size_t b, size_t c>
@@ -384,8 +384,8 @@ using deleted_unique_multi_array3 = std::unique_ptr<T[][b][c], std::function< vo
 
 template<typename T, size_t a, size_t b,size_t c> // size_t... and using const size_t ndims = sizeof...(size_t)
 sps::test::deleted_unique_multi_array3<T,a,b,c> deleted_aligned_multi_array3() {
-  return deleted_unique_multi_array3<T,a,b,c>( (T (*)[b][c]) _mm_multi_malloc<T>(3, a, b, c),
-         [](T (*f)[b][c])->void {_mm_multi_free<T>(&(f[0][0][0]), 3);});
+  return deleted_unique_multi_array3<T,a,b,c>( reinterpret_cast<T (*)[b][c]>(_mm_multi_malloc<T>(3, a, b, c)),
+         [](T (*f)[b][c])->void {_mm_multi_free<T>(static_cast<void*>(&(f[0][0][0])), 3);});
 }
 }  // namespace test
 #endif

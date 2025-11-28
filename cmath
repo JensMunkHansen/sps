@@ -143,19 +143,21 @@ struct trig_traits<float> {
 }  // namespace sps
 ///@}
 
-template float sps::sin(const float& v);
-template float sps::cos(const float& v);
-template float sps::acos(const float& v);
-template float sps::acos(const float& v);
-template float sps::tan(const float& v);
-template double sps::sin(const double& v);
-template double sps::cos(const double& v);
-template double sps::asin(const double& v);
-template double sps::acos(const double& v);
-template double sps::tan(const double& v);
+// These are explicit specializations (not primary templates), so explicit
+// instantiation has no effect and generates warnings.
+// template float sps::sin(const float& v);
+// template float sps::cos(const float& v);
+// template float sps::acos(const float& v);
+// template float sps::acos(const float& v);
+// template float sps::tan(const float& v);
+// template double sps::sin(const double& v);
+// template double sps::cos(const double& v);
+// template double sps::asin(const double& v);
+// template double sps::acos(const double& v);
+// template double sps::tan(const double& v);
 
-template struct sps::trig_traits<float>;
-template struct sps::trig_traits<double>;
+// template struct sps::trig_traits<float>;
+// template struct sps::trig_traits<double>;
 
 /* Local variables: */
 /* mode: c++ */
