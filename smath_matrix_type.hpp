@@ -113,7 +113,7 @@ inline mat3_t<T> operator*(const T& s, const mat3_t<T>& mat) {
   mat3_t<T> result;
   for (size_t i = 0 ; i < 3 ; i++) {
     for (size_t j = 0 ; j < 3 ; j++) {
-      result[i] = result[i] * s;
+      result.data[i][j] = mat.data[i][j] * s;
     }
   }
   return result;

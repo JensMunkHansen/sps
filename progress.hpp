@@ -33,8 +33,8 @@
 namespace sps {
 class ProgressBar : public ProgressBarInterface {
  public:
-  virtual void show(float percent) = 0;
-  virtual ~ProgressBar() = default;
+  void show(float percent) override = 0;
+  ~ProgressBar() override = default;
 
   template <typename P>
   void wait(const P& period);
@@ -46,7 +46,7 @@ class ProgressBar : public ProgressBarInterface {
 
 class SPS_EXPORT ProgressBarStdOut : public ProgressBarInterface {
  public:
-  virtual void show(float percent);
-  virtual ~ProgressBarStdOut() = default;
+  void show(float percent) override;
+  ~ProgressBarStdOut() override = default;
 };
 }  // namespace sps

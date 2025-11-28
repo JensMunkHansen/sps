@@ -34,7 +34,7 @@ struct is_aligned {
   static_assert((alignment & (alignment - 1)) == 0,
                 "Alignment must be a power of 2");
   static inline bool value(const void * ptr) {
-    return (((uintptr_t)ptr) & (alignment - 1)) == 0;
+    return ((reinterpret_cast<uintptr_t>(ptr)) & (alignment - 1)) == 0;
   }
 };
 
@@ -142,7 +142,7 @@ class dynaligned : public sps::aligned<Alignment> {
     return ptr ? ptr : throw std::bad_alloc{};
   }
 
-  void operator delete[](void* ptr, size_t count) {
+  void operator delete[](void* ptr, size_t /* count */) {
     SPS_MM_FREE(ptr);
   }
 
@@ -157,7 +157,7 @@ class dynaligned : public sps::aligned<Alignment> {
 
   void* operator new(std::size_t size, std::align_val_t al)  {
     debug_print("aligned\n");
-    static_assert((size_t)al == Alignment, "Alignment mismatch");
+    static_assert(static_cast<size_t>(al) == Alignment, "Alignment mismatch");
 #if 1
     return ::operator new(size, al);
 #else
@@ -167,7 +167,7 @@ class dynaligned : public sps::aligned<Alignment> {
 #endif
   }
 
-  void operator delete(void* ptr, std::align_val_t align) {
+  void operator delete(void* ptr, std::align_val_t /* align */) {
     debug_print("aligned\n");
 #if 1
     return ::operator delete(ptr);
@@ -178,7 +178,7 @@ class dynaligned : public sps::aligned<Alignment> {
   }
 
   // Called if the above is left undefined
-  void operator delete(void* ptr, std::size_t size, std::align_val_t align) {
+  void operator delete(void* ptr, std::size_t /* size */, std::align_val_t /* align */) {
     debug_print("aligned\n");
 #if 1
     return ::operator delete(ptr);
@@ -192,9 +192,9 @@ class dynaligned : public sps::aligned<Alignment> {
     return ::operator new[](count, al);
   }
 
-  void operator delete[](void* ptr, std::size_t count, std::align_val_t al) {
+  void operator delete[](void* ptr, std::size_t /* count */, std::align_val_t al) {
     debug_print("aligned\n");
-    return ::operator delete[](ptr, count, al);  // Calls many dtors, free
+    return ::operator delete[](ptr, al);  // C++ standard doesn't have 3-arg version
   }
 
 #endif

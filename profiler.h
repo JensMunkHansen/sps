@@ -55,13 +55,13 @@ class profiler {
 #if 1
     struct timespec tspec;
     clock_gettime(CLOCK_MONOTONIC, &tspec);
-    sec = (double) tspec.tv_sec;
-    usec = ((double) tspec.tv_nsec) / 1000000000.0;
+    sec = static_cast<double>(tspec.tv_sec);
+    usec = static_cast<double>(tspec.tv_nsec) / 1000000000.0;
 #else
     static __THREAD struct rusage foo;
     getrusage (RUSAGE_SELF, &foo); // process values
-    sec = (double) foo.ru_utime.tv_sec;
-    usec = ((double) foo.ru_utime.tv_usec) / 1000000.0;
+    sec = static_cast<double>(foo.ru_utime.tv_sec);
+    usec = static_cast<double>(foo.ru_utime.tv_usec) / 1000000.0;
 #endif
     return (sec + usec);
   }

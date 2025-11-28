@@ -137,7 +137,7 @@ private:
   using sps::nix::unique_aligned_multi_array_create;
 
   // Alias type to unique_multi_array
-  template <class T, size_t I, class H = typename std::enable_if<std::is_pod<T>::value>::type>
+  template <class T, size_t I, class H = typename std::enable_if<std::is_trivial<T>::value && std::is_standard_layout<T>::value>::type>
   using unique_multi_array = sps::nix::unique_aligned_multi_array<T, I, H>;
 
   // Alias function to unique_multi_array_create (TODO: Do this correctly)

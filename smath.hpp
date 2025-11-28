@@ -67,7 +67,7 @@ T signum(const T& x) {
  * @return
  */
 template <typename T> inline constexpr
-int signum(T x, std::false_type is_signed) {
+int signum(T x, std::false_type /* is_signed */) {
   return T(0) < x;
 }
 
@@ -80,7 +80,7 @@ int signum(T x, std::false_type is_signed) {
  * @return
  */
 template <typename T> inline constexpr
-int signum(T x, std::true_type is_signed) {
+int signum(T x, std::true_type /* is_signed */) {
   return (T(0) < x) - (x < T(0));
 }
 

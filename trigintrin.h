@@ -38,18 +38,18 @@ extern "C" {
  * \defgroup Constants used by functions
  * @{
  */
-const __m128 _m_2_pi_ps       = _mm_set1_ps((float)M_2_PI);    // 2 / pi
-const __m128 _m_1_pi_ps       = _mm_set1_ps((float)M_1_PI);    // 1 / pi
-const __m128 _m_1_2pi_ps      = _mm_set1_ps((float)M_1_2PI);   // 1 / (2pi)
-const __m128 _m_2pi_ps        = _mm_set1_ps((float)M_2PI);     // 2 * pi
-const __m128 _m_pi_ps         = _mm_set1_ps((float)M_PI);      // pi
-const __m128 _m_pi2_ps        = _mm_set1_ps((float)M_PI_2);    // pi/ 2
+const __m128 _m_2_pi_ps       = _mm_set1_ps(static_cast<float>(M_2_PI));    // 2 / pi
+const __m128 _m_1_pi_ps       = _mm_set1_ps(static_cast<float>(M_1_PI));    // 1 / pi
+const __m128 _m_1_2pi_ps      = _mm_set1_ps(static_cast<float>(M_1_2PI));   // 1 / (2pi)
+const __m128 _m_2pi_ps        = _mm_set1_ps(static_cast<float>(M_2PI));     // 2 * pi
+const __m128 _m_pi_ps         = _mm_set1_ps(static_cast<float>(M_PI));      // pi
+const __m128 _m_pi2_ps        = _mm_set1_ps(static_cast<float>(M_PI_2));    // pi/ 2
 
 const __m128 _m_1_4_ps       = _mm_set1_ps(0.25f);
 const __m128 _m_1_ps         = _mm_set1_ps(1.0f);
 const __m128 _m_2_ps         = _mm_set1_ps(2.0f);
 
-const __m128d _m_2pi_pd      = _mm_set1_pd((double)M_2PI);     // 2 * pi
+const __m128d _m_2pi_pd      = _mm_set1_pd(static_cast<double>(M_2PI));     // 2 * pi
 
 const __m256d _m256_pi_pd         = _mm256_set1_pd(M_PI);      // pi
 const __m256d _m256_1_2pi_pd      = _mm256_set1_pd(M_1_2PI);   // 1 / (2pi)
@@ -303,7 +303,7 @@ STATIC_INLINE_BEGIN __m128 _mm_arctan2_ps(__m128 y, __m128 x) {
  * @return
  */
 STATIC_INLINE_BEGIN __m128 _mm_cos_ps_fast(__m128 x) {
-  const __m128 tp = _mm_set1_ps((float) M_1_PI / 2.0f);
+  const __m128 tp = _mm_set1_ps(static_cast<float>(M_1_PI) / 2.0f);
   x = _mm_mul_ps(x,tp);
   x = _mm_sub_ps(x,_mm_add_ps(_m_1_4_ps,_mm_floor_ps(_mm_add_ps(x,_m_1_4_ps))));
   x = _mm_mul_ps(x,_mm_mul_ps(_mm_set1_ps(16.0f),_mm_sub_ps(_mm_fabs_ps(x),_m_half_ps)));
@@ -404,7 +404,7 @@ STATIC_INLINE_BEGIN void _mm_sin_cos_ps(__m128 d, __m128* s_, __m128* c_) {
 STATIC_INLINE_BEGIN void _mm_sin_cos_pd(__m128d d, __m128d* s_, __m128d* c_) {
   ALIGN16_BEGIN double data[4] ALIGN16_END;
   _mm_store_pd(data, d);
-  __m128 d_ps = _mm_set_ps(0.0f,0.0f,(float)data[1],(float)data[0]);
+  __m128 d_ps = _mm_set_ps(0.0f,0.0f,static_cast<float>(data[1]),static_cast<float>(data[0]));
   __m128 c_ps, s_ps;
   _mm_sin_cos_ps(d_ps,&s_ps,&c_ps);
   ALIGN16_BEGIN float fdata[4] ALIGN16_END;
@@ -428,7 +428,7 @@ STATIC_INLINE_BEGIN __m128 _mm_sin_ps(__m128 d) {
   q = _mm_cvtps_epi32(
         _mm_mul_ps(
           d,
-          _mm_set1_ps((float)M_1_PI)));
+          _mm_set1_ps(static_cast<float>(M_1_PI))));
   u = _mm_cvtepi32_ps(q);
 
   d = _mm_madd_ps(u, _mm_set1_ps(-PI4_Af*4), d);
@@ -470,7 +470,7 @@ STATIC_INLINE_BEGIN __m128 _mm_cos_ps(__m128 d) {
         _mm_sub_ps(
           _mm_mul_ps(
             d,
-            _mm_set1_ps((float)M_1_PI)),
+            _mm_set1_ps(static_cast<float>(M_1_PI))),
           _mm_set1_ps(0.5f)));
 
   q = _mm_add_epi32(
@@ -522,7 +522,7 @@ STATIC_INLINE_BEGIN __m128 _mm_cos_ps(__m128 d) {
   static const ALIGN16_BEGIN int _pi32_##Name[4] ALIGN16_END = { Val, Val, Val, Val }
 
 _PS_CONST_TYPE(inv_sign_mask, int, ~0x80000000);
-_PS_CONST_TYPE(sign_mask, int, (int)0x80000000);
+_PS_CONST_TYPE(sign_mask, int, static_cast<int>(0x80000000));
 
 _PS_CONST(sincof_p0, -1.9515295891E-4f);
 _PS_CONST(sincof_p1,  8.3321608736E-3f);
@@ -549,38 +549,38 @@ STATIC_INLINE_BEGIN void _mm_sincos_cephes_ps(__m128 x, __m128 *s, __m128 *c) {
 
   sign_bit_sin = x;
   /* take the absolute value */
-  x = _mm_and_ps(x, *(__m128*)_ps_inv_sign_mask);
+  x = _mm_and_ps(x, *reinterpret_cast<const __m128*>(_ps_inv_sign_mask));
   /* extract the sign bit (upper one) */
-  sign_bit_sin = _mm_and_ps(sign_bit_sin, *(__m128*)_ps_sign_mask);
+  sign_bit_sin = _mm_and_ps(sign_bit_sin, *reinterpret_cast<const __m128*>(_ps_sign_mask));
 
   /* scale by 4/Pi */
-  y = _mm_mul_ps(x, *(__m128*)_ps_cephes_FOPI);
+  y = _mm_mul_ps(x, *reinterpret_cast<const __m128*>(_ps_cephes_FOPI));
 
   /* store the integer part of y in emm2 */
   emm2 = _mm_cvttps_epi32(y);
 
   /* j=(j+1) & (~1) (see the cephes sources) */
-  emm2 = _mm_add_epi32(emm2, *(__m128i*)_pi32_1);
-  emm2 = _mm_and_si128(emm2, *(__m128i*)_pi32_inv1);
+  emm2 = _mm_add_epi32(emm2, *reinterpret_cast<const __m128i*>(_pi32_1));
+  emm2 = _mm_and_si128(emm2, *reinterpret_cast<const __m128i*>(_pi32_inv1));
   y = _mm_cvtepi32_ps(emm2);
 
   emm4 = emm2;
 
   /* get the swap sign flag for the sine */
-  emm0 = _mm_and_si128(emm2, *(__m128i*)_pi32_4);
+  emm0 = _mm_and_si128(emm2, *reinterpret_cast<const __m128i*>(_pi32_4));
   emm0 = _mm_slli_epi32(emm0, 29);
   __m128 swap_sign_bit_sin = _mm_castsi128_ps(emm0);
 
   /* get the polynom selection mask for the sine*/
-  emm2 = _mm_and_si128(emm2, *(__m128i*)_pi32_2);
+  emm2 = _mm_and_si128(emm2, *reinterpret_cast<const __m128i*>(_pi32_2));
   emm2 = _mm_cmpeq_epi32(emm2, _mm_setzero_si128());
   __m128 poly_mask = _mm_castsi128_ps(emm2);
 
   /* The magic pass: "Extended precision modular arithmetic"
      x = ((x - y * DP1) - y * DP2) - y * DP3; */
-  xmm1 = *(__m128*)_ps_minus_cephes_DP1;
-  xmm2 = *(__m128*)_ps_minus_cephes_DP2;
-  xmm3 = *(__m128*)_ps_minus_cephes_DP3;
+  xmm1 = *reinterpret_cast<const __m128*>(_ps_minus_cephes_DP1);
+  xmm2 = *reinterpret_cast<const __m128*>(_ps_minus_cephes_DP2);
+  xmm3 = *reinterpret_cast<const __m128*>(_ps_minus_cephes_DP3);
   xmm1 = _mm_mul_ps(y, xmm1);
   xmm2 = _mm_mul_ps(y, xmm2);
   xmm3 = _mm_mul_ps(y, xmm3);
@@ -588,8 +588,8 @@ STATIC_INLINE_BEGIN void _mm_sincos_cephes_ps(__m128 x, __m128 *s, __m128 *c) {
   x = _mm_add_ps(x, xmm2);
   x = _mm_add_ps(x, xmm3);
 
-  emm4 = _mm_sub_epi32(emm4, *(__m128i*)_pi32_2);
-  emm4 = _mm_andnot_si128(emm4, *(__m128i*)_pi32_4);
+  emm4 = _mm_sub_epi32(emm4, *reinterpret_cast<const __m128i*>(_pi32_2));
+  emm4 = _mm_andnot_si128(emm4, *reinterpret_cast<const __m128i*>(_pi32_4));
   emm4 = _mm_slli_epi32(emm4, 29);
   __m128 sign_bit_cos = _mm_castsi128_ps(emm4);
 
@@ -598,25 +598,25 @@ STATIC_INLINE_BEGIN void _mm_sincos_cephes_ps(__m128 x, __m128 *s, __m128 *c) {
 
   /* Evaluate the first polynom  (0 <= x <= Pi/4) */
   __m128 z = _mm_mul_ps(x,x);
-  y = *(__m128*)_ps_coscof_p0;
+  y = *reinterpret_cast<const __m128*>(_ps_coscof_p0);
 
   y = _mm_mul_ps(y, z);
-  y = _mm_add_ps(y, *(__m128*)_ps_coscof_p1);
+  y = _mm_add_ps(y, *reinterpret_cast<const __m128*>(_ps_coscof_p1));
   y = _mm_mul_ps(y, z);
-  y = _mm_add_ps(y, *(__m128*)_ps_coscof_p2);
+  y = _mm_add_ps(y, *reinterpret_cast<const __m128*>(_ps_coscof_p2));
   y = _mm_mul_ps(y, z);
   y = _mm_mul_ps(y, z);
-  __m128 tmp = _mm_mul_ps(z, *(__m128*)_ps_0p5);
+  __m128 tmp = _mm_mul_ps(z, *reinterpret_cast<const __m128*>(_ps_0p5));
   y = _mm_sub_ps(y, tmp);
-  y = _mm_add_ps(y, *(__m128*)_ps_1);
+  y = _mm_add_ps(y, *reinterpret_cast<const __m128*>(_ps_1));
 
   /* Evaluate the second polynom  (Pi/4 <= x <= 0) */
 
-  __m128 y2 = *(__m128*)_ps_sincof_p0;
+  __m128 y2 = *reinterpret_cast<const __m128*>(_ps_sincof_p0);
   y2 = _mm_mul_ps(y2, z);
-  y2 = _mm_add_ps(y2, *(__m128*)_ps_sincof_p1);
+  y2 = _mm_add_ps(y2, *reinterpret_cast<const __m128*>(_ps_sincof_p1));
   y2 = _mm_mul_ps(y2, z);
-  y2 = _mm_add_ps(y2, *(__m128*)_ps_sincof_p2);
+  y2 = _mm_add_ps(y2, *reinterpret_cast<const __m128*>(_ps_sincof_p2));
   y2 = _mm_mul_ps(y2, z);
   y2 = _mm_mul_ps(y2, x);
   y2 = _mm_add_ps(y2, x);
@@ -758,14 +758,14 @@ STATIC_INLINE_BEGIN __m128 _mm_exp_cephes_ps(__m128 x) {
   __m128 tmp = _mm_setzero_ps(), fx;
   __m128i emm0;
 
-  __m128 one = *(__m128*)_ps_1;
+  __m128 one = *reinterpret_cast<const __m128*>(_ps_1);
 
-  x = _mm_min_ps(x, *(__m128*)_ps_exp_hi);
-  x = _mm_max_ps(x, *(__m128*)_ps_exp_lo);
+  x = _mm_min_ps(x, *reinterpret_cast<const __m128*>(_ps_exp_hi));
+  x = _mm_max_ps(x, *reinterpret_cast<const __m128*>(_ps_exp_lo));
 
   /* express exp(x) as exp(g + n*log(2)) */
-  fx = _mm_mul_ps(x, *(__m128*)_ps_cephes_LOG2EF);
-  fx = _mm_add_ps(fx, *(__m128*)_ps_0p5);
+  fx = _mm_mul_ps(x, *reinterpret_cast<const __m128*>(_ps_cephes_LOG2EF));
+  fx = _mm_add_ps(fx, *reinterpret_cast<const __m128*>(_ps_0p5));
 
   /* how to perform a floorf with SSE: just below */
   emm0 = _mm_cvttps_epi32(fx);
@@ -776,31 +776,31 @@ STATIC_INLINE_BEGIN __m128 _mm_exp_cephes_ps(__m128 x) {
   mask = _mm_and_ps(mask, one);
   fx = _mm_sub_ps(tmp, mask);
 
-  tmp = _mm_mul_ps(fx, *(__m128*)_ps_cephes_exp_C1);
-  __m128 z = _mm_mul_ps(fx, *(__m128*)_ps_cephes_exp_C2);
+  tmp = _mm_mul_ps(fx, *reinterpret_cast<const __m128*>(_ps_cephes_exp_C1));
+  __m128 z = _mm_mul_ps(fx, *reinterpret_cast<const __m128*>(_ps_cephes_exp_C2));
   x = _mm_sub_ps(x, tmp);
   x = _mm_sub_ps(x, z);
 
   z = _mm_mul_ps(x,x);
 
-  __m128 y = *(__m128*)_ps_cephes_exp_p0;
+  __m128 y = *reinterpret_cast<const __m128*>(_ps_cephes_exp_p0);
   y = _mm_mul_ps(y, x);
-  y = _mm_add_ps(y, *(__m128*)_ps_cephes_exp_p1);
+  y = _mm_add_ps(y, *reinterpret_cast<const __m128*>(_ps_cephes_exp_p1));
   y = _mm_mul_ps(y, x);
-  y = _mm_add_ps(y, *(__m128*)_ps_cephes_exp_p2);
+  y = _mm_add_ps(y, *reinterpret_cast<const __m128*>(_ps_cephes_exp_p2));
   y = _mm_mul_ps(y, x);
-  y = _mm_add_ps(y, *(__m128*)_ps_cephes_exp_p3);
+  y = _mm_add_ps(y, *reinterpret_cast<const __m128*>(_ps_cephes_exp_p3));
   y = _mm_mul_ps(y, x);
-  y = _mm_add_ps(y, *(__m128*)_ps_cephes_exp_p4);
+  y = _mm_add_ps(y, *reinterpret_cast<const __m128*>(_ps_cephes_exp_p4));
   y = _mm_mul_ps(y, x);
-  y = _mm_add_ps(y, *(__m128*)_ps_cephes_exp_p5);
+  y = _mm_add_ps(y, *reinterpret_cast<const __m128*>(_ps_cephes_exp_p5));
   y = _mm_mul_ps(y, z);
   y = _mm_add_ps(y, x);
   y = _mm_add_ps(y, one);
 
   /* build 2^n */
   emm0 = _mm_cvttps_epi32(fx);
-  emm0 = _mm_add_epi32(emm0, *(__m128i*)_pi32_0x7f);
+  emm0 = _mm_add_epi32(emm0, *reinterpret_cast<const __m128i*>(_pi32_0x7f));
   emm0 = _mm_slli_epi32(emm0, 23);
   __m128 pow2n = _mm_castsi128_ps(emm0);
 
@@ -834,9 +834,9 @@ STATIC_INLINE_BEGIN float sin_fast(float a) {
   r1[0] = c1[3] * a - c1[0]; // only difference from cos!
   r1[1] = r1[0] - floor(r1[0]); // and extract fraction
 
-  r2[0] = (float) ( r1[1] < c1[0] );            // range check: 0.0 to 0.25
-  r2[1] = (float) ( r1[1] >= c1[1] );    // range check: 0.75 to 1.0
-  r2[2] = (float) ( r1[1] >= c1[2] );    // range check: 0.75 to 1.0
+  r2[0] = static_cast<float>( r1[1] < c1[0] );            // range check: 0.0 to 0.25
+  r2[1] = static_cast<float>( r1[1] >= c1[1] );    // range check: 0.75 to 1.0
+  r2[2] = static_cast<float>( r1[1] >= c1[2] );    // range check: 0.75 to 1.0
   r2[1] = r2[0] * c4[2] + r2[1] * c4[3] + r2[2] * c4[2]; // range check: 0.25 to 0.75
 
 

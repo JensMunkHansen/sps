@@ -84,7 +84,7 @@ bool SPS_EXPORT svd(const sps::mat3_t<T>& mA, sps::mat3_t<T>* u,
                     sps::point_t<T>* s, sps::mat3_t<T>* v) {
   SPS_UNREFERENCE_PARAMETERS(mA, u, s, v);
 
-  bool retval = false;
+  // bool retval = false; // TODO: Implement SVD properly
   sps::mat3_t<T> mT = mA.transpose();
   sps::mat3_t<T> mSqr = mT * mA;
 
@@ -459,16 +459,16 @@ void basis_vectors(float* vec0, float* vec1, float* vec2,
 
 #ifdef _WIN32
   // Euler is not aligned on Windows
-  a = _mm_loadu_ps((float*)&euler);
+  a = _mm_loadu_ps(reinterpret_cast<const float*>(&euler));
 #else
-  a = _mm_load_ps((float*)&euler);
+  a = _mm_load_ps(reinterpret_cast<const float*>(&euler));
 #endif
   v4f c, s;
   _mm_sin_cos_ps(a, &s.v, &c.v);
 
-  v4f* p0 = (v4f*) vec0;
-  v4f* p1 = (v4f*) vec1;
-  v4f* p2 = (v4f*) vec2;
+  v4f* p0 = reinterpret_cast<v4f*>(vec0);
+  v4f* p1 = reinterpret_cast<v4f*>(vec1);
+  v4f* p2 = reinterpret_cast<v4f*>(vec2);
 
 #if ROTATION_CONVENTION == ROTATION_CONVENTION_EULER_ZYZ
   p0->f32[0] =  c.f32[0]*c.f32[2]          - c.f32[2]*s.f32[0]*s.f32[2];
@@ -730,9 +730,10 @@ template float norm(const point_t<float> &a);
 template float dist_point_to_line(const point_t<float>& point, const point_t<float>& pointOnLine,
                                   const point_t<float>& direction);
 
-template void SPS_EXPORT
-basis_vectors<float, sps::EulerIntrinsicYXY>(sps::point_t<float>* output,
-    const sps::euler_t<float>& euler, size_t index);
+// These are explicit specializations, instantiation has no effect
+// template void SPS_EXPORT
+// basis_vectors<float, sps::EulerIntrinsicYXY>(sps::point_t<float>* output,
+//     const sps::euler_t<float>& euler, size_t index);
 
 template void SPS_EXPORT
 euler2rot<float, sps::EulerIntrinsicYXY>(const sps::euler_t<float>& euler,
@@ -745,8 +746,8 @@ template std::ostream& operator<<(std::ostream& out, const point_t<float>& point
 
 template std::ostream& operator<<(std::ostream& out, const mat3_t<float>& point);
 
-template void
-SPS_EXPORT basis_vectors(float* vec0, float* vec1, float* vec2, const sps::euler_t<float>& euler);
+// template void
+// SPS_EXPORT basis_vectors(float* vec0, float* vec1, float* vec2, const sps::euler_t<float>& euler);
 
 template void SPS_EXPORT
 basis_rotate<float, sps::EulerIntrinsicYXY>(const sps::point_t<float>& input,
@@ -800,12 +801,12 @@ template double dist_point_to_line(
   const point_t<double>& direction);
 
 
-template void SPS_EXPORT basis_vectors<double, EulerIntrinsicYXY>(
-  sps::point_t<double>* output, const sps::euler_t<double>& euler, size_t index);
+// template void SPS_EXPORT basis_vectors<double, EulerIntrinsicYXY>(
+//   sps::point_t<double>* output, const sps::euler_t<double>& euler, size_t index);
 template std::ostream& operator<<(std::ostream& out, const point_t<double>& point);
-template void SPS_EXPORT basis_vectors(
-  double* vec0, double* vec1, double* vec2,
-  const sps::euler_t<double>& euler);
+// template void SPS_EXPORT basis_vectors(
+//   double* vec0, double* vec1, double* vec2,
+//   const sps::euler_t<double>& euler);
 template void SPS_EXPORT basis_rotate<double, EulerIntrinsicYXY>(
   const sps::point_t<double>& input, const sps::euler_t<double>& euler,
   sps::point_t<double>* output);

@@ -201,7 +201,7 @@ class MRMWQueue : public IMRMWQueue<T, is_copy_constructible<T>::value> {
    * Destructor. Invalidate and empty queue
    *
    */
-  ~MRMWQueue() {
+  ~MRMWQueue() override {
     invalidate();
     clear();
   }
