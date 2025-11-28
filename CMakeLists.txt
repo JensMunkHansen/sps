@@ -4,7 +4,6 @@ cmake_minimum_required(VERSION 3.20)
 if(NOT DEFINED PROJECT_NAME)
   project(sps C CXX)
   list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/../CMake)
-  list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/../cmake)
   include(spsInstallDirs)
 
   # Create build interface target for standalone build
@@ -15,7 +14,10 @@ if(NOT DEFINED PROJECT_NAME)
   include(spsCompilerWarningFlags)
 
   # SIMD detection for standalone build
-  include(simd)
+  include(spsSIMD)
+
+  # Enable PIC for all targets (needed for Python bindings)
+  set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
 
 if(NOT DEFINED ENABLE_PYTHON3)
@@ -77,10 +79,13 @@ endif()
 # Enable config.h
 set(HAVE_CONFIG_H 1)
 
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/config.h.in"
-  "${CMAKE_CURRENT_BINARY_DIR}/config.h"
-  @ONLY)
+# Configure config.h (standalone puts it in sps/ subdir, parent project handles location)
+if(NOT PROJECT_NAME STREQUAL "sps")
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/config.h.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/config.h"
+    @ONLY)
+endif()
 
 # === Source files ===
 set(sps_HEADERS
@@ -139,10 +144,29 @@ endif()
 # === Library target ===
 add_library(sps ${SPS_LIB_TYPE} ${sps_HEADERS} ${sps_SOURCES})
 
-target_include_directories(sps PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/..>
-  $<INSTALL_INTERFACE:include>)
+# Include directories depend on whether we're standalone or part of parent project
+if(PROJECT_NAME STREQUAL "sps")
+  # Standalone: create sps/ subdirectory structure in build dir for generated headers
+  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/sps)
+  configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/config.h.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/sps/config.h"
+    @ONLY)
+  # Generate export header in sps/ subdir for standalone build
+  generate_export_header(sps
+    EXPORT_FILE_NAME "${CMAKE_CURRENT_BINARY_DIR}/sps/sps_export.h")
+  target_include_directories(sps PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+    $<INSTALL_INTERFACE:include>)
+else()
+  # Parent project handles include paths
+  generate_export_header(sps)
+  target_include_directories(sps PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/..>
+    $<INSTALL_INTERFACE:include>)
+endif()
 
 # Link to build interface for compiler flags
 if(TARGET build)
@@ -155,86 +179,91 @@ if(SPS_Signals)
   target_link_libraries(sps PUBLIC ${FFTW_LIBRARIES})
 endif()
 
-generate_export_header(sps)
-
 # === Tests ===
 if(BUILD_SPS_TEST)
-  if(WIN32)
-    set(GTEST_ROOT "C:/Program Files/googletest-distribution")
-  endif()
+  include(spsGTest)
 
-  find_package(GTest REQUIRED)
-  find_package(Threads REQUIRED)
-
-  # Helper function for GTest executables
-  function(add_sps_test name)
-    add_executable(${name} ${ARGN})
-    target_link_libraries(${name} PRIVATE
-      GTest::GTest
-      GTest::Main
-      Threads::Threads)
-    if(TARGET build)
-      target_link_libraries(${name} PRIVATE build)
-    endif()
-    target_include_directories(${name} PRIVATE
+  # Set include directories based on standalone vs parent project
+  if(PROJECT_NAME STREQUAL "sps")
+    set(_SPS_TEST_INCLUDE_DIRS
+      ${CMAKE_CURRENT_SOURCE_DIR}/..
+      ${CMAKE_CURRENT_BINARY_DIR})
+  else()
+    set(_SPS_TEST_INCLUDE_DIRS
       ${CMAKE_CURRENT_SOURCE_DIR}/..
       ${CMAKE_CURRENT_BINARY_DIR}/..)
-    add_test(NAME ${name} COMMAND ${name})
-  endfunction()
+  endif()
 
-  add_sps_test(indexed_types_test indexed_types_test.cpp)
-  add_sps_test(extintrin_test extintrin_test.cpp)
-  add_sps_test(trigintrin_test trigintrin_test.cpp)
-  add_sps_test(smath_test smath_test.cpp smath.cpp)
-  add_sps_test(memory_test memory_test.cpp)
-  add_sps_test(multi_malloc_test multi_malloc_test.cpp)
-  add_sps_test(aligned_array_test aligned_array_test.cpp)
-  add_sps_test(align_test align_test.cpp)
-  add_sps_test(semaphore_test semaphore_test.cpp)
-  add_sps_test(threadpool_test threadpool_test.cpp threadpool.cpp)
-  add_sps_test(thread_test thread_test.cpp)
-  add_sps_test(globals_test globals_test.cpp)
+  sps_add_gtest(indexed_types_test indexed_types_test.cpp
+    INCLUDE_DIRS ${_SPS_TEST_INCLUDE_DIRS})
+  sps_add_gtest(extintrin_test extintrin_test.cpp
+    INCLUDE_DIRS ${_SPS_TEST_INCLUDE_DIRS})
+  sps_add_gtest(trigintrin_test trigintrin_test.cpp
+    INCLUDE_DIRS ${_SPS_TEST_INCLUDE_DIRS})
+  sps_add_gtest(smath_test smath_test.cpp smath.cpp
+    INCLUDE_DIRS ${_SPS_TEST_INCLUDE_DIRS})
+  sps_add_gtest(memory_test memory_test.cpp
+    INCLUDE_DIRS ${_SPS_TEST_INCLUDE_DIRS})
+  sps_add_gtest(multi_malloc_test multi_malloc_test.cpp
+    INCLUDE_DIRS ${_SPS_TEST_INCLUDE_DIRS})
+  sps_add_gtest(aligned_array_test aligned_array_test.cpp
+    INCLUDE_DIRS ${_SPS_TEST_INCLUDE_DIRS})
+  sps_add_gtest(align_test align_test.cpp
+    INCLUDE_DIRS ${_SPS_TEST_INCLUDE_DIRS})
+  sps_add_gtest(semaphore_test semaphore_test.cpp
+    INCLUDE_DIRS ${_SPS_TEST_INCLUDE_DIRS})
+  sps_add_gtest(threadpool_test threadpool_test.cpp threadpool.cpp
+    INCLUDE_DIRS ${_SPS_TEST_INCLUDE_DIRS})
+  sps_add_gtest(thread_test thread_test.cpp
+    INCLUDE_DIRS ${_SPS_TEST_INCLUDE_DIRS})
+  sps_add_gtest(globals_test globals_test.cpp
+    INCLUDE_DIRS ${_SPS_TEST_INCLUDE_DIRS})
 
-  add_sps_test(bitswitch_test bitswitch_test.cpp)
+  sps_add_gtest(bitswitch_test bitswitch_test.cpp
+    INCLUDE_DIRS ${_SPS_TEST_INCLUDE_DIRS})
   set_target_properties(bitswitch_test PROPERTIES CXX_STANDARD 14)
 
-  add_sps_test(allocator_test allocator_test.cpp)
+  sps_add_gtest(allocator_test allocator_test.cpp
+    INCLUDE_DIRS ${_SPS_TEST_INCLUDE_DIRS})
   if(MSVC)
     target_compile_options(allocator_test PRIVATE /wd4324)
   endif()
 
-  add_sps_test(aligned_allocator_test aligned_allocator_test.cpp)
-  add_sps_test(macro_test macro_test.cpp)
-  add_sps_test(string_test string_test.cpp)
+  sps_add_gtest(aligned_allocator_test aligned_allocator_test.cpp
+    INCLUDE_DIRS ${_SPS_TEST_INCLUDE_DIRS})
+  sps_add_gtest(macro_test macro_test.cpp
+    INCLUDE_DIRS ${_SPS_TEST_INCLUDE_DIRS})
+  sps_add_gtest(string_test string_test.cpp
+    INCLUDE_DIRS ${_SPS_TEST_INCLUDE_DIRS})
 
   if(UNIX)
-    add_sps_test(weak_binder_test weak_binder_test.cpp)
+    sps_add_gtest(weak_binder_test weak_binder_test.cpp
+      INCLUDE_DIRS ${_SPS_TEST_INCLUDE_DIRS})
     set_target_properties(weak_binder_test PROPERTIES CXX_STANDARD 17)
 
     if(LINUX)
-      add_sps_test(functional_test functional_test.cpp)
+      sps_add_gtest(functional_test functional_test.cpp
+        INCLUDE_DIRS ${_SPS_TEST_INCLUDE_DIRS})
     endif()
   endif()
 
-  add_sps_test(sgc_test sgc.cpp)
-  add_sps_test(mimo_test mimo_test.cpp)
-  add_sps_test(dispatcher_test resource.cpp context.cpp dispatcher_test.cpp)
-  add_sps_test(context_test resource.cpp context.cpp context_test.cpp)
-  add_sps_test(siso_test siso_test.cpp)
-
-  if(UNIX)
-    target_link_libraries(sgc_test PRIVATE dl)
-    target_link_libraries(mimo_test PRIVATE dl)
-    target_link_libraries(dispatcher_test PRIVATE dl)
-    target_link_libraries(context_test PRIVATE dl)
-    target_link_libraries(siso_test PRIVATE dl)
-  endif()
+  sps_add_gtest(sgc_test sgc.cpp
+    INCLUDE_DIRS ${_SPS_TEST_INCLUDE_DIRS})
+  sps_add_gtest(mimo_test mimo_test.cpp
+    INCLUDE_DIRS ${_SPS_TEST_INCLUDE_DIRS})
+  sps_add_gtest(dispatcher_test resource.cpp context.cpp dispatcher_test.cpp
+    INCLUDE_DIRS ${_SPS_TEST_INCLUDE_DIRS})
+  sps_add_gtest(context_test resource.cpp context.cpp context_test.cpp
+    INCLUDE_DIRS ${_SPS_TEST_INCLUDE_DIRS})
+  sps_add_gtest(siso_test siso_test.cpp
+    INCLUDE_DIRS ${_SPS_TEST_INCLUDE_DIRS})
 
   if(SPS_Signals)
-    add_sps_test(signals_test signals_test.cpp msignals.cpp)
+    sps_add_gtest(signals_test signals_test.cpp msignals.cpp
+      INCLUDE_DIRS ${_SPS_TEST_INCLUDE_DIRS}
+      LIBRARIES ${FFTW_LIBRARIES})
+    target_include_directories(signals_test PRIVATE ${FFTW_INCLUDES})
   endif()
-
-  enable_testing()
 
   add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND}
     DEPENDS string_test)
@@ -272,11 +301,20 @@ if(SPS_Signals)
         LANGUAGE python
         SOURCES swig_signals.i ${swig_signals_HEADERS} ${swig_signals_SOURCES})
 
-      target_include_directories(swig_signals PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/..
-        ${CMAKE_CURRENT_BINARY_DIR}/..
-        ${Python3_INCLUDE_DIRS}
-        ${Python3_NumPy_INCLUDE_DIRS})
+      # Include directories depend on whether we're standalone or part of parent project
+      if(PROJECT_NAME STREQUAL "sps")
+        target_include_directories(swig_signals PRIVATE
+          ${CMAKE_CURRENT_SOURCE_DIR}/..
+          ${CMAKE_CURRENT_BINARY_DIR}
+          ${Python3_INCLUDE_DIRS}
+          ${Python3_NumPy_INCLUDE_DIRS})
+      else()
+        target_include_directories(swig_signals PRIVATE
+          ${CMAKE_CURRENT_SOURCE_DIR}/..
+          ${CMAKE_CURRENT_BINARY_DIR}/..
+          ${Python3_INCLUDE_DIRS}
+          ${Python3_NumPy_INCLUDE_DIRS})
+      endif()
 
       if(MSVC)
         set_source_files_properties(${swig_generated_file_fullname}
