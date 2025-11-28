@@ -1,4 +1,4 @@
-﻿#include <sps/config.h>
+#include <sps/config.h>
 #include <sps/stdlib.h>
 #include <sps/cstdio>
 

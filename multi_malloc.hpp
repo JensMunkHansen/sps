@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file   multi_malloc.hpp
  * @author Jens Munk Hansen <jens.munk.hansen@gmail.com>
  * @date   Fri May 23 11:42:25 2014

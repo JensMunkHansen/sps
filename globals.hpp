@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file   globals.hpp
  * @author Jens Munk Hansen <jens.munk.hansen@gmail.com>
  * @date   Fri Mar 31 20:45:27 2017

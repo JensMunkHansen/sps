@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file   threadpool.hpp
  * @author Jens Munk Hansen <jens.munk.hansen@gmail.com>
  * @date   Sun Oct 29 20:38:37 2017

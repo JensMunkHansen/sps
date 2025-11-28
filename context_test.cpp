@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file   context_test.cpp
  * @author Jens Munk Hansen <jmh@debian9laptop.parknet.dk>
  * @date   Tue Feb 27 03:35:26 2018

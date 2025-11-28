@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file   mm_malloc.h
  * @author Jens Munk Hansen <jens.munk.hansen@gmail.com>
  * @date   Fri May 29 17:27:06 2015

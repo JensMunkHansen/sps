@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file   smath.hpp
  * @author Jens Munk Hansen <jens.munk.hansen@gmail.com>
  * @date   Sat Oct 10 18:41:43 2015

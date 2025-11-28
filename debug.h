@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file   debug.h
  * @author Jens Munk Hansen <jens.munk.hansen@gmail.com>
  * @date   Sun Jul 12 16:16:54 2015

@@ -15,6 +15,15 @@
 #include <stdarg.h>
 #include <string.h>
 
+/* C/C++ compatible cast macros */
+#ifdef __cplusplus
+# define SPS_STATIC_CAST(type, expr) static_cast<type>(expr)
+# define SPS_REINTERPRET_CAST(type, expr) reinterpret_cast<type>(expr)
+#else
+# define SPS_STATIC_CAST(type, expr) ((type)(expr))
+# define SPS_REINTERPRET_CAST(type, expr) ((type)(expr))
+#endif
+
 STATIC_INLINE_BEGIN void* multi_malloc(size_t s, size_t d, ...) STATIC_INLINE_END;
 
 STATIC_INLINE_BEGIN void multi_free(void *r, size_t d) STATIC_INLINE_END;
@@ -42,7 +51,7 @@ STATIC_INLINE_BEGIN void* multi_malloc(size_t s, size_t d, ...) {
   size_t *d1;             /* dimension list */
 
   va_start(ap,d);
-  d1 = static_cast<size_t*>(malloc(d*sizeof(size_t)));
+  d1 = SPS_STATIC_CAST(size_t*, malloc(d*sizeof(size_t)));
 
   if (d1 == NULL)
     return NULL;
@@ -65,19 +74,19 @@ STATIC_INLINE_BEGIN void* multi_malloc(size_t s, size_t d, ...) {
     /* for each of the dimensions
                                              * but the last */
     max *= (*q);
-    r[0] = static_cast<char*>(malloc(max * sizeof(char **)));
-    r = reinterpret_cast<char**>(r[0]);     /* step through to beginning of next
+    r[0] = SPS_STATIC_CAST(char*, malloc(max * sizeof(char **)));
+    r = SPS_REINTERPRET_CAST(char**, r[0]);     /* step through to beginning of next
                              * dimension array */
   }
-  max *= s * static_cast<size_t>(*q);        /* grab actual array memory */
-  r[0] = static_cast<char*>(malloc(max * sizeof(char)));
+  max *= s * SPS_STATIC_CAST(size_t, *q);        /* grab actual array memory */
+  r[0] = SPS_STATIC_CAST(char*, malloc(max * sizeof(char)));
 
   /*
    * r is now set to point to the beginning of each array so that we can
    * use it to scan down each array rather than having to go across and
    * then down
    */
-  r = reinterpret_cast<char**>(tree);     /* back to the beginning of list of arrays */
+  r = SPS_REINTERPRET_CAST(char**, tree);     /* back to the beginning of list of arrays */
   q = d1;                 /* back to the first dimension */
   max = 1;
   for (i = 0; i < d - 2; i++, q++) {
@@ -100,7 +109,7 @@ STATIC_INLINE_BEGIN void* multi_malloc(size_t s, size_t d, ...) {
       *s1 = (t += sizeof (char **) **(q + 1));
       s1++;
     }
-    r = reinterpret_cast<char**>(r[0]);     /* step through to begining of next
+    r = SPS_REINTERPRET_CAST(char**, r[0]);     /* step through to begining of next
                              * dimension array */
   }
   max *= (*q);              /* max is total number of elements in the
@@ -113,7 +122,7 @@ STATIC_INLINE_BEGIN void* multi_malloc(size_t s, size_t d, ...) {
   va_end(ap);
   free(d1);
 
-  return static_cast<void*>(tree);              /* return base pointer */
+  return SPS_STATIC_CAST(void*, tree);              /* return base pointer */
 }
 
 /**
@@ -128,7 +137,7 @@ STATIC_INLINE_BEGIN void multi_free(void *r, size_t d) {
   void *next=NULL;
   size_t i;
 
-  for (p = static_cast<void**>(r), i = 0; i < d; p = static_cast<void**>(next), i++)
+  for (p = SPS_STATIC_CAST(void**, r), i = 0; i < d; p = SPS_STATIC_CAST(void**, next), i++)
     if (p != NULL) {
       next = *p;
       free(p);

@@ -1,4 +1,4 @@
-﻿#include <cstdio>
+#include <cstdio>
 #include <cstdlib>
 #include <sps/trigintrin.h>
 #include <sps/cmath>
