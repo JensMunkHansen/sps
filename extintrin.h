@@ -49,6 +49,29 @@
 #define HAVE_IMMINTRIN_H 1
 #endif
 
+/**
+ * @def _MM_SAFE_SHUFFLE(a, b, c, d)
+ * @brief Safe shuffle macro for _MM_SHUFFLE with values > 3.
+ *
+ * The _MM_SHUFFLE expects 2-bit arguments (values 0-3), since shuffling is among 4 values
+ * inside a 128-bit lane. Using values in range [4,7] documents that we are shuffling
+ * the upper 128-bit lane, and the actual shuffle is determined by value modulo 4.
+ *
+ * @code
+ * _MM_SHUFFLE(1, 0, 1, 0) == _MM_SHUFFLE(5, 4, 1, 0)
+ * @endcode
+ *
+ * This macro masks with & 3 to satisfy Clang's -Wargument-outside-range warning
+ * while preserving the documentation benefit of using 4-7 for upper lane selection.
+ *
+ * @param a Fourth element selector (bits 6-7), use 4-7 to document upper lane
+ * @param b Third element selector (bits 4-5), use 4-7 to document upper lane
+ * @param c Second element selector (bits 2-3), use 0-3 for lower lane
+ * @param d First element selector (bits 0-1), use 0-3 for lower lane
+ * @return Immediate value suitable for shuffle intrinsics
+ */
+#define _MM_SAFE_SHUFFLE(a, b, c, d) _MM_SHUFFLE((a) & 3, (b) & 3, (c) & 3, (d) & 3)
+
 #ifdef HAVE_EMMINTRIN_H
 #include <emmintrin.h> // SSE2
 #endif
@@ -1473,7 +1496,21 @@ STATIC_INLINE_BEGIN __m128 _mm_fmadd_ps(__m128 a, __m128 b, __m128 c)
     _mm_store_ps(b[3], row3);
   }
 
-// Transpose 4x4 blocks within each lane
+/**
+ * Transpose two 4x4 matrices within each of the two 128-bit lanes (AVX1). It is implemented
+ * like a macro similarly to Intel's _MM_TRANSPOSE4_PS (xmmintrin.h). The naming follow
+ * Intel's naming. It transposes 8 packed singles with a lane width of 4.
+ *
+ * The _MM_SHUFFLE expects 4-bit arguments, since shuffling is among 4 values inside a
+ * 128-bit lane.
+ *
+ * _MM_SHUFFLE(1,0,1,0) = _MM_SHUFFLE(5,4,1,0)
+ *
+ * The shuffling is determined from the values of the individual entries modulo 4.
+ *
+ * To make it more clear that we are shuffling the upper 128-bit lane, we are using values in the
+ * range [4567] for shuffling the upper lane and use the _MM_SAFE_SHUFFLE macro.
+ */
 #define _MM_TRANSPOSE8_LANE4_PS(row0, row1, row2, row3)                                            \
   do                                                                                               \
   {                                                                                                \
@@ -1482,10 +1519,10 @@ STATIC_INLINE_BEGIN __m128 _mm_fmadd_ps(__m128 a, __m128 b, __m128 c)
     __t1 = _mm256_unpackhi_ps(row0, row1);                                                         \
     __t2 = _mm256_unpacklo_ps(row2, row3);                                                         \
     __t3 = _mm256_unpackhi_ps(row2, row3);                                                         \
-    row0 = _mm256_shuffle_ps(__t0, __t2, _MM_SHUFFLE(5, 4, 1, 0));                                 \
-    row1 = _mm256_shuffle_ps(__t0, __t2, _MM_SHUFFLE(7, 6, 3, 2));                                 \
-    row2 = _mm256_shuffle_ps(__t1, __t3, _MM_SHUFFLE(5, 4, 1, 0));                                 \
-    row3 = _mm256_shuffle_ps(__t1, __t3, _MM_SHUFFLE(7, 6, 3, 2));                                 \
+    row0 = _mm256_shuffle_ps(__t0, __t2, _MM_SAFE_SHUFFLE(5, 4, 1, 0));                            \
+    row1 = _mm256_shuffle_ps(__t0, __t2, _MM_SAFE_SHUFFLE(7, 6, 3, 2));                            \
+    row2 = _mm256_shuffle_ps(__t1, __t3, _MM_SAFE_SHUFFLE(5, 4, 1, 0));                            \
+    row3 = _mm256_shuffle_ps(__t1, __t3, _MM_SAFE_SHUFFLE(7, 6, 3, 2));                            \
   } while (0)
 
 #ifdef _MSC_VER

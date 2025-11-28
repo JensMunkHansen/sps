@@ -36,12 +36,13 @@ template int sps::Singleton<TTest<float> >::InstanceDestroy();
 
 class Defaulted : public sps::Default<Defaulted> {
  public:
-  Defaulted() {
+  Defaulted() : m_data(0.0f) {
     debug_print("\n");
   }
   ~Defaulted() {
     debug_print("\n");
   }
+  float getData() const { return m_data; }
  private:
   float m_data;
 };

@@ -127,6 +127,8 @@ class GarbageCollector {
       fprintf(stdout, "Cleared %zu %s item(s)\n",
               nObjectsCleared, this->objname);
     }
+#else
+    (void)nObjectsCleared;
 #endif
   }
 

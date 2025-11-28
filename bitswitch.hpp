@@ -20,7 +20,9 @@ namespace sps {
 #ifdef __GNUC__
 # pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wparentheses"
-# pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+# if !defined(__clang__)
+#  pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+# endif
 #endif
 constexpr uint32_t basis = 0;
 
