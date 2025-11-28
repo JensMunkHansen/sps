@@ -104,8 +104,8 @@ class Signal1DPlan<float> {
 
   // TODO: Consider storing plans for non-aligned memory
   static const size_t nFFTLengths = 31;
-  static __THREAD fftwf_plan forward[Signal1DPlan<float>::nFFTLengths];
-  static __THREAD fftwf_plan backward[Signal1DPlan<float>::nFFTLengths];
+  static __THREAD fftwf_plan forward[Signal1DPlan<float>::nFFTLengths];   // NOLINT
+  static __THREAD fftwf_plan backward[Signal1DPlan<float>::nFFTLengths];  // NOLINT
 
   static const bool measure = false;
 
@@ -115,11 +115,11 @@ class Signal1DPlan<float> {
     for (size_t i = 0 ; i < nFFTLengths ; i++) {
       if (forward[i]) {
         fftwf_destroy_plan(forward[i]);
-        forward[i] = NULL;
+        forward[i] = nullptr;
       }
       if (backward[i]) {
         fftwf_destroy_plan(backward[i]);
-        backward[i] = NULL;
+        backward[i] = nullptr;
       }
     }
   }
@@ -137,7 +137,7 @@ class Signal1DPlan<float> {
 
     if (Signal1DPlan<float>::reuse == false) {
       fftwf_destroy_plan(forward[index]);
-      forward[index] = NULL;
+      forward[index] = nullptr;
     }
 
     if (forward[index]) {
@@ -164,7 +164,7 @@ class Signal1DPlan<float> {
 
     if (Signal1DPlan<float>::reuse == false) {
       fftwf_destroy_plan(backward[index]);
-      backward[index] = NULL;
+      backward[index] = nullptr;
     }
 
 
@@ -211,11 +211,11 @@ class Signal1DPlan<float> {
         fftwf_fprint_plan(forward[i], fp);
 #endif
         fftwf_destroy_plan(forward[i]);
-        forward[i] = NULL;
+        forward[i] = nullptr;
       }
       if (backward[i]) {
         fftwf_destroy_plan(backward[i]);
-        backward[i] = NULL;
+        backward[i] = nullptr;
       }
     }
 #if DEBUG_PLAN
@@ -227,7 +227,7 @@ class Signal1DPlan<float> {
 };
 
 __THREAD fftwf_plan Signal1DPlan<float>::forward[Signal1DPlan<float>::nFFTLengths]  = {NULL};
-__THREAD fftwf_plan Signal1DPlan<float>::backward[Signal1DPlan<float>::nFFTLengths] = {NULL};
+__THREAD fftwf_plan Signal1DPlan<float>::backward[Signal1DPlan<float>::nFFTLengths] = {nullptr};
 
 template<>
 class Signal1DPlan<double> {
@@ -247,7 +247,7 @@ class Signal1DPlan<double> {
     size_t* _nFFTSamples = (size_t*) malloc(Signal1DPlan<double>::nFFTLengths * sizeof(size_t));
 
     for (size_t i = 0 ; i < nFFTLengths ; i++) {
-      if (forward[i] != NULL) {
+      if (forward[i] != nullptr) {
         (*nFFTSamples)[i] = pow(2.0f, (double)i);
       }
     }
@@ -287,11 +287,11 @@ class Signal1DPlan<double> {
     for (size_t i = 0 ; i < nFFTLengths ; i++) {
       if (forward[i]) {
         fftw_destroy_plan(forward[i]);
-        forward[i] = NULL;
+        forward[i] = nullptr;
       }
       if (backward[i]) {
         fftw_destroy_plan(backward[i]);
-        backward[i] = NULL;
+        backward[i] = nullptr;
       }
     }
   }
@@ -299,8 +299,8 @@ class Signal1DPlan<double> {
   Signal1DPlan& operator=(Signal1DPlan const&) = default;
 };
 
-__THREAD fftw_plan Signal1DPlan<double>::forward[Signal1DPlan<double>::nFFTLengths] = {NULL};
-__THREAD fftw_plan Signal1DPlan<double>::backward[Signal1DPlan<double>::nFFTLengths] = {NULL};
+__THREAD fftw_plan Signal1DPlan<double>::forward[Signal1DPlan<double>::nFFTLengths] = {nullptr};
+__THREAD fftw_plan Signal1DPlan<double>::backward[Signal1DPlan<double>::nFFTLengths] = {nullptr};
 
 
 
@@ -445,7 +445,7 @@ template <class T>
 signal1D<T>::~signal1D() {
   if (data) {
     _mm_free(data);
-    data = NULL;
+    data = nullptr;
   }
 }
 
@@ -462,7 +462,7 @@ bool pack_r2c(const sps::signal1D<T> &a, sps::signal1D<std::complex<T> >& c) {
     c.nbytes = nbytes;
     if (c.data) {
       _mm_free(c.data);
-      c.data = NULL;
+      c.data = nullptr;
     }
     c.data = static_cast<std::complex<T>*>(SPS_MM_MALLOC(c.nbytes, 16));
   }
@@ -481,7 +481,7 @@ bool unpack_c2r(const sps::signal1D<std::complex<T> >& a, sps::signal1D<T> &c) {
     c.nbytes = nbytes;
     if (c.data) {
       _mm_free(c.data);
-      c.data = NULL;
+      c.data = nullptr;
     }
     c.data = static_cast<T*>(SPS_MM_MALLOC(c.nbytes, 16));
   }
@@ -503,7 +503,7 @@ fft<float>(const sps::signal1D<float> &a, const size_t &n, sps::signal1D<std::co
 
   bool retval = true, pad_a = false;
 
-  float* _a = NULL;
+  float* _a = nullptr;
 
   while(retval) {
     // Allocate if necessary
@@ -543,7 +543,7 @@ ifft<float>(const sps::signal1D<std::complex<float> >& a, const size_t &n, sps::
 
   bool retval = true, pad_a = false;
 
-  std::complex<float>* _a = NULL;
+  std::complex<float>* _a = nullptr;
 
   while(retval) {
     // Allocate if necessary
@@ -587,7 +587,7 @@ fft<double>(const sps::signal1D<double> &a, const size_t &n, sps::signal1D<std::
 
   bool retval = true, pad_a = false;
 
-  double* _a = NULL;
+  double* _a = nullptr;
 
   while(retval) {
     if (c.data) {
@@ -625,7 +625,7 @@ ifft<double>(const sps::signal1D<std::complex<double> >& a, const size_t &n, sps
 
   bool retval = true, pad_a = false;
 
-  std::complex<double>* _a = NULL;
+  std::complex<double>* _a = nullptr;
 
   while(retval) {
     if (c.data) {
@@ -663,8 +663,8 @@ conv_fft<float>(const sps::signal1D<float> &a,
                 const sps::signal1D<float> &b,
                 sps::signal1D<float>& c) {
 
-  float *_a = NULL, *_b = NULL;
-  fftwf_complex *fft_a = NULL, *fft_b = NULL;
+  float *_a = NULL, *_b = nullptr;
+  fftwf_complex *fft_a = NULL, *fft_b = nullptr;
 
   bool pad_a = false, pad_b = false;
 
@@ -771,19 +771,19 @@ SPS_RELAXED_MEMSET_END
 
   if (pad_a)
     _mm_free(_a);
-  _a = NULL;
+  _a = nullptr;
 
   if (pad_b)
     _mm_free(_b);
-  _b = NULL;
+  _b = nullptr;
 
   if (fft_a)
     _mm_free(fft_a);
-  fft_a = NULL;
+  fft_a = nullptr;
 
   if (fft_b)
     _mm_free(fft_b);
-  fft_b = NULL;
+  fft_b = nullptr;
 
   return retval;
 }
@@ -793,9 +793,9 @@ conv_fft<double>(const sps::signal1D<double> &a,
                  const sps::signal1D<double> &b,
                  sps::signal1D<double>& c) {
 
-  double *_a = NULL, *_b = NULL;
+  double *_a = NULL, *_b = nullptr;
 
-  fftw_complex *fft_a = NULL, *fft_b = NULL;
+  fftw_complex *fft_a = NULL, *fft_b = nullptr;
 
   bool pad_a = false, pad_b = false;
 
@@ -861,17 +861,17 @@ conv_fft<double>(const sps::signal1D<double> &a,
   }
   if (pad_a)
     _mm_free(_a);
-  _a = NULL;
+  _a = nullptr;
   if (pad_b)
     _mm_free(_b);
-  _b = NULL;
+  _b = nullptr;
 
   if (fft_a)
     _mm_free(fft_a);
-  fft_a = NULL;
+  fft_a = nullptr;
   if (fft_b)
     _mm_free(fft_b);
-  fft_b = NULL;
+  fft_b = nullptr;
 
   return retval;
 }
@@ -1047,8 +1047,8 @@ template <>
 bool conv_fft_out_in(const signal1D<float> &a,
                      signal1D<float> &b) {
 
-  float *_a = NULL, *_b = NULL;
-  fftwf_complex *fft_a = NULL;
+  float *_a = NULL, *_b = nullptr;
+  fftwf_complex *fft_a = nullptr;
 
   bool pad_a = false;
 
@@ -1108,11 +1108,11 @@ bool conv_fft_out_in(const signal1D<float> &a,
   }
   if (pad_a)
     _mm_free(_a);
-  _a = NULL;
+  _a = nullptr;
 
   if (fft_a) {
     _mm_free(fft_a);
-    fft_a = NULL;
+    fft_a = nullptr;
   }
 
   return retval;
@@ -1153,7 +1153,7 @@ bool conv(const signal1D<T> &a,
           signal1D<T>& c) {
 
   // check validity of params
-  if ((a.data == NULL) || (b.data==NULL)) {
+  if ((a.data == nullptr) || (b.data==NULL)) {
     return false;
   }
 
@@ -1307,8 +1307,8 @@ bool mconv_fft(const msignal1D<T>& a, const msignal1D<T>& b, signal1D<T>& c) {
   retval = conv_fft<T>(_a,_b,c);
 
   // Prevent destruction of data
-  _a.data = NULL;
-  _b.data = NULL;
+  _a.data = nullptr;
+  _b.data = nullptr;
 
   return retval;
 }
@@ -1340,7 +1340,7 @@ bool mconv_fft(const msignal1D<T>& a, const msignal1D<T>& b, msignal1D<T>& c) {
     c.nbytes = nbytes;
     c.m_data = std::shared_ptr<T>( static_cast<T*>(_mm_malloc(c.nbytes,16)), [=](T *p) {
       _mm_free(p);
-      p = NULL;
+      p = nullptr;
     });
   }
   c.ndata  = na + nb - 1;
@@ -1364,7 +1364,7 @@ bool mconv_fft(const msignal1D<T>& a, const msignal1D<T>& b, msignal1D<T>& c) {
             c.offset = a.offset + b.offset;
             c.data = std::shared_ptr<T>( (T*) _mm_malloc(c.nbytes,16), [=](T *p) {
               _mm_free(p);
-              p = NULL;
+              p = nullptr;
             });
             c.data.get()[0] = a.data.get()[0] * b.data.get()[0];
             return retval;
@@ -1385,7 +1385,7 @@ bool mconv_fft(const msignal1D<T>& a, const msignal1D<T>& b, msignal1D<T>& c) {
         c.offset = a.offset + b.offset;
         c.data = std::shared_ptr<T>( (T*) _mm_malloc(c.nbytes,16), [=](T *p) {
           _mm_free(p);
-          p = NULL;
+          p = nullptr;
         });
         for (size_t i = 0 ; i < b.ndata ; i++) {
           c.data.get()[i] = b.data.get()[i] * a.data.get()[0];
@@ -1413,7 +1413,7 @@ bool mconv_fft(const msignal1D<T>& a, const msignal1D<T>& b, msignal1D<T>& c) {
   c.offset = a.offset + b.offset;
   c.data = std::shared_ptr<T>( (T*) _mm_malloc(c.nbytes,16), [=](T *p) {
     _mm_free(p);
-    p = NULL;
+    p = nullptr;
   });
 
 #endif
@@ -1439,9 +1439,9 @@ bool mconv_fft(const msignal1D<T>& a, const msignal1D<T>& b, msignal1D<T>& c) {
   retval = conv_fft<T>(_a,_b,_c); // Error - when not enough memory
 
   // Prevent destruction of data
-  _a.data = NULL;
-  _b.data = NULL;
-  _c.data = NULL;
+  _a.data = nullptr;
+  _b.data = nullptr;
+  _c.data = nullptr;
 
   return retval;
 }
@@ -1460,7 +1460,7 @@ bool mfft(const msignal1D<T>& a, const size_t& n, msignal1D<std::complex<T> >& c
     c.nbytes = nbytes;
     c.m_data = std::shared_ptr<std::complex<T>>( static_cast<std::complex<T>*>(_mm_malloc(c.nbytes,16)), [=](std::complex<T> *p) {
       _mm_free(p);
-      p = NULL;
+      p = nullptr;
     });
   }
 
@@ -1480,8 +1480,8 @@ bool mfft(const msignal1D<T>& a, const size_t& n, msignal1D<std::complex<T> >& c
   retval = fft<T>(_a, n, _c);
 
   // Prevent destruction of data
-  _a.data = NULL;
-  _c.data = NULL;
+  _a.data = nullptr;
+  _c.data = nullptr;
 
   return retval;
 }
@@ -1499,7 +1499,7 @@ bool mifft(const msignal1D<std::complex<T> >& a, const size_t &n, msignal1D<T>& 
     c.nbytes = nbytes;
     c.m_data = std::shared_ptr<T>( static_cast<T*>(_mm_malloc(c.nbytes,16)), [=](T *p) {
       _mm_free(p);
-      p = NULL;
+      p = nullptr;
     });
   }
 
@@ -1520,8 +1520,8 @@ bool mifft(const msignal1D<std::complex<T> >& a, const size_t &n, msignal1D<T>& 
   retval = ifft<T>(_a,n,_c);
 
   // Prevent destruction of data
-  _a.data = NULL;
-  _c.data = NULL;
+  _a.data = nullptr;
+  _c.data = nullptr;
 
   return retval;
 }
