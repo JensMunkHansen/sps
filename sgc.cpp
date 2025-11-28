@@ -1,4 +1,4 @@
-﻿#include <sps/cenv.h>
+#include <sps/cenv.h>
 #include <sps/sgc2.hpp>
 
 #if 0 // defined(__GNUC__) && !defined(__CYGWIN__)

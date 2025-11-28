@@ -1,4 +1,4 @@
-﻿#include <sps/typeinfo>
+#include <sps/typeinfo>
 
 #include <iostream>
 #include <vector>

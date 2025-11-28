@@ -1,4 +1,4 @@
-﻿#include <sps/cenv.h>
+#include <sps/cenv.h>
 #include <gtest/gtest.h>
 
 #include <iostream>

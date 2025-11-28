@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file   math.h
  * @author Jens Munk Hansen <jens.munk.hansen\@gmail.com>
  * @date   Sat Jun 20 20:01:01 2015

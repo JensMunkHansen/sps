@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file   signals.cpp
  * @author Jens Munk Hansen <jens.munk.hansen@gmail.com>
  * @date   Fri May 29 02:43:18 2015

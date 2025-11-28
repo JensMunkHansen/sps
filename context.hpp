@@ -1,4 +1,4 @@
-﻿/**
+/**
  * @file   context.hpp
  * @author Jens Munk Hansen <jmh@debian9laptop.parknet.dk>
  * @date   Tue Feb 27 00:46:20 2018

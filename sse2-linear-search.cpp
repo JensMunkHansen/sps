@@ -1,4 +1,4 @@
-﻿#include <sps/cenv.h>
+#include <sps/cenv.h>
 #include <sps/sse2-linear-search.hpp>
 
 #include <sps/extintrin.h>

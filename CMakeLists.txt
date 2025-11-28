@@ -168,9 +168,16 @@ else()
     $<INSTALL_INTERFACE:include>)
 endif()
 
-# Link to build interface for compiler flags
+# Apply build interface compile options directly (avoid export dependency)
 if(TARGET build)
-  target_link_libraries(sps PRIVATE $<BUILD_INTERFACE:build>)
+  get_target_property(_BUILD_COMPILE_OPTIONS build INTERFACE_COMPILE_OPTIONS)
+  get_target_property(_BUILD_COMPILE_FEATURES build INTERFACE_COMPILE_FEATURES)
+  if(_BUILD_COMPILE_OPTIONS)
+    target_compile_options(sps PRIVATE ${_BUILD_COMPILE_OPTIONS})
+  endif()
+  if(_BUILD_COMPILE_FEATURES)
+    target_compile_features(sps PRIVATE ${_BUILD_COMPILE_FEATURES})
+  endif()
 endif()
 
 # Link FFTW
@@ -347,14 +354,8 @@ if(${PROJECT_NAME} STREQUAL "BFTX")
     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT lib
     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT shlib
     PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sps" COMPONENT dev)
-elseif(${PROJECT_NAME} STREQUAL "Sofus")
-  # Install to both FnmTargets and SofusTargets export sets
-  install(TARGETS sps
-    EXPORT FnmTargets
-    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin
-    ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT lib
-    LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}" COMPONENT shlib
-    PUBLIC_HEADER DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/sps" COMPONENT dev)
+elseif(${PROJECT_NAME} STREQUAL "Sofus" OR ${PROJECT_NAME} STREQUAL "fnm")
+  # Install to SofusTargets export set
   install(TARGETS sps
     EXPORT SofusTargets
     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}" COMPONENT bin
