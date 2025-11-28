@@ -419,8 +419,8 @@ template <class T>
 signal1D<T>::signal1D() : data(NULL), offset(0), ndata(0), nbytes(0) {}
 
 template <class T>
-signal1D<T>::signal1D(size_t ndata) : data(NULL), offset(0), ndata(ndata) {
-  nbytes = 16 * (ndata * sizeof(T) + 15) / 16;
+signal1D<T>::signal1D(size_t n) : data(NULL), offset(0), ndata(n) {
+  nbytes = 16 * (n * sizeof(T) + 15) / 16;
   data = static_cast<T*>(_mm_malloc(nbytes,16));
 #ifndef NDEBUG
 SPS_RELAXED_MEMSET_BEGIN
@@ -430,9 +430,9 @@ SPS_RELAXED_MEMSET_END
 }
 
 template <class T>
-signal1D<T>::signal1D(size_t ndata, size_t _nbytes) : data(NULL), offset(0), ndata(ndata), nbytes(0) {
-  nbytes = 16 * (ndata * sizeof(T) + 15) / 16;
-  nbytes = std::max<size_t>(_nbytes,nbytes);
+signal1D<T>::signal1D(size_t n, size_t bytes) : data(NULL), offset(0), ndata(n), nbytes(0) {
+  nbytes = 16 * (n * sizeof(T) + 15) / 16;
+  nbytes = std::max<size_t>(bytes, nbytes);
   data = static_cast<T*>(_mm_malloc(nbytes,16));
 #ifndef NDEBUG
 SPS_RELAXED_MEMSET_BEGIN

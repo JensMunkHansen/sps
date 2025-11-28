@@ -341,17 +341,17 @@ template<typename T, typename Allocator = std::allocator<T>, typename... Args>
 std::unique_ptr<T[], std::function<void(T*)>>
 make_unique_array(std::size_t size, Args... args) {
   Allocator alloc = Allocator();
-  T *ptr = alloc.allocate(size);
+  T *ptr = std::allocator_traits<Allocator>::allocate(alloc, size);
 
   for (std::size_t i = 0; i < size; ++i) {
-    alloc.construct(&ptr[i], std::forward<Args>(args)...);
+    std::allocator_traits<Allocator>::construct(alloc, &ptr[i], std::forward<Args>(args)...);
   }
 
-  auto deleter = [](T *p, Allocator alloc, std::size_t size) {
-    for (std::size_t i = 0; i < size; ++i) {
-      alloc.destroy(&p[i]);
+  auto deleter = [](T *p, Allocator a, std::size_t sz) {
+    for (std::size_t i = 0; i < sz; ++i) {
+      std::allocator_traits<Allocator>::destroy(a, &p[i]);
     }
-    alloc.deallocate(p, sizeof(T) * size);
+    std::allocator_traits<Allocator>::deallocate(a, p, sz);
   };
 
   return {ptr, std::bind(deleter, std::placeholders::_1, alloc, size)};
