@@ -511,7 +511,7 @@ class MRMWCircularBuffer :
    *
    * @param source
    */
-  bool push(value_type&& source) {
+  bool push(value_type&& source) override {
     std::unique_lock<std::mutex> lock{m_mutex};
     m_cond_not_full.wait(lock, [&]() {
       return this->is_not_full() || !m_valid;
@@ -595,11 +595,11 @@ class MRMWCircularBuffer :
    * Destructor. Invalidate and empty queue
    *
    */
-  ~MRMWCircularBuffer() {
+  ~MRMWCircularBuffer() override {
     invalidate();
   }
 
-  void invalidate() {
+  void invalidate() override {
     std::lock_guard<std::mutex> guard{m_mutex};
     m_valid.store(false);
     m_cond_not_empty.notify_all();

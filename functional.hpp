@@ -488,7 +488,26 @@ trailing_binder<R(Frgs...), Args...> trailing_bind(
 struct pb_tag {};  // use inheritance to mark prebinder structs
 
 // result_of_t will be defined by default in c++1y
+// std::result_of is deprecated in C++17, use std::invoke_result when available
+#if __cplusplus >= 201703L
+// For C++17+, we suppress the deprecation warning since migrating to
+// std::invoke_result requires different template signature (F, Args... vs F(Args...))
+# ifdef __clang__
+#  pragma clang diagnostic push
+#  pragma clang diagnostic ignored "-Wdeprecated-declarations"
+# elif defined(__GNUC__)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+# endif
+#endif
 template<typename T > using result_of_t = typename std::result_of<T>::type;
+#if __cplusplus >= 201703L
+# ifdef __clang__
+#  pragma clang diagnostic pop
+# elif defined(__GNUC__)
+#  pragma GCC diagnostic pop
+# endif
+#endif
 template<typename T> using is_prebinder =
   std::is_base_of<pb_tag, typename std::remove_reference<T>::type >;
 

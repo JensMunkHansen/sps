@@ -293,10 +293,10 @@ class aligned_array<T, 0> {
   }
 
   // at() with range check
-  reference at(size_type i) {
+  reference at(size_type /*i*/) {
     throw std::out_of_range("aligned_array<0>: index out of range");
   }
-  const_reference at(size_type i) const {
+  const_reference at(size_type /*i*/) const {
     throw std::out_of_range("<0>: index out of range");
   }
 
@@ -313,7 +313,7 @@ class aligned_array<T, 0> {
   enum { static_size = 0 };
 
   // swap
-  void swap(aligned_array<T, 0>& y) {
+  void swap(aligned_array<T, 0>& /*y*/) {
     //  could swap value of c, but value is not part of documented array state
   }
 
@@ -327,17 +327,17 @@ class aligned_array<T, 0> {
 
   // assignment with type conversion
   template < typename T2 >
-  aligned_array<T, 0>& operator= (const aligned_array<T2, 0>& rhs) {
+  aligned_array<T, 0>& operator= (const aligned_array<T2, 0>& /*rhs*/) {
     return *this;
   }
 
   //  Calling these operations are undefined behaviour for 0-size arrays,
   //  but Library TR1 requires their presence.
   // operator[]
-  reference operator[](size_type i) {
+  reference operator[](size_type /*i*/) {
     makes_no_sense();
   }
-  const_reference operator[](size_type i) const {
+  const_reference operator[](size_type /*i*/) const {
     makes_no_sense();
   }
 

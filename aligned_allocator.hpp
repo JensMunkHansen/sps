@@ -138,7 +138,7 @@ template <typename T,
    *
    * @return true for stateless allocators.
    */
-  bool operator==(const aligned_allocator& other) const {
+  bool operator==(const aligned_allocator& /*other*/) const {
     return true;
   }
 
@@ -231,7 +231,7 @@ template <typename T,
    * @return null if it fails, else.
    */
   template <class U>
-  T* allocate(const size_t n, const  U* hint = 0) const {
+  T* allocate(const size_t n, const  U* /*hint*/ = 0) const {
     return allocate(n);
   }
 

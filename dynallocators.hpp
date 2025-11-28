@@ -41,7 +41,7 @@ class DynAllocators : public sps::CRTP<T, DynAllocators> {
   }
 
   // Placement
-  static void* operator new(std::size_t count, void* pUser) throw() {
+  static void* operator new(std::size_t /*count*/, void* /*pUser*/) throw() {
     debug_print("Placement\n");
     // count is size of object, pUser is address
     // TEST
@@ -56,10 +56,10 @@ class DynAllocators : public sps::CRTP<T, DynAllocators> {
   }
 
   // User-defined placement deallocation (must be called explicit)
-  static void operator delete(void* ptr, int first, int second) {
+  static void operator delete(void* /*ptr*/, int /*first*/, int /*second*/) {
     debug_print("Placement\n");
   }
-  static void operator delete[](void* ptr, int first, int second) {
+  static void operator delete[](void* /*ptr*/, int /*first*/, int /*second*/) {
     debug_print("Placement\n");
   }
 
@@ -80,7 +80,7 @@ class DynAllocators : public sps::CRTP<T, DynAllocators> {
     return ptr ? ptr : throw std::bad_alloc{};
 #endif
   }
-  void operator delete(void* ptr, std::size_t size, std::align_val_t align) {
+  void operator delete(void* ptr, std::size_t /*size*/, std::align_val_t /*align*/) {
     debug_print("aligned\n");
     T* pObject = reinterpret_cast<T*>(ptr);
     pObject->~T();
@@ -90,7 +90,7 @@ class DynAllocators : public sps::CRTP<T, DynAllocators> {
     _mm_free(ptr);
 #endif
   }
-  void operator delete(void* ptr, std::align_val_t align) {
+  void operator delete(void* ptr, std::align_val_t /*align*/) {
     debug_print("aligned\n");
 #ifdef _MSC_VER
     _aligned_free(ptr);

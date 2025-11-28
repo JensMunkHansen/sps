@@ -62,7 +62,7 @@ class DispatcherEvent: public IDispatcherEvent {
     }
     return false;
   }
-  ~DispatcherEvent() {
+  ~DispatcherEvent() override {
     std::lock_guard<std::mutex> lock(m_mutex);
     m_valid = false;
   }
@@ -121,8 +121,9 @@ class EventListener : public IEventListener {
     m_pContext = pContext;
   }
 
-  EventListener(EventListener&& other) = default;
-  EventListener& operator=(EventListener&& other) = default;
+  // Non-movable because std::mutex and std::condition_variable are not movable
+  EventListener(EventListener&& other) = delete;
+  EventListener& operator=(EventListener&& other) = delete;
   ~EventListener() SPS_OVERRIDE {
     std::lock_guard<std::mutex> guard(m_mutex);
     m_bValid = false;

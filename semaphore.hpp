@@ -135,8 +135,9 @@ class Event : public IEvent {
  public:
   inline Event() : m_bSignaled(false), m_bValid(true) { }
 
-  Event(Event&& other) = default;
-  Event& operator=(Event&& other) = default;
+  // Non-movable because std::mutex and std::condition_variable are not movable
+  Event(Event&& other) = delete;
+  Event& operator=(Event&& other) = delete;
   ~Event() SPS_OVERRIDE {
     std::lock_guard<std::mutex> lock(m_mutex);
     m_bValid = false;
