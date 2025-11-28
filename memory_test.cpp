@@ -82,7 +82,7 @@ TEST(memory_test, inherit_alignment) {
   float f;
   SPS_UNREFERENCED_PARAMETER(f);
   AlignedData<double> c[2];
-  ASSERT_EQ(((uintptr_t)&c[1] & 0x1F), 0UL);
+  ASSERT_EQ((reinterpret_cast<uintptr_t>(&c[1]) & 0x1F), 0UL);
 }
 
 int main(int argc, char* argv[]) {

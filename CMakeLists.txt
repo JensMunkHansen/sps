@@ -322,6 +322,10 @@ if(SPS_Signals)
         if(_DEBUG_USING_PYTHON_RELEASE_RUNTIME)
           string(REPLACE "_d" "" Python3_LIBRARIES "${Python3_LIBRARIES}")
         endif()
+      else()
+        # Suppress warnings in SWIG-generated code for GCC/Clang
+        set_source_files_properties(${swig_generated_file_fullname}
+          PROPERTIES COMPILE_FLAGS "-Wno-old-style-cast -Wno-unused-parameter -Wno-shadow")
       endif()
 
       swig_link_libraries(swig_signals sps ${FFTW_LIBRARIES} ${Python3_LIBRARIES})

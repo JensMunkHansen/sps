@@ -48,7 +48,7 @@ class DynAllocators : public sps::CRTP<T, DynAllocators> {
     // SHOULD CALL CTOR HERE
     return nullptr;
   }
-  static void* operator new[]( std::size_t count, void* pUser) throw() {
+  static void* operator new[]( std::size_t /*count*/, void* /*pUser*/) throw() {
     // count - alignment is size of objects, pUser address of first element
     debug_print("Placement\n");
     // SHOULD CALL CTORS HERE
@@ -72,11 +72,11 @@ class DynAllocators : public sps::CRTP<T, DynAllocators> {
   void* operator new( std::size_t size, std::align_val_t al) {
     debug_print("aligned\n");
 #ifdef _MSC_VER
-    T* ptr = (T*) _aligned_malloc(size, static_cast<std::size_t>(al));
+    T* ptr = static_cast<T*>(_aligned_malloc(size, static_cast<std::size_t>(al)));
     new (ptr) T();  // Calls placement new
     return ptr ? ptr : throw std::bad_alloc{};
 #else
-    T* ptr = (T*) _mm_malloc(size, static_cast<std::size_t>(al));
+    T* ptr = static_cast<T*>(_mm_malloc(size, static_cast<std::size_t>(al)));
     return ptr ? ptr : throw std::bad_alloc{};
 #endif
   }
@@ -102,7 +102,7 @@ class DynAllocators : public sps::CRTP<T, DynAllocators> {
     debug_print("aligned\n");
 #if 1
     // Why is this wrong
-    T* ptr = (T*)std::aligned_alloc(static_cast<std::size_t>(al), count);
+    T* ptr = static_cast<T*>(std::aligned_alloc(static_cast<std::size_t>(al), count));
     size_t nObjects = (count - static_cast<std::size_t>(al)) / sizeof(T);
     new (ptr) T[nObjects]; // Calls placement new
     // Ctors called anyway, since new of descendant is not overloaded

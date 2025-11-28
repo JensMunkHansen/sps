@@ -22,7 +22,7 @@
 #if SPS_ALIGN_THROW
 # define SPS_ALIGN_TEST(pointer, byteAlignment)   \
   do {              \
-    if ((uintptr_t) pointer % byteAlignment != 0)                       \
+    if (reinterpret_cast<uintptr_t>(pointer) % byteAlignment != 0)                       \
       throw std::runtime_error("Invalid alignment: " __FILE__ ":" S__LINE__);  \
   } while (0)
 #else

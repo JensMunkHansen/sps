@@ -39,7 +39,7 @@ void Init() {
 #define NUM_ELEMENTS 100
 
 static void thread_push(void* arg) {
-  auto pQueue = (sps::SRSWRingBuffer<float, RING_BUFFER_SZ>*) arg;
+  auto pQueue = static_cast<sps::SRSWRingBuffer<float, RING_BUFFER_SZ>*>(arg);
   size_t i = 0;
   while (i < NUM_ELEMENTS) {
     float value = float(i);
@@ -49,7 +49,7 @@ static void thread_push(void* arg) {
 }
 
 static void thread_pop(void* arg) {
-  auto pQueue = (sps::SRSWRingBuffer<float, RING_BUFFER_SZ>*) arg;
+  auto pQueue = static_cast<sps::SRSWRingBuffer<float, RING_BUFFER_SZ>*>(arg);
   size_t i = 0;
   float value;
   while (i < NUM_ELEMENTS) {
@@ -61,8 +61,8 @@ static void thread_pop(void* arg) {
 
 TEST(siso_test, siso_circular_buffer) {
   sps::SRSWRingBuffer<float, RING_BUFFER_SZ> queue;
-  std::thread first (thread_push, (void*) &queue);
-  std::thread second (thread_pop, (void*) &queue);
+  std::thread first (thread_push, static_cast<void*>(&queue));
+  std::thread second (thread_pop, static_cast<void*>(&queue));
 
   first.join();                // pauses until first finishes
   second.join();               // pauses until second finishes

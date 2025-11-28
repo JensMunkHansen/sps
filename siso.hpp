@@ -9,6 +9,14 @@
  */
 
 #pragma once
+
+// Suppress warning about overloaded virtual functions being hidden.
+// The interface classes use intentional design with different push() overloads.
+#ifdef __GNUC__
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#endif
+
 #include <sps/cenv.h>
 
 #include <cstddef>  // std::size_t
@@ -174,7 +182,7 @@ class SRSWRingBuffer :
   }
 #endif
 
-  bool try_pop(T& destination) {
+  bool try_pop(T& destination) override {
     auto currentHead = m_iRead.load();
     if (currentHead == m_iWrite.load()) {
       return false;
@@ -184,7 +192,7 @@ class SRSWRingBuffer :
     return true;
   }
 
-  T pop() {
+  T pop() override {
     T ret;
     while (!try_pop(ret)) {}
     return ret;
@@ -199,7 +207,7 @@ class SRSWRingBuffer<T, Size, true> : public SRSWRingBuffer<T, Size, false> {
    *
    * @param source
    */
-  bool try_push(const T& source) {
+  bool try_push(const T& source) override {
     const auto current_tail = this->m_iWrite.load();
     const auto next_tail = this->increment(current_tail);
     if (next_tail != this->m_iRead.load()) {
@@ -210,9 +218,13 @@ class SRSWRingBuffer<T, Size, true> : public SRSWRingBuffer<T, Size, false> {
     return false;
   }
 
-  void push(const T& source) {
+  void push(const T& source) override {
     while (!try_push(source)) {}
   }
 };
 }  // namespace sps
+
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
 

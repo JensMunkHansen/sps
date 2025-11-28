@@ -362,7 +362,7 @@ indexed_auto_ptr<T>::from_index(const indexed_type_index index) {
     throw std::runtime_error("indexed_auto_ptr<T>::from_index");
   }
 
-  if ( !( ((uintptr_t) obj) < UINTPTR_MAX) ) {
+  if ( !(reinterpret_cast<uintptr_t>(obj) < UINTPTR_MAX) ) {
     fprintf(stderr, "Pointer value of of range");
     throw std::runtime_error("indexed_auto_ptr<T>::from_index");
   }

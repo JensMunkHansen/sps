@@ -195,11 +195,11 @@ class static_function<Ret(Args...), Size> {
     explicit InvokerBound(Func&& func);
     InvokerBound(const InvokerBound&) = default;
     InvokerBound(InvokerBound&&) = default;
-    virtual ~InvokerBound();
-    virtual Ret exec(Args... args) const;
-    virtual Ret exec(Args... args);
-    virtual void copyTo(void* other) const;
-    virtual void moveTo(void* other);
+    ~InvokerBound() override;
+    Ret exec(Args... args) const override;
+    Ret exec(Args... args) override;
+    void copyTo(void* other) const override;
+    void moveTo(void* other) override;
    private:
     TBound func_;
   };

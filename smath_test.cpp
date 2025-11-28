@@ -17,9 +17,9 @@ using namespace sps;
 
 TEST(smath_test, test_alignment) {
   sps::point_t<float> p0 = sps::point_t<float>(1.0f, 2.0f, 3.0f);
-  ASSERT_EQ((uintptr_t)&p0[0] & 0x0F, 0U);
+  ASSERT_EQ(reinterpret_cast<uintptr_t>(&p0[0]) & 0x0F, 0U);
   sps::point_t<float> p1{1.0f, 2.0f, 3.0f};
-  ASSERT_EQ((uintptr_t)&p1[0] & 0x0F, 0U);
+  ASSERT_EQ(reinterpret_cast<uintptr_t>(&p1[0]) & 0x0F, 0U);
   sps::point_t<float> a = {};
   ASSERT_EQ(a[0], 0.0f);
   SPS_UNREFERENCED_PARAMETER(a);
@@ -222,8 +222,8 @@ TEST(smath, matmul) {
   sps::mat3_t<float> m0, m1, m2;
   for (size_t i = 0 ; i < 3 ; i++)
     for (size_t j = 0 ; j < 3 ; j++) {
-      m0.data[i][j] = (float) (i*3 + j);
-      m1.data[i][j] = (float) (i*3 + j);
+      m0.data[i][j] = static_cast<float>(i*3 + j);
+      m1.data[i][j] = static_cast<float>(i*3 + j);
     }
   m2 = m0 * m1;
   //std::cout << "m2[0,0]: " << m2.data[0][0] << std::endl;

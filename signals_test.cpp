@@ -40,7 +40,7 @@ T test_fft_speed(const size_t na) {
   signal1D<T> a(n);
 
   for (size_t i = 0 ; i < n ; i++) {
-    a.data[i] = (T) i;
+    a.data[i] = static_cast<T>(i);
   }
 
   signal1D<std::complex<T> > c;
@@ -57,7 +57,7 @@ T test_fft_speed(const size_t na) {
   signal1D<T> a1(na);
 
   for (size_t i = 0 ; i < na ; i++) {
-    a1.data[i] = (T) i;
+    a1.data[i] = static_cast<T>(i);
   }
 
   signal1D<std::complex<T> > c1;
@@ -85,7 +85,7 @@ T test_fft(const size_t n) {
   signal1D<T> a(n);
 
   for (size_t i = 0 ; i < n ; i++) {
-    a.data[i] = (T) i;
+    a.data[i] = static_cast<T>(i);
   }
 
   signal1D<std::complex<T> > b;
@@ -116,7 +116,7 @@ T test_mfft(const size_t n) {
   msignal1D<T> a(n);
 
   for (size_t i = 0 ; i < n ; i++) {
-    a.m_data.get()[i] = (T) i;
+    a.m_data.get()[i] = static_cast<T>(i);
   }
 
   msignal1D<std::complex<T> > b;
@@ -149,13 +149,13 @@ T test_conv(const size_t na, const size_t nb) {
   signal1D<T> a(na);
 
   for (size_t i = 0 ; i < na ; i++) {
-    a.data[i] = (T) i;
+    a.data[i] = static_cast<T>(i);
   }
 
   signal1D<T> b(nb);
 
   for (size_t i = 0 ; i < nb ; i++) {
-    b.data[i] = (T) i;
+    b.data[i] = static_cast<T>(i);
   }
 
   signal1D<T> c;
@@ -185,11 +185,11 @@ T test_conv_in_place(const size_t na, const size_t nb) {
   signal1D<T> b(nb);
 
   for (size_t i = 0 ; i < na ; i++) {
-    a.data[i] = (T) i;
+    a.data[i] = static_cast<T>(i);
   }
 
   for (size_t i = 0 ; i < nb ; i++) {
-    b.data[i] = (T) i;
+    b.data[i] = static_cast<T>(i);
   }
 
   signal1D<T> c;
@@ -215,16 +215,16 @@ T test_mconv(const size_t na, const size_t nb) {
   msignal1D<T> ma(na);
 
   for (size_t i = 0 ; i < na ; i++) {
-    a.data[i] = (T) i;
-    ma.m_data.get()[i] = (T) i;
+    a.data[i] = static_cast<T>(i);
+    ma.m_data.get()[i] = static_cast<T>(i);
   }
 
   signal1D<T> b(nb);
   msignal1D<T> mb(nb);
 
   for (size_t i = 0 ; i < nb ; i++) {
-    b.data[i] = (T) i;
-    mb.m_data.get()[i] = (T) i;
+    b.data[i] = static_cast<T>(i);
+    mb.m_data.get()[i] = static_cast<T>(i);
   }
 
   msignal1D<T> mc;
@@ -251,16 +251,16 @@ T test_mconv_unmanaged(const size_t na, const size_t nb) {
   msignal1D<T> ma(na);
 
   for (size_t i = 0 ; i < na ; i++) {
-    a.data[i] = (T) i;
-    ma.m_data.get()[i] = (T) i;
+    a.data[i] = static_cast<T>(i);
+    ma.m_data.get()[i] = static_cast<T>(i);
   }
 
   signal1D<T> b(nb);
   msignal1D<T> mb(nb);
 
   for (size_t i = 0 ; i < nb ; i++) {
-    b.data[i] = (T) i;
-    mb.m_data.get()[i] = (T) i;
+    b.data[i] = static_cast<T>(i);
+    mb.m_data.get()[i] = static_cast<T>(i);
   }
 
   signal1D<T> c;
@@ -385,7 +385,7 @@ TEST(signals_test, test_scale_array) {
   for (size_t i = 1 ; i < 20 ; i++) {
     float* fInput = static_cast<float*>(SPS_MALLOC(i*sizeof(float)));
     for (size_t j = 0 ; j < i ; j++) {
-      fInput[j] = (float)i;
+      fInput[j] = static_cast<float>(i);
     }
     float scale = float(i);
 
@@ -395,14 +395,14 @@ TEST(signals_test, test_scale_array) {
     for (size_t j = 0 ; j < i ; j++) {
       sum += fInput[j];
     }
-    ASSERT_LT(fabs(sum - (float)i), FLT_EPSILON);
+    ASSERT_LT(fabs(sum - static_cast<float>(i)), FLT_EPSILON);
     free(fInput);
   }
 
   for (size_t i = 1 ; i < 20 ; i++) {
     double* fInput = static_cast<double*>(SPS_MALLOC(i*sizeof(double)));
     for (size_t j = 0 ; j < i ; j++) {
-      fInput[j] = (double)i;
+      fInput[j] = static_cast<double>(i);
     }
     double scale = double(i);
 
@@ -412,7 +412,7 @@ TEST(signals_test, test_scale_array) {
     for (size_t j = 0 ; j < i ; j++) {
       sum += fInput[j];
     }
-    ASSERT_LT(fabs(sum - (double)i), FLT_EPSILON);
+    ASSERT_LT(fabs(sum - static_cast<double>(i)), FLT_EPSILON);
     free(fInput);
   }
 }

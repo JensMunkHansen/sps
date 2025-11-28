@@ -42,7 +42,7 @@ STATIC_INLINE_BEGIN void* multi_malloc(size_t s, size_t d, ...) {
   size_t *d1;             /* dimension list */
 
   va_start(ap,d);
-  d1 = (size_t *) malloc(d*sizeof(size_t));
+  d1 = static_cast<size_t*>(malloc(d*sizeof(size_t)));
 
   if (d1 == NULL)
     return NULL;
@@ -65,19 +65,19 @@ STATIC_INLINE_BEGIN void* multi_malloc(size_t s, size_t d, ...) {
     /* for each of the dimensions
                                              * but the last */
     max *= (*q);
-    r[0]=(char *)malloc(max * sizeof(char **));
-    r = (char **) r[0];     /* step through to beginning of next
+    r[0] = static_cast<char*>(malloc(max * sizeof(char **)));
+    r = reinterpret_cast<char**>(r[0]);     /* step through to beginning of next
                              * dimension array */
   }
-  max *= s * (size_t) (*q);        /* grab actual array memory */
-  r[0] = (char *)malloc(max * sizeof(char));
+  max *= s * static_cast<size_t>(*q);        /* grab actual array memory */
+  r[0] = static_cast<char*>(malloc(max * sizeof(char)));
 
   /*
    * r is now set to point to the beginning of each array so that we can
    * use it to scan down each array rather than having to go across and
    * then down
    */
-  r = (char **) tree;     /* back to the beginning of list of arrays */
+  r = reinterpret_cast<char**>(tree);     /* back to the beginning of list of arrays */
   q = d1;                 /* back to the first dimension */
   max = 1;
   for (i = 0; i < d - 2; i++, q++) {
@@ -100,7 +100,7 @@ STATIC_INLINE_BEGIN void* multi_malloc(size_t s, size_t d, ...) {
       *s1 = (t += sizeof (char **) **(q + 1));
       s1++;
     }
-    r = (char **) r[0];     /* step through to begining of next
+    r = reinterpret_cast<char**>(r[0]);     /* step through to begining of next
                              * dimension array */
   }
   max *= (*q);              /* max is total number of elements in the
@@ -113,7 +113,7 @@ STATIC_INLINE_BEGIN void* multi_malloc(size_t s, size_t d, ...) {
   va_end(ap);
   free(d1);
 
-  return((void *)tree);              /* return base pointer */
+  return static_cast<void*>(tree);              /* return base pointer */
 }
 
 /**
@@ -128,7 +128,7 @@ STATIC_INLINE_BEGIN void multi_free(void *r, size_t d) {
   void *next=NULL;
   size_t i;
 
-  for (p = (void **)r, i = 0; i < d; p = (void **) next,i++)
+  for (p = static_cast<void**>(r), i = 0; i < d; p = static_cast<void**>(next), i++)
     if (p != NULL) {
       next = *p;
       free(p);

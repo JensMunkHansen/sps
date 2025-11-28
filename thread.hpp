@@ -119,10 +119,10 @@ class thread {
 #else
     :
     m_thread(
-      [func = std::forward<F>(f), flag = &m_active](Args && ... args)
+      [func = std::forward<F>(f), flag = &m_active](Args && ... a)
       // Compiles using _MSCVER = 2000 if f is replaced with func
-      noexcept(noexcept(f(std::forward<Args>(args)...))) {
-    func(std::forward<Args>(args)...);
+      noexcept(noexcept(f(std::forward<Args>(a)...))) {
+    func(std::forward<Args>(a)...);
     flag->store(false, std::memory_order_release);
   },
   std::forward<Args>(args)...) {}
