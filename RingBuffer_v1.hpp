@@ -1,23 +1,24 @@
 // Copyright 2018 Kaspar Daugaard. For educational purposes only.
 // See http://daugaard.org/blog/writing-a-fast-and-versatile-spsc-ring-buffer
 
-#include <atomic>
 #include <algorithm>
+#include <atomic>
 
 #ifndef FORCE_INLINE
-#   if defined(_MSC_VER)
-#       define FORCE_INLINE __forceinline
-#   elif defined(__GNUC__)
-#       define FORCE_INLINE inline __attribute__ ((always_inline))
-#   else
-#       define FORCE_INLINE inline
-#   endif
+#if defined(_MSC_VER)
+#define FORCE_INLINE __forceinline
+#elif defined(__GNUC__)
+#define FORCE_INLINE inline __attribute__((always_inline))
+#else
+#define FORCE_INLINE inline
+#endif
 #endif
 
 #define CACHE_LINE_SIZE 64
 
-class RingBuffer {
- public:
+class RingBuffer
+{
+public:
   // Allocate buffer space for writing.
   FORCE_INLINE void* PrepareWrite(size_t size, size_t alignment);
 
@@ -26,17 +27,19 @@ class RingBuffer {
 
   // Write an element to the buffer.
   template <typename T>
-  FORCE_INLINE void Write(const T& value) {
+  FORCE_INLINE void Write(const T& value)
+  {
     void* dest = PrepareWrite(sizeof(T), alignof(T));
-    new(dest) T(value);
+    new (dest) T(value);
   }
 
   // Write an array of elements to the buffer.
   template <typename T>
-  FORCE_INLINE void WriteArray(const T* values, size_t count) {
+  FORCE_INLINE void WriteArray(const T* values, size_t count)
+  {
     void* dest = PrepareWrite(sizeof(T) * count, alignof(T));
     for (size_t i = 0; i < count; i++)
-      new(static_cast<T*>(dest) + i) T(values[i]);
+      new (static_cast<T*>(dest) + i) T(values[i]);
   }
 
   // Get read pointer. Size and alignment should match written data.
@@ -47,32 +50,37 @@ class RingBuffer {
 
   // Read an element from the buffer.
   template <typename T>
-  FORCE_INLINE const T& Read() {
+  FORCE_INLINE const T& Read()
+  {
     void* src = PrepareRead(sizeof(T), alignof(T));
     return *static_cast<T*>(src);
   }
 
   // Read an array of elements from the buffer.
   template <typename T>
-  FORCE_INLINE const T* ReadArray(size_t count) {
+  FORCE_INLINE const T* ReadArray(size_t count)
+  {
     void* src = PrepareRead(sizeof(T) * count, alignof(T));
     return static_cast<T*>(src);
   }
 
   // Initialize. Buffer must have required alignment. Size must be a power of two.
-  void Initialize(void* buffer, size_t size) {
+  void Initialize(void* buffer, size_t size)
+  {
     Reset();
     m_Reader.buffer = m_Writer.buffer = static_cast<char*>(buffer);
     m_Reader.size = m_Writer.size = m_Writer.end = size;
   }
 
-  void Reset() {
+  void Reset()
+  {
     m_Reader = m_Writer = LocalState();
     m_ReaderShared.pos = m_WriterShared.pos = 0;
   }
 
- private:
-  FORCE_INLINE static size_t Align(size_t pos, size_t alignment) {
+private:
+  FORCE_INLINE static size_t Align(size_t pos, size_t alignment)
+  {
 #ifdef RINGBUFFER_DO_NOT_ALIGN
     alignment = 1;
 #endif
@@ -83,8 +91,16 @@ class RingBuffer {
   FORCE_INLINE void GetBufferSpaceToReadFrom(size_t& pos, size_t& end);
 
   // Writer and reader's local state.
-  struct alignas(CACHE_LINE_SIZE) LocalState {
-    LocalState() : buffer(nullptr), pos(0), end(0), base(0), size(0) {}
+  struct alignas(CACHE_LINE_SIZE) LocalState
+  {
+    LocalState()
+      : buffer(nullptr)
+      , pos(0)
+      , end(0)
+      , base(0)
+      , size(0)
+    {
+    }
 
     char* buffer;
     size_t pos;
@@ -104,7 +120,8 @@ class RingBuffer {
     std::atomic<size_t> pos;
   };
 #else
-  struct SharedState {
+  struct SharedState
+  {
     std::atomic<size_t> pos;
   };
 #endif
@@ -112,7 +129,8 @@ class RingBuffer {
   SharedState m_ReaderShared;
 };
 
-void* RingBuffer::PrepareWrite(size_t size, size_t alignment) {
+void* RingBuffer::PrepareWrite(size_t size, size_t alignment)
+{
   size_t pos = Align(m_Writer.pos, alignment);
   size_t end = pos + size;
   if (end > m_Writer.end)
@@ -121,11 +139,13 @@ void* RingBuffer::PrepareWrite(size_t size, size_t alignment) {
   return m_Writer.buffer + pos;
 }
 
-void RingBuffer::FinishWrite() {
+void RingBuffer::FinishWrite()
+{
   m_WriterShared.pos.store(m_Writer.base + m_Writer.pos, std::memory_order_release);
 }
 
-void* RingBuffer::PrepareRead(size_t size, size_t alignment) {
+void* RingBuffer::PrepareRead(size_t size, size_t alignment)
+{
   size_t pos = Align(m_Reader.pos, alignment);
   size_t end = pos + size;
   if (end > m_Reader.end)
@@ -134,38 +154,47 @@ void* RingBuffer::PrepareRead(size_t size, size_t alignment) {
   return m_Reader.buffer + pos;
 }
 
-void RingBuffer::FinishRead() {
+void RingBuffer::FinishRead()
+{
   m_ReaderShared.pos.store(m_Reader.base + m_Reader.pos, std::memory_order_release);
 }
 
-void RingBuffer::GetBufferSpaceToWriteTo(size_t& pos, size_t& end) {
-  if (end > m_Writer.size) {
+void RingBuffer::GetBufferSpaceToWriteTo(size_t& pos, size_t& end)
+{
+  if (end > m_Writer.size)
+  {
     end -= pos;
     pos = 0;
     m_Writer.base += m_Writer.size;
   }
-  for (;;) {
+  for (;;)
+  {
     size_t readerPos = m_ReaderShared.pos.load(std::memory_order_acquire);
     size_t available = readerPos - m_Writer.base + m_Writer.size;
     // Signed comparison (available can be negative)
-    if (static_cast<ptrdiff_t>(available) >= static_cast<ptrdiff_t>(end)) {
+    if (static_cast<ptrdiff_t>(available) >= static_cast<ptrdiff_t>(end))
+    {
       m_Writer.end = std::min(available, m_Writer.size);
       break;
     }
   }
 }
 
-void RingBuffer::GetBufferSpaceToReadFrom(size_t& pos, size_t& end) {
-  if (end > m_Reader.size) {
+void RingBuffer::GetBufferSpaceToReadFrom(size_t& pos, size_t& end)
+{
+  if (end > m_Reader.size)
+  {
     end -= pos;
     pos = 0;
     m_Reader.base += m_Reader.size;
   }
-  for (;;) {
+  for (;;)
+  {
     size_t writerPos = m_WriterShared.pos.load(std::memory_order_acquire);
     size_t available = writerPos - m_Reader.base;
     // Signed comparison (available can be negative)
-    if (static_cast<ptrdiff_t>(available) >= static_cast<ptrdiff_t>(end)) {
+    if (static_cast<ptrdiff_t>(available) >= static_cast<ptrdiff_t>(end))
+    {
       m_Reader.end = std::min(available, m_Reader.size);
       break;
     }

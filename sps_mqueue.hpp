@@ -26,12 +26,12 @@
  */
 #pragma once
 
+#include <sps/cenv.h>
 #include <sps/config.h>
 #include <sps/sps_export.h>
-#include <sps/cenv.h>
 
 #ifdef HAVE_MQUEUE_H
-# include <mqueue.h>
+#include <mqueue.h>
 #endif
 
 /**

@@ -10,10 +10,10 @@
 
 #pragma once
 
-#include <sps/cenv.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <malloc.h>
+#include <sps/cenv.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 /**
  * Return size of allocated memory
@@ -22,7 +22,8 @@
  *
  * @return
  */
-STATIC_INLINE_BEGIN size_t msize(void* data) {
+STATIC_INLINE_BEGIN size_t msize(void* data)
+{
 #ifdef _WIN32
   return _msize(data);
 #elif __APPLE__
@@ -34,10 +35,12 @@ STATIC_INLINE_BEGIN size_t msize(void* data) {
 
 #define SPS_MALLOC(theSize) sps_malloc(__FILE__, __LINE__, theSize)
 
-static inline void *sps_malloc(const char *file,int line,size_t size) {
-  void *ptr = malloc(size);
+static inline void* sps_malloc(const char* file, int line, size_t size)
+{
+  void* ptr = malloc(size);
 
-  if (!ptr) {
+  if (!ptr)
+  {
     fprintf(stderr, "Could not allocate: %zu bytes (%s:%d)\n", size, file, line);
     exit(EXIT_FAILURE);
   }
@@ -46,12 +49,13 @@ static inline void *sps_malloc(const char *file,int line,size_t size) {
 
 #define SPS_CALLOC(count, theSize) sps_calloc(__FILE__, __LINE__, count, theSize)
 
-static inline void *sps_calloc(const char *file, int line,
-			       size_t count, size_t size) {
-  void *ptr = calloc(count, size);
+static inline void* sps_calloc(const char* file, int line, size_t count, size_t size)
+{
+  void* ptr = calloc(count, size);
 
-  if (!ptr) {
-    fprintf(stderr, "Could not allocate: %zu bytes (%s:%d)\n", size*count, file, line);
+  if (!ptr)
+  {
+    fprintf(stderr, "Could not allocate: %zu bytes (%s:%d)\n", size * count, file, line);
     exit(EXIT_FAILURE);
   }
   return ptr;

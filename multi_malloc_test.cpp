@@ -1,70 +1,76 @@
 #include <cstddef>
 #include <sps/cstdio>
-#include <sps/multi_malloc.hpp>
 #include <sps/multi_malloc.h>
+#include <sps/multi_malloc.hpp>
 
 #include <array>
 #include <cstring>
 
 template <typename T>
-struct point_t : public std::array<T,3> {};
+struct point_t : public std::array<T, 3>
+{
+};
 
 template <typename T>
-struct euler_t {
+struct euler_t
+{
   T alpha;
   T beta;
   T gamma;
 };
 
 template <typename T>
-struct element_t {
-  T hw;  /* Half width  */
-  T hh;  /* Half height */
+struct element_t
+{
+  T hw; /* Half width  */
+  T hh; /* Half height */
   point_t<T> center;
   euler_t<T> euler;
 };
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
   SPS_UNREFERENCED_PARAMETERS(argc, argv);
-  float** f = static_cast<float**>(_mm_multi_malloc<float>(2,100,100));
+  float** f = static_cast<float**>(_mm_multi_malloc<float>(2, 100, 100));
   f[99][99] = 1.0f;
-  _mm_multi_free<float>(f,2);
+  _mm_multi_free<float>(f, 2);
 
-
-  f = static_cast<float**>(_mm_multi_malloc<float,32>(2,100,100));
+  f = static_cast<float**>(_mm_multi_malloc<float, 32>(2, 100, 100));
   f[99][99] = 1.0f;
-  memset(f[0],0,100*100*sizeof(float));
-//  ASSERT_EQ((uintptr_t)&f[0][0] % 32, 0);
-    _mm_multi_free<float, 32>(f, 2);
+  memset(f[0], 0, 100 * 100 * sizeof(float));
+  //  ASSERT_EQ((uintptr_t)&f[0][0] % 32, 0);
+  _mm_multi_free<float, 32>(f, 2);
 
-  f = static_cast<float**>(_mm_multi_malloc<float,4>(2,100,100));
+  f = static_cast<float**>(_mm_multi_malloc<float, 4>(2, 100, 100));
   f[99][99] = 1.0f;
-  _mm_multi_free<float,32>(f,2);
+  _mm_multi_free<float, 32>(f, 2);
 
-  float** g = static_cast<float**>(_mm_multi_malloc<float,16>(2,1,100));
-  memset(g[0], 0, 100*sizeof(float));
-  _mm_multi_free<float,16>(g,2);
+  float** g = static_cast<float**>(_mm_multi_malloc<float, 16>(2, 1, 100));
+  memset(g[0], 0, 100 * sizeof(float));
+  _mm_multi_free<float, 16>(g, 2);
 
   printf("sizeof(element_t<float>: %zu\n", sizeof(element_t<float>));
   printf("sizeof(element_t<double>: %zu\n", sizeof(element_t<double>));
 
-  element_t<float>** e = static_cast<element_t<float>**>(_mm_multi_malloc<element_t<float>, 64 >(2,100,100));
+  element_t<float>** e =
+    static_cast<element_t<float>**>(_mm_multi_malloc<element_t<float>, 64>(2, 100, 100));
   e[0][0].hw = 1.0f;
-  memset(&(e[0][0]), 0, 100*100*sizeof(element_t<float>));
-  _mm_multi_free<element_t<float>, 64>(e,2);
+  memset(&(e[0][0]), 0, 100 * 100 * sizeof(element_t<float>));
+  _mm_multi_free<element_t<float>, 64>(e, 2);
 
-  element_t<float>* ee = static_cast<element_t<float>*>(_mm_multi_malloc<element_t<float>, sizeof(element_t<float>) >(1,100));
-  memset(&(ee[0]), 0, 100*sizeof(element_t<float>));
-  _mm_multi_free<element_t<float>, sizeof(element_t<float>) >(ee,1);
+  element_t<float>* ee = static_cast<element_t<float>*>(
+    _mm_multi_malloc<element_t<float>, sizeof(element_t<float>)>(1, 100));
+  memset(&(ee[0]), 0, 100 * sizeof(element_t<float>));
+  _mm_multi_free<element_t<float>, sizeof(element_t<float>)>(ee, 1);
 
-  printf("%zu\n",alignof(max_align_t));
-  printf("%zu\n",std::alignment_of<max_align_t>::value);
+  printf("%zu\n", alignof(max_align_t));
+  printf("%zu\n", std::alignment_of<max_align_t>::value);
 
-  float** oldFloatArray2 = static_cast<float**>(multi_malloc(sizeof(float),2,10,10));
-  multi_free(oldFloatArray2,2);
+  float** oldFloatArray2 = static_cast<float**>(multi_malloc(sizeof(float), 2, 10, 10));
+  multi_free(oldFloatArray2, 2);
 
-  float* oldFloatArray1 = static_cast<float*>(multi_malloc(sizeof(float),1,10));
-  multi_free(oldFloatArray1,1);
+  float* oldFloatArray1 = static_cast<float*>(multi_malloc(sizeof(float), 1, 10));
+  multi_free(oldFloatArray1, 1);
 
 #if 0
   // TODO: Test this

@@ -1,12 +1,12 @@
 /**
-* @file   aligned_allocator.hpp
-* @author Jens Munk Hansen <jens.munk.hansen@gmail.com>
-* @date   Wed Jul 22 23:18:58 2011
-*
-* @brief  Aligned allocator for STL types
-*
-* Copyright 2017 Jens Munk Hansen
-*/
+ * @file   aligned_allocator.hpp
+ * @author Jens Munk Hansen <jens.munk.hansen@gmail.com>
+ * @date   Wed Jul 22 23:18:58 2011
+ *
+ * @brief  Aligned allocator for STL types
+ *
+ * Copyright 2017 Jens Munk Hansen
+ */
 
 /*
  *  This file is part of SOFUS.
@@ -27,30 +27,31 @@
 
 #pragma once
 
-#include <sps/cenv.h>        // SPS_UNREFERENCED_PARAMETER
-#include <sps/mm_malloc.h>   // Required for _mm_malloc() and _mm_free()
+#include <sps/cenv.h>      // SPS_UNREFERENCED_PARAMETER
+#include <sps/mm_malloc.h> // Required for _mm_malloc() and _mm_free()
 
 #ifdef CXX17
 // TODO(JMH): Use std::aligned_alloc if C++17
 #endif
 
-#include <cstddef>           // Required for size_t and ptrdiff_t and NULL
-#include <new>               // Required for placement new and std::bad_alloc
-#include <stdexcept>         // Required for std::length_error
+#include <cstddef>   // Required for size_t and ptrdiff_t and NULL
+#include <new>       // Required for placement new and std::bad_alloc
+#include <stdexcept> // Required for std::length_error
 
-#include <cstdlib>           // Required for malloc() and free()
+#include <cstdlib> // Required for malloc() and free()
 
-#include <memory>            // std::allocator
+#include <memory> // std::allocator
 
-#include <functional>        // std::function
+#include <functional> // std::function
 
 /*! Aligned allocator for STL containers. */
-template <typename T,
-          std::size_t Alignment = 4*sizeof(T)> class aligned_allocator {
- public:
+template <typename T, std::size_t Alignment = 4 * sizeof(T)>
+class aligned_allocator
+{
+public:
   /// <summary>   STL standard aliases. . </summary>
-  typedef T * pointer;
-  typedef const T * const_pointer;
+  typedef T* pointer;
+  typedef const T* const_pointer;
   typedef T& reference;
   typedef const T& const_reference;
   typedef T value_type;
@@ -64,9 +65,7 @@ template <typename T,
    *
    * @return the address
    */
-  T* address(T& r) const {
-    return &r;
-  }
+  T* address(T& r) const { return &r; }
 
   /**
    * Const address of type T.
@@ -75,9 +74,7 @@ template <typename T,
    *
    * @return the address
    */
-  const T* address(const T& s) const {
-    return &s;
-  }
+  const T* address(const T& s) const { return &s; }
 
   /**
    * Gets the maximum size.
@@ -85,12 +82,12 @@ template <typename T,
    *
    * @return the size
    */
-  size_t max_size() const {
-    return (static_cast<size_t>(0) - static_cast<size_t>(1)) / sizeof(T);
-  }
+  size_t max_size() const { return (static_cast<size_t>(0) - static_cast<size_t>(1)) / sizeof(T); }
 
   /*! Structure for rebinding */
-  template <typename U> struct rebind {
+  template <typename U>
+  struct rebind
+  {
     typedef aligned_allocator<U, Alignment> other;
   };
 
@@ -101,9 +98,7 @@ template <typename T,
    *
    * @return The other
    */
-  bool operator!=(const aligned_allocator& other) const {
-    return !(*this == other);
-  }
+  bool operator!=(const aligned_allocator& other) const { return !(*this == other); }
 
   /**
    * Construct
@@ -111,14 +106,16 @@ template <typename T,
    * @param p [in] If non-null, the T* p is the address used for construction.
    * @param t The object to displace.
    */
-  void construct(T* const p, const T& arg) const {
+  void construct(T* const p, const T& arg) const
+  {
     void* const pv = static_cast<void*>(p);
     ::new (pv) T(arg);
   }
 
-  template<class U, class... Args>
-  void construct(U* p, Args&&... args) {
-    ::new(p) U(std::forward<Args>(args)...);
+  template <class U, class... Args>
+  void construct(U* p, Args&&... args)
+  {
+    ::new (p) U(std::forward<Args>(args)...);
   }
 
   /**
@@ -128,7 +125,7 @@ template <typename T,
    */
   void destroy(T* const p) const;
 
-  template<class U>
+  template <class U>
   void destroy(U* p) const;
 
   /**
@@ -138,21 +135,19 @@ template <typename T,
    *
    * @return true for stateless allocators.
    */
-  bool operator==(const aligned_allocator& /*other*/) const {
-    return true;
-  }
+  bool operator==(const aligned_allocator& /*other*/) const { return true; }
 
   /**
    * Default constructor - empty for stateless allocators.
    *
    */
-  aligned_allocator() { }
+  aligned_allocator() {}
 
   /**
    * Default copy constructor - empty for stateless allocators.
    *
    */
-  aligned_allocator(const aligned_allocator&) { }
+  aligned_allocator(const aligned_allocator&) {}
 
   /**
    * Default rebinding constructor - empty for stateless allocators.
@@ -160,7 +155,8 @@ template <typename T,
    * @param other
    */
   template <typename U>
-  aligned_allocator(const aligned_allocator<U, Alignment>& other) {
+  aligned_allocator(const aligned_allocator<U, Alignment>& other)
+  {
     SPS_UNREFERENCED_PARAMETER(other);
   }
 
@@ -168,7 +164,7 @@ template <typename T,
    * Destructor
    *
    */
-  ~aligned_allocator() { }
+  ~aligned_allocator() {}
 
   /// <summary>   Allocates memory. </summary>
   /// <param name="n">    The. </param>
@@ -183,21 +179,24 @@ template <typename T,
    *
    * @return null if it fails, else a reference pointer.
    */
-  T* allocate(const size_t n) const {
+  T* allocate(const size_t n) const
+  {
     // The return value of allocate(0) is unspecified.
     // aligned_allocator returns NULL in order to avoid depending
     // on malloc(0)'s implementation-defined behavior
     // (the implementation can define malloc(0) to return NULL,
     // in which case the bad_alloc check below would fire).
     // All allocators can return NULL in this case.
-    if (n == 0) {
+    if (n == 0)
+    {
       return NULL;
     }
 
     // All allocators should contain an integer overflow check.
     // The Standardization Committee recommends that std::length_error
     // be thrown in the case of integer overflow.
-    if (n > max_size()) {
+    if (n > max_size())
+    {
       throw std::length_error("aligned_allocator<T>::allocate() - Integer overflow.");
     }
 
@@ -206,7 +205,8 @@ template <typename T,
 
     // Allocators should throw std::bad_alloc in the case of memory
     // allocation failure.
-    if (pv == NULL) {
+    if (pv == NULL)
+    {
       throw std::bad_alloc();
     }
     return static_cast<T*>(pv);
@@ -218,7 +218,8 @@ template <typename T,
    * @param p [in] If non-null, the T* p is the address used for construction.
    * @param n The length of the buffer.
    */
-  void deallocate(T* const p, const size_t n) const {
+  void deallocate(T* const p, const size_t n) const
+  {
     SPS_UNREFERENCED_PARAMETER(n);
     _mm_free(p);
   }
@@ -231,7 +232,8 @@ template <typename T,
    * @return null if it fails, else.
    */
   template <class U>
-  T* allocate(const size_t n, const  U* /*hint*/ = 0) const {
+  T* allocate(const size_t n, const U* /*hint*/ = 0) const
+  {
     return allocate(n);
   }
 
@@ -243,7 +245,7 @@ template <typename T,
   // base class assignment operator is inaccessible" within
   // the STL headers, but that warning is useless.
 
- private:
+private:
   /**
    * Private unimplemented assignment operator.
    *
@@ -256,8 +258,8 @@ template <typename T,
 
 // A compiler bug causes it to believe that p->~T() doesn't reference p.
 #ifdef _MSC_VER
-# pragma warning(push)
-# pragma warning(disable: 4100)  // Unreferenced formal parameter
+#pragma warning(push)
+#pragma warning(disable : 4100) // Unreferenced formal parameter
 #endif
 
 /**
@@ -266,27 +268,33 @@ template <typename T,
  * @param p [in] If non-null, the T * const to destroy.
  */
 template <typename T, std::size_t Alignment>
-void aligned_allocator<T, Alignment>::destroy(T * const p) const {
+void aligned_allocator<T, Alignment>::destroy(T* const p) const
+{
   p->~T();
 }
 
 template <typename T, std::size_t Alignment>
-template<class U>
-void aligned_allocator<T, Alignment>::destroy(U* p) const {
+template <class U>
+void aligned_allocator<T, Alignment>::destroy(U* p) const
+{
   p->~T();
 }
 
 #ifdef _MSC_VER
-# pragma warning(pop)
+#pragma warning(pop)
 #endif
 
 template <typename T, typename U, std::size_t Alignment>
-inline bool operator==(const aligned_allocator<T, Alignment>&, const aligned_allocator<U, Alignment>&&) {
+inline bool operator==(
+  const aligned_allocator<T, Alignment>&, const aligned_allocator<U, Alignment>&&)
+{
   return true;
 }
 
 template <typename T, typename U, std::size_t Alignment>
-inline bool operator!=(const aligned_allocator<T, Alignment>& a, const aligned_allocator<U, Alignment>& b) {
+inline bool operator!=(
+  const aligned_allocator<T, Alignment>& a, const aligned_allocator<U, Alignment>& b)
+{
   return !(a == b);
 }
 
@@ -336,34 +344,41 @@ make_unique_aligned_array(aligned_allocator<T, Alignment> alloc, std::size_t siz
 
 #endif
 
-namespace sps {
-template<typename T, typename Allocator = std::allocator<T>, typename... Args>
-std::unique_ptr<T[], std::function<void(T*)>>
-make_unique_array(std::size_t size, Args... args) {
+namespace sps
+{
+template <typename T, typename Allocator = std::allocator<T>, typename... Args>
+std::unique_ptr<T[], std::function<void(T*)>> make_unique_array(std::size_t size, Args... args)
+{
   Allocator alloc = Allocator();
-  T *ptr = std::allocator_traits<Allocator>::allocate(alloc, size);
+  T* ptr = std::allocator_traits<Allocator>::allocate(alloc, size);
 
-  for (std::size_t i = 0; i < size; ++i) {
+  for (std::size_t i = 0; i < size; ++i)
+  {
     std::allocator_traits<Allocator>::construct(alloc, &ptr[i], std::forward<Args>(args)...);
   }
 
-  auto deleter = [](T *p, Allocator a, std::size_t sz) {
-    for (std::size_t i = 0; i < sz; ++i) {
+  auto deleter = [](T* p, Allocator a, std::size_t sz)
+  {
+    for (std::size_t i = 0; i < sz; ++i)
+    {
       std::allocator_traits<Allocator>::destroy(a, &p[i]);
     }
     std::allocator_traits<Allocator>::deallocate(a, p, sz);
   };
 
-  return {ptr, std::bind(deleter, std::placeholders::_1, alloc, size)};
+  return { ptr, std::bind(deleter, std::placeholders::_1, alloc, size) };
 }
 
 template <typename T, std::size_t Alignment = 16, typename... Args>
-auto make_unique_aligned_array(std::size_t size, Args... args)->decltype(sps::make_unique_array<T, aligned_allocator<T, Alignment>, Args...>(size, args...)) {
+auto make_unique_aligned_array(std::size_t size, Args... args)
+  -> decltype(sps::make_unique_array<T, aligned_allocator<T, Alignment>, Args...>(size, args...))
+{
   static_assert(alignof(T) % Alignment == 0, "Bad alignment");
-  return sps::make_unique_array<T, aligned_allocator<T, Alignment>, Args...>(size, std::forward<Args>(args)...);
+  return sps::make_unique_array<T, aligned_allocator<T, Alignment>, Args...>(
+    size, std::forward<Args>(args)...);
 }
 
-}  // namespace sps
+} // namespace sps
 
 /* Local variables: */
 /* indent-tab-mode: nil */

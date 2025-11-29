@@ -23,20 +23,25 @@
  *   float data[4];
  * };
  */
-typedef struct sps_align16 {
+typedef struct sps_align16
+{
 } sps_align16_t __attribute__((aligned(16)));
-typedef struct sps_align32 {
+typedef struct sps_align32
+{
 } sps_align32_t __attribute__((aligned(32)));
-typedef struct sps_align64 {
+typedef struct sps_align64
+{
 } sps_align64_t __attribute__((aligned(64)));
 #elif defined(_MSC_VER)
-typedef __declspec(align(16)) struct sps_align16 {
+typedef __declspec(align(16)) struct sps_align16
+{
 } sps_align16_t;
-typedef __declspec(align(32)) struct sps_align16 {
+typedef __declspec(align(32)) struct sps_align16
+{
 } sps_align32_t;
-typedef __declspec(align(64)) struct sps_align16 {
+typedef __declspec(align(64)) struct sps_align16
+{
 } sps_align64_t;
 #endif
 
-#endif  // SPS_ALIGN_H
-
+#endif // SPS_ALIGN_H

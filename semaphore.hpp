@@ -11,18 +11,20 @@
 #pragma once
 #include <sps/cenv.h>
 
-#include <cstdint>
 #include <atomic>
-#include <mutex>
-#include <condition_variable>
 #include <chrono>
+#include <condition_variable>
+#include <cstdint>
+#include <mutex>
 
 // TODO(JEM): Add reset to interrupt waiting
 
-namespace sps {
+namespace sps
+{
 
-class ISemaphore {
- public:
+class ISemaphore
+{
+public:
   virtual ~ISemaphore() = default;
   ISemaphore(ISemaphore&& other) = default;
   ISemaphore& operator=(ISemaphore&& other) = default;
@@ -45,17 +47,18 @@ class ISemaphore {
    */
   virtual inline void Signal() = 0;
 
- protected:
+protected:
   ISemaphore() = default;
 
- private:
+private:
   // Prevent copying
   ISemaphore(const ISemaphore& rhs) = delete;
   ISemaphore& operator=(const ISemaphore& rhs) = delete;
 };
 
-class IEvent {
- public:
+class IEvent
+{
+public:
   virtual ~IEvent() = default;
   IEvent(IEvent&& other) = default;
   IEvent& operator=(IEvent&& other) = default;
@@ -65,21 +68,23 @@ class IEvent {
   virtual inline bool Reset() = 0;
   virtual inline bool IsSet() const = 0;
 
- protected:
+protected:
   IEvent() = default;
- private:
+
+private:
   // Prevent copying
   IEvent(const IEvent& rhs) = delete;
   IEvent& operator=(const IEvent& rhs) = delete;
 };
 
-class Semaphore : public ISemaphore {
- private:
+class Semaphore : public ISemaphore
+{
+private:
   std::atomic<int32_t> m_nCount;
   std::mutex m_mutex;
   std::condition_variable m_condition;
 
- public:
+public:
   /**
    * Constructor.
    *
@@ -88,28 +93,33 @@ class Semaphore : public ISemaphore {
    * @return
    */
   explicit inline Semaphore(unsigned int nCount)
-    : m_nCount(nCount) { }
+    : m_nCount(nCount)
+  {
+  }
 
-  inline bool Wait() SPS_OVERRIDE {
+  inline bool Wait() SPS_OVERRIDE
+  {
     std::unique_lock<std::mutex> lock(m_mutex);
-    m_condition.wait(lock, [&]()->bool{ return m_nCount > 0;});
+    m_condition.wait(lock, [&]() -> bool { return m_nCount > 0; });
     --m_nCount;
     // If object is deleted, m_nCount is negative and reside on stack
     return !(m_nCount < 0);
   }
 
-  template<typename R, typename P>
-  bool Wait(const std::chrono::duration<R, P>& duration) {
+  template <typename R, typename P>
+  bool Wait(const std::chrono::duration<R, P>& duration)
+  {
     std::unique_lock<std::mutex> lock(m_mutex);
-    if (!m_condition.wait_for(lock, duration,
-                              [&]()->bool{return m_nCount > 0;})) {
+    if (!m_condition.wait_for(lock, duration, [&]() -> bool { return m_nCount > 0; }))
+    {
       return false;
     }
     --m_nCount;
     return !(m_nCount < 0);
   }
 
-  inline void Signal() SPS_OVERRIDE {
+  inline void Signal() SPS_OVERRIDE
+  {
     // Scoped lock
     std::lock_guard<std::mutex> lock(m_mutex);
     ++m_nCount;
@@ -117,28 +127,35 @@ class Semaphore : public ISemaphore {
     m_condition.notify_one();
   }
 
-  ~Semaphore() SPS_OVERRIDE {
-    std::lock_guard<std::mutex> guard{m_mutex};
+  ~Semaphore() SPS_OVERRIDE
+  {
+    std::lock_guard<std::mutex> guard{ m_mutex };
     m_nCount = -1;
     // Signal all threads
     m_condition.notify_all();
   }
 };
 
-class Event : public IEvent {
- private:
+class Event : public IEvent
+{
+private:
   bool m_bSignaled;
   bool m_bValid;
   mutable std::mutex m_mutex;
   mutable std::condition_variable m_condition;
 
- public:
-  inline Event() : m_bSignaled(false), m_bValid(true) { }
+public:
+  inline Event()
+    : m_bSignaled(false)
+    , m_bValid(true)
+  {
+  }
 
   // Non-movable because std::mutex and std::condition_variable are not movable
   Event(Event&& other) = delete;
   Event& operator=(Event&& other) = delete;
-  ~Event() SPS_OVERRIDE {
+  ~Event() SPS_OVERRIDE
+  {
     std::lock_guard<std::mutex> lock(m_mutex);
     m_bValid = false;
   }
@@ -147,23 +164,26 @@ class Event : public IEvent {
    * Wait()
    *
    */
-  inline bool Wait() const SPS_OVERRIDE {
+  inline bool Wait() const SPS_OVERRIDE
+  {
     std::unique_lock<std::mutex> lock(m_mutex);
-    m_condition.wait(lock, [&]()->bool{ return m_bSignaled  || !m_bValid;});
+    m_condition.wait(lock, [&]() -> bool { return m_bSignaled || !m_bValid; });
     return m_bSignaled && m_bValid;
   }
 
-  template<typename R, typename P>
-  bool Wait(const std::chrono::duration<R, P>& duration) const {
+  template <typename R, typename P>
+  bool Wait(const std::chrono::duration<R, P>& duration) const
+  {
     std::unique_lock<std::mutex> lock(m_mutex);
-    if (!m_condition.wait_for(lock, duration,
-                              [&]()->bool{ return m_bSignaled; })) {
+    if (!m_condition.wait_for(lock, duration, [&]() -> bool { return m_bSignaled; }))
+    {
       return false;
     }
     return m_bValid;
   }
 
-  inline bool Signal() SPS_OVERRIDE {
+  inline bool Signal() SPS_OVERRIDE
+  {
     bool bWasSignalled;
     m_mutex.lock();
     bWasSignalled = m_bSignaled;
@@ -173,7 +193,8 @@ class Event : public IEvent {
     return bWasSignalled == false;
   }
 
-  inline bool Reset() SPS_OVERRIDE {
+  inline bool Reset() SPS_OVERRIDE
+  {
     bool bWasSignalled;
     m_mutex.lock();
     bWasSignalled = m_bSignaled;
@@ -182,11 +203,9 @@ class Event : public IEvent {
     return bWasSignalled;
   }
 
-  inline bool IsSet() const SPS_OVERRIDE {
-    return m_bSignaled;
-  }
+  inline bool IsSet() const SPS_OVERRIDE { return m_bSignaled; }
 };
-}  // namespace sps
+} // namespace sps
 
 /* Local variables: */
 /* indent-tabs-mode: nil */

@@ -25,22 +25,23 @@
  */
 #pragma once
 
-#include <sps/math.h>  // is_power_of_two
+#include <sps/math.h> // is_power_of_two
 
 // TEST
-#include <sps/mm_malloc.h>
 #include <sps/memory>
+#include <sps/mm_malloc.h>
 
+#include <cassert>
+#include <cstdarg>
 #include <cstddef>
 #include <cstdlib>
-#include <cstdarg>
-#include <cassert>
 #include <type_traits>
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 
-template<std::size_t Size, std::size_t Alignment>
-struct check_size_divides_alignment {
+template <std::size_t Size, std::size_t Alignment>
+struct check_size_divides_alignment
+{
   static_assert(Alignment % Size == 0, "Size must be a divisor of alignment");
 #ifdef __GNUG__
   static_assert(is_power_of_two(Alignment), "Alignment must be power of two");
@@ -50,24 +51,25 @@ struct check_size_divides_alignment {
 #endif
 
 #if defined(_MSC_VER) && (_MSC_VER < 1800)
-template<typename T, size_t Alignment>
+template <typename T, size_t Alignment>
 #else
-template<typename T, size_t Alignment = alignof(max_align_t)>
+template <typename T, size_t Alignment = alignof(max_align_t)>
 #endif
-void* __mm_multi_malloc(size_t d, va_list ap) {
+void* __mm_multi_malloc(size_t d, va_list ap)
+{
   char* tree;
 
-  size_t max,             /* size of array to be declared */
-         *q;                   /* pointer to dimension list */
-  char **r,               /* pointer to beginning of the array of the
-                           * pointers for a dimension */
-       **s1, *t;             /* base pointer to beginning of first array */
-  size_t i, j;            /* loop counters */
-  size_t *d1;             /* dimension list */
+  size_t max,  /* size of array to be declared */
+    *q;        /* pointer to dimension list */
+  char **r,    /* pointer to beginning of the array of the
+                * pointers for a dimension */
+    **s1, *t;  /* base pointer to beginning of first array */
+  size_t i, j; /* loop counters */
+  size_t* d1;  /* dimension list */
 
-  size_t sa;              /* elements per alignment */
+  size_t sa; /* elements per alignment */
 
-  d1 = static_cast<size_t*>(SPS_MALLOC(d*sizeof(size_t)));
+  d1 = static_cast<size_t*>(SPS_MALLOC(d * sizeof(size_t)));
 
   for (i = 0; i < d; i++)
     d1[i] = va_arg(ap, size_t);
@@ -75,26 +77,28 @@ void* __mm_multi_malloc(size_t d, va_list ap) {
   sa = Alignment / sizeof(T);
 
   r = &tree;
-  q = d1;                 /* first dimension */
+  q = d1; /* first dimension */
 
-  if (d == 1) {
-    max = sa * (((*q)+(sa-1)) / sa);
+  if (d == 1)
+  {
+    max = sa * (((*q) + (sa - 1)) / sa);
     free(d1);
-    return SPS_MM_MALLOC(max*sizeof(T), Alignment);
+    return SPS_MM_MALLOC(max * sizeof(T), Alignment);
   }
 
   max = 1;
-  for (i = 0; i < d - 1; i++, q++) {
+  for (i = 0; i < d - 1; i++, q++)
+  {
     /* for each of the dimensions
      * but the last */
     max *= (*q);
-    r[0] = static_cast<char*>(SPS_MM_MALLOC(max * sizeof(char **), Alignment));  // Changed
+    r[0] = static_cast<char*>(SPS_MM_MALLOC(max * sizeof(char**), Alignment)); // Changed
     // Step through to beginning of next dimension array
-    r = reinterpret_cast<char **>(r[0]);
+    r = reinterpret_cast<char**>(r[0]);
   }
 
   /* grab actual array memory */
-  max *= sizeof(T) * static_cast<size_t>(sa * ( ( (*q) + (sa-1) ) / sa ) );
+  max *= sizeof(T) * static_cast<size_t>(sa * (((*q) + (sa - 1)) / sa));
   r[0] = static_cast<char*>(SPS_MM_MALLOC(max * sizeof(char), Alignment));
 
   /*
@@ -102,17 +106,19 @@ void* __mm_multi_malloc(size_t d, va_list ap) {
    * use it to scan down each array rather than having to go across and
    * then down
    */
-  r = reinterpret_cast<char **>(tree);     /* back to the beginning of list of arrays */
-  q = d1;                 /* back to the first dimension */
+  r = reinterpret_cast<char**>(tree); /* back to the beginning of list of arrays */
+  q = d1;                             /* back to the first dimension */
   max = 1;
-  for (i = 0; i < d - 2; i++, q++) {
+  for (i = 0; i < d - 2; i++, q++)
+  {
     /* we deal with the last
-                                             * array of pointers later on */
-    max *= (*q);    /* number of elements in this dimension */
-    for (j = 1, s1 = r+1, t = r[0]; j < max; j++) {
+     * array of pointers later on */
+    max *= (*q); /* number of elements in this dimension */
+    for (j = 1, s1 = r + 1, t = r[0]; j < max; j++)
+    {
       /* scans down array for
-                                               * first and subsequent
-                                               * elements */
+       * first and subsequent
+       * elements */
 
       /*  modify each of the pointers so that it points to
        * the correct position (sub-array) of the next
@@ -122,23 +128,23 @@ void* __mm_multi_malloc(size_t d, va_list ap) {
        * starts off one behind. *(q+1) is the dimension of
        * the next array. */
 
-      *s1 = (t += sizeof (char **) **(q + 1));
+      *s1 = (t += sizeof(char**) * *(q + 1));
       s1++;
     }
-    r = reinterpret_cast<char **>(r[0]);     /* step through to begining of next
-                             * dimension array */
+    r = reinterpret_cast<char**>(r[0]); /* step through to begining of next
+                                         * dimension array */
   }
 
-  max *= (*q);              /* max is total number of elements in the
-                             * last pointer array */
+  max *= (*q); /* max is total number of elements in the
+                * last pointer array */
 
   /* same as previous loop, but different size factor */
   for (j = 1, s1 = r + 1, t = r[0]; j < max; j++)
-    *s1++ = (t += sizeof(T) **(q + 1));
+    *s1++ = (t += sizeof(T) * *(q + 1));
 
   free(d1);
 
-  return static_cast<void *>(tree);              /* return base pointer */
+  return static_cast<void*>(tree); /* return base pointer */
 }
 
 /**
@@ -159,25 +165,24 @@ void* __mm_multi_malloc(size_t d, va_list ap) {
  * @return
  */
 #if defined(_MSC_VER) && (_MSC_VER < 1800)
-template<typename T, size_t Alignment>
+template <typename T, size_t Alignment>
 #else
-template<typename T, size_t Alignment = alignof(max_align_t)>
+template <typename T, size_t Alignment = alignof(max_align_t)>
 #endif
-void* _mm_multi_malloc(size_t d, ...) {
+void* _mm_multi_malloc(size_t d, ...)
+{
   check_size_divides_alignment<sizeof(T), Alignment>();
 
 #if !defined(__STRICT_ANSI__) && !defined(_MSC_VER)
   //  static_assert(std::is_scalar<T>::value, "Type T must be scalar");
 #endif
 
-  va_list ap;             /* varargs list traverser */
+  va_list ap; /* varargs list traverser */
   va_start(ap, d);
   void* retval = __mm_multi_malloc<T, Alignment>(d, ap);
   va_end(ap);
   return retval;
 }
-
-
 
 /**
  *  _mm_multi_free
@@ -188,21 +193,24 @@ void* _mm_multi_malloc(size_t d, ...) {
  * @param d Number of dimensions
  */
 #if defined(_MSC_VER) && (_MSC_VER < 1800)
-template<typename T, size_t Alignment>
+template <typename T, size_t Alignment>
 #else
-template<typename T, size_t Alignment=alignof(max_align_t)>//std::alignment_of<max_align_t>::value>
+template <typename T,
+  size_t Alignment = alignof(max_align_t)> // std::alignment_of<max_align_t>::value>
 #endif
-void _mm_multi_free(void *r, size_t d) {
+void _mm_multi_free(void* r, size_t d)
+{
   check_size_divides_alignment<sizeof(T), Alignment>();
 
-  void **p;
-  void *next = NULL;
+  void** p;
+  void* next = NULL;
   size_t i;
 
-  for (p = reinterpret_cast<void **>(r), i = 0; i < d; p = reinterpret_cast<void **>(next), i++)
-    if (p != NULL) {
+  for (p = reinterpret_cast<void**>(r), i = 0; i < d; p = reinterpret_cast<void**>(next), i++)
+    if (p != NULL)
+    {
       next = *p;
-      _mm_free(p);  // Removed a & before p
+      _mm_free(p); // Removed a & before p
       p = NULL;
     }
 }
@@ -229,25 +237,26 @@ void _mm_multi_free(void *r, size_t d) {
  *
  * TODO: Change to only inner-most dimension is padded
  */
-template<typename T, size_t Alignment = 16>
-void* _mm_multi_malloc_nc(size_t d, ...) {
+template <typename T, size_t Alignment = 16>
+void* _mm_multi_malloc_nc(size_t d, ...)
+{
   check_size_divides_alignment<sizeof(T), Alignment>();
 
   char* tree;
 
-  va_list ap;             /* varargs list traverser */
-  size_t max,             /* size of array to be declared */
-         *q;                   /* pointer to dimension list */
-  char **r,               /* pointer to beginning of the array of the
-                           * pointers for a dimension */
-       **s1, *t;             /* base pointer to beginning of first array */
-  size_t i, j;            /* loop counters */
-  size_t *d1;             /* dimension list */
+  va_list ap;  /* varargs list traverser */
+  size_t max,  /* size of array to be declared */
+    *q;        /* pointer to dimension list */
+  char **r,    /* pointer to beginning of the array of the
+                * pointers for a dimension */
+    **s1, *t;  /* base pointer to beginning of first array */
+  size_t i, j; /* loop counters */
+  size_t* d1;  /* dimension list */
 
-  size_t sa;              /* elements per alignment */
+  size_t sa; /* elements per alignment */
 
   va_start(ap, d);
-  d1 = static_cast<size_t *>(malloc(d*sizeof(size_t)));
+  d1 = static_cast<size_t*>(malloc(d * sizeof(size_t)));
 
   for (i = 0; i < d; i++)
     d1[i] = va_arg(ap, size_t);
@@ -255,43 +264,48 @@ void* _mm_multi_malloc_nc(size_t d, ...) {
   sa = Alignment / sizeof(T);
 
   r = &tree;
-  q = d1;                 /* first dimension */
+  q = d1; /* first dimension */
 
-  if (d == 1) {
-    max = sa * (( sizeof(T)*(*q) + (sa-1))/sa);
+  if (d == 1)
+  {
+    max = sa * ((sizeof(T) * (*q) + (sa - 1)) / sa);
     va_end(ap);
     return _mm_malloc(max, Alignment);
   }
 
   max = 1;
-  for (i = 0; i < d - 1; i++, q++) {
+  for (i = 0; i < d - 1; i++, q++)
+  {
     /* for each of the dimensions
      * but the last */
-    max *= sa * (((*q)+(sa-1))/sa);
+    max *= sa * (((*q) + (sa - 1)) / sa);
     //
-    r[0] = static_cast<char *>(_mm_malloc(max * sizeof(char **), Alignment));
-    r = reinterpret_cast<char **>(r[0]);     /* step through to beginning of next
-                             * dimension array */
+    r[0] = static_cast<char*>(_mm_malloc(max * sizeof(char**), Alignment));
+    r = reinterpret_cast<char**>(r[0]); /* step through to beginning of next
+                                         * dimension array */
   }
-  max *= sizeof(T) * static_cast<size_t>(sa * (((*q)+(sa-1))/sa));        /* grab actual array memory */
-  r[0] = static_cast<char *>(_mm_malloc(max * sizeof(char), Alignment));
+  max *=
+    sizeof(T) * static_cast<size_t>(sa * (((*q) + (sa - 1)) / sa)); /* grab actual array memory */
+  r[0] = static_cast<char*>(_mm_malloc(max * sizeof(char), Alignment));
 
   /*
    * r is now set to point to the beginning of each array so that we can
    * use it to scan down each array rather than having to go across and
    * then down
    */
-  r = reinterpret_cast<char **>(tree);     /* back to the beginning of list of arrays */
-  q = d1;                 /* back to the first dimension */
+  r = reinterpret_cast<char**>(tree); /* back to the beginning of list of arrays */
+  q = d1;                             /* back to the first dimension */
   max = 1;
-  for (i = 0; i < d - 2; i++, q++) {
+  for (i = 0; i < d - 2; i++, q++)
+  {
     /* we deal with the last
-                                             * array of pointers later on */
-    max *= sa * (((*q)+(sa-1))/sa);    /* number of elements in this dimension */
-    for (j = 1, s1 = r+1, t = r[0]; j < max; j++) {
+     * array of pointers later on */
+    max *= sa * (((*q) + (sa - 1)) / sa); /* number of elements in this dimension */
+    for (j = 1, s1 = r + 1, t = r[0]; j < max; j++)
+    {
       /* scans down array for
-                                               * first and subsequent
-                                               * elements */
+       * first and subsequent
+       * elements */
 
       /*  modify each of the pointers so that it points to
        * the correct position (sub-array) of the next
@@ -301,23 +315,23 @@ void* _mm_multi_malloc_nc(size_t d, ...) {
        * starts off one behind. *(q+1) is the dimension of
        * the next array. */
 
-      *s1 = (t += sizeof (char **) *  (sa * (((*q+1)+(sa-1))/sa)) );
+      *s1 = (t += sizeof(char**) * (sa * (((*q + 1) + (sa - 1)) / sa)));
       s1++;
     }
-    r = reinterpret_cast<char **>(r[0]);     /* step through to begining of next
-                             * dimension array */
+    r = reinterpret_cast<char**>(r[0]); /* step through to begining of next
+                                         * dimension array */
   }
-  max *= sa * (((*q)+(sa-1))/sa);              /* max is total number of elements in the
-                             * last pointer array */
+  max *= sa * (((*q) + (sa - 1)) / sa); /* max is total number of elements in the
+                                         * last pointer array */
 
   /* same as previous loop, but different size factor */
   for (j = 1, s1 = r + 1, t = r[0]; j < max; j++)
-    *s1++ = (t += sizeof(T) * (sa * (((*q+1)+(sa-1))/sa)) );
+    *s1++ = (t += sizeof(T) * (sa * (((*q + 1) + (sa - 1)) / sa)));
 
   va_end(ap);
   free(d1);
 
-  return static_cast<void *>(tree);              /* return base pointer */
+  return static_cast<void*>(tree); /* return base pointer */
 }
 
 /**
@@ -328,37 +342,42 @@ void* _mm_multi_malloc_nc(size_t d, ...) {
  * @param r The pointer
  * @param d Number of dimensions
  */
-template<typename T, size_t Alignment = 16>
-void _mm_multi_free_nc(void *r, size_t d) {
+template <typename T, size_t Alignment = 16>
+void _mm_multi_free_nc(void* r, size_t d)
+{
   check_size_divides_alignment<sizeof(T), Alignment>();
 
-  void **p;
-  void *next = NULL;
+  void** p;
+  void* next = NULL;
   size_t i;
 
-  for (p = reinterpret_cast<void **>(r), i = 0; i < d; p = reinterpret_cast<void **>(next), i++)
-    if (p != NULL) {
+  for (p = reinterpret_cast<void**>(r), i = 0; i < d; p = reinterpret_cast<void**>(next), i++)
+    if (p != NULL)
+    {
       next = *p;
-      _mm_free(p);  // Remove a & before p
+      _mm_free(p); // Remove a & before p
     }
 }
 #endif
 
 // Deleted multi_arrays
 
-namespace sps {
+namespace sps
+{
 #if (defined(__GNUG__) && __cplusplus >= 201103L)
-namespace test {
+namespace test
+{
 // Works
-template<typename T>
-using deleted_unique_multi_array = std::unique_ptr<T[], std::function<void(T*)> >;
+template <typename T>
+using deleted_unique_multi_array = std::unique_ptr<T[], std::function<void(T*)>>;
 
-template<typename T, size_t d>
-sps::test::deleted_unique_multi_array<T> deleted_aligned_multi_array(size_t _d, ...) {
+template <typename T, size_t d>
+sps::test::deleted_unique_multi_array<T> deleted_aligned_multi_array(size_t _d, ...)
+{
   va_list ap;
   va_start(ap, _d);
-  auto retval =
-    deleted_unique_multi_array<T>(static_cast<T*>(__mm_multi_malloc<T>(d, ap)), [](T* f)->void {_mm_multi_free<T>(static_cast<void*>(f), d);});
+  auto retval = deleted_unique_multi_array<T>(static_cast<T*>(__mm_multi_malloc<T>(d, ap)),
+    [](T* f) -> void { _mm_multi_free<T>(static_cast<void*>(f), d); });
   va_end(ap);
   return retval;
 }
@@ -370,26 +389,32 @@ std::unique_ptr<float[][10][10], std::function< void(float (*)[10][10])> >  aa =
 #endif
 
 // Not working
-template<typename T, size_t a, size_t b>
-using deleted_unique_multi_array2 = std::unique_ptr<T[][b], std::function< void(T(*)[b])> >;
+template <typename T, size_t a, size_t b>
+using deleted_unique_multi_array2 = std::unique_ptr<T[][b], std::function<void(T (*)[b])>>;
 
-template<typename T, size_t a, size_t b> // size_t... and using const size_t ndims = sizeof...(size_t)
-sps::test::deleted_unique_multi_array2<T,a,b> deleted_aligned_multi_array2() {
-  return deleted_unique_multi_array2<T,a,b>( reinterpret_cast<T (*)[b]>(_mm_multi_malloc<T>(2, a, b)),
-         [](T (*f)[b])->void {_mm_multi_free<T>( static_cast<void*>(&(f[0][0])), 2);});
+template <typename T, size_t a,
+  size_t b> // size_t... and using const size_t ndims = sizeof...(size_t)
+sps::test::deleted_unique_multi_array2<T, a, b> deleted_aligned_multi_array2()
+{
+  return deleted_unique_multi_array2<T, a, b>(
+    reinterpret_cast<T(*)[b]>(_mm_multi_malloc<T>(2, a, b)),
+    [](T(*f)[b]) -> void { _mm_multi_free<T>(static_cast<void*>(&(f[0][0])), 2); });
 }
 
-template<typename T, size_t a, size_t b, size_t c>
-using deleted_unique_multi_array3 = std::unique_ptr<T[][b][c], std::function< void(T (*)[b][c])> >;
+template <typename T, size_t a, size_t b, size_t c>
+using deleted_unique_multi_array3 = std::unique_ptr<T[][b][c], std::function<void(T (*)[b][c])>>;
 
-template<typename T, size_t a, size_t b,size_t c> // size_t... and using const size_t ndims = sizeof...(size_t)
-sps::test::deleted_unique_multi_array3<T,a,b,c> deleted_aligned_multi_array3() {
-  return deleted_unique_multi_array3<T,a,b,c>( reinterpret_cast<T (*)[b][c]>(_mm_multi_malloc<T>(3, a, b, c)),
-         [](T (*f)[b][c])->void {_mm_multi_free<T>(static_cast<void*>(&(f[0][0][0])), 3);});
+template <typename T, size_t a, size_t b,
+  size_t c> // size_t... and using const size_t ndims = sizeof...(size_t)
+sps::test::deleted_unique_multi_array3<T, a, b, c> deleted_aligned_multi_array3()
+{
+  return deleted_unique_multi_array3<T, a, b, c>(
+    reinterpret_cast<T(*)[b][c]>(_mm_multi_malloc<T>(3, a, b, c)),
+    [](T(*f)[b][c]) -> void { _mm_multi_free<T>(static_cast<void*>(&(f[0][0][0])), 3); });
 }
-}  // namespace test
+} // namespace test
 #endif
-}  // namespace sps
+} // namespace sps
 
 /*
 #define RETURNS(x) ->decltype(x) { return (x); }
@@ -405,19 +430,21 @@ void foo( Args&&... args ) {
 }
  */
 
-
 // Wrappers needed because Microsoft do not support default template arguments for functions
 #if defined(_MSC_VER) && (_MSC_VER < 1800)
 template <typename T>
-void* _mm_multi_malloc(size_t d, size_t dim0) {
+void* _mm_multi_malloc(size_t d, size_t dim0)
+{
   return _mm_multi_malloc<T, 16>(d, dim0);
 }
 template <typename T>
-void* _mm_multi_malloc(size_t d, size_t dim0, size_t dim1) {
+void* _mm_multi_malloc(size_t d, size_t dim0, size_t dim1)
+{
   return _mm_multi_malloc<T, 16>(d, dim0, dim1);
 }
 template <typename T>
-void _mm_multi_free(void* r, size_t d) {
+void _mm_multi_free(void* r, size_t d)
+{
   return _mm_multi_free<T, 16>(r, d);
 }
 #endif
@@ -474,7 +501,6 @@ delete [](int*)c;
 
 
 */
-
 
 /* Local variables: */
 /* indent-tab-mode: nil */

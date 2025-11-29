@@ -36,16 +36,16 @@
 #include <stdarg.h>
 
 #ifndef snprintf
-# define snprintf c99_snprintf
+#define snprintf c99_snprintf
 #endif
 
 #ifdef _MSC_VER
 #include <stdlib.h>
-static inline double drand48(void) {
+static inline double drand48(void)
+{
   return (rand() / (RAND_MAX + 1.0));
 }
 #endif
-
 
 #ifdef _MSC_VER
 inline int c99_vsnprintf(char* str, size_t size, const char* format, va_list ap)
@@ -75,8 +75,7 @@ inline int c99_snprintf(char* str, size_t size, const char* format, ...)
 #elif defined(__CYGWIN__)
 // TODO: Handle C99 on cygwin
 #else
-# error No compatible snprintf function
+#error No compatible snprintf function
 #endif
 
 #endif // C99
-

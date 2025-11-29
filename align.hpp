@@ -11,29 +11,31 @@
 #pragma once
 
 #ifndef __cplusplus
-# error This is a C++ header
+#error This is a C++ header
 #endif
 
+#include <sps/cenv.h> // TODO(JMH): Split this up
 #include <sps/debug.h>
-#include <sps/cenv.h>  // TODO(JMH): Split this up
 #include <sps/mm_malloc.h>
 
-#include <cstdint>  // uintptr_t
+#include <cstdint> // uintptr_t
 #include <stdexcept>
 
 #include <sps/crtp_helper.hpp>
 
 #ifndef CXX11
-# error This header requires at least C++11
+#error This header requires at least C++11
 #endif
 
-namespace sps {
+namespace sps
+{
 
 template <unsigned int alignment>
-struct is_aligned {
-  static_assert((alignment & (alignment - 1)) == 0,
-                "Alignment must be a power of 2");
-  static inline bool value(const void * ptr) {
+struct is_aligned
+{
+  static_assert((alignment & (alignment - 1)) == 0, "Alignment must be a power of 2");
+  static inline bool value(const void* ptr)
+  {
     return ((reinterpret_cast<uintptr_t>(ptr)) & (alignment - 1)) == 0;
   }
 };
@@ -73,33 +75,91 @@ struct is_aligned {
  * and initializers are called from left to right - the order they appear
  */
 #ifdef _MSC_VER
-#  pragma warning(push)
-#  pragma warning(disable:4324)
-__declspec(align(1)) struct align1 {};
-__declspec(align(2)) struct align2 {};
-__declspec(align(4)) struct align4 {};
-__declspec(align(8)) struct align8 {};
-__declspec(align(16)) struct align16 {};
-__declspec(align(32)) struct align32 {};
-__declspec(align(64)) struct align64 {};
-template<int A> struct aligned;
-template<> struct aligned<1> : align1 {};
-template<> struct aligned<2> : align2 {};
-template<> struct aligned<4> : align4 {};
-template<> struct aligned<8> : align8 {};
-template<> struct aligned<16> : align16 {};
-template<> struct aligned<32> : align32 {};
-template<> struct aligned<64> : align64 {};
-#  pragma warning(pop)
+#pragma warning(push)
+#pragma warning(disable : 4324)
+__declspec(align(1)) struct align1
+{
+};
+__declspec(align(2)) struct align2
+{
+};
+__declspec(align(4)) struct align4
+{
+};
+__declspec(align(8)) struct align8
+{
+};
+__declspec(align(16)) struct align16
+{
+};
+__declspec(align(32)) struct align32
+{
+};
+__declspec(align(64)) struct align64
+{
+};
+template <int A>
+struct aligned;
+template <>
+struct aligned<1> : align1
+{
+};
+template <>
+struct aligned<2> : align2
+{
+};
+template <>
+struct aligned<4> : align4
+{
+};
+template <>
+struct aligned<8> : align8
+{
+};
+template <>
+struct aligned<16> : align16
+{
+};
+template <>
+struct aligned<32> : align32
+{
+};
+template <>
+struct aligned<64> : align64
+{
+};
+#pragma warning(pop)
 #else
-template<int A> struct aligned;
-template<> struct __attribute__((aligned(1))) aligned<1>   { };
-template<> struct __attribute__((aligned(2))) aligned<2>   { };
-template<> struct __attribute__((aligned(4))) aligned<4>   { };
-template<> struct __attribute__((aligned(8))) aligned<8>   { };
-template<> struct __attribute__((aligned(16))) aligned<16> { };
-template<> struct __attribute__((aligned(32))) aligned<32> { };
-template<> struct __attribute__((aligned(64))) aligned<64> { };
+template <int A>
+struct aligned;
+template <>
+struct __attribute__((aligned(1))) aligned<1>
+{
+};
+template <>
+struct __attribute__((aligned(2))) aligned<2>
+{
+};
+template <>
+struct __attribute__((aligned(4))) aligned<4>
+{
+};
+template <>
+struct __attribute__((aligned(8))) aligned<8>
+{
+};
+template <>
+struct __attribute__((aligned(16))) aligned<16>
+{
+};
+template <>
+struct __attribute__((aligned(32))) aligned<32>
+{
+};
+template <>
+struct __attribute__((aligned(64))) aligned<64>
+{
+};
 #endif
 
 // TODO(JMH): Invalid free(), delete, delete[] or realloc (when used with arrays)
@@ -117,10 +177,12 @@ template<> struct __attribute__((aligned(64))) aligned<64> { };
  *
  */
 template <typename T, size_t Alignment = 16>
-class dynaligned : public sps::aligned<Alignment> {
- public:
+class dynaligned : public sps::aligned<Alignment>
+{
+public:
   // Throwing
-  void* operator new(std::size_t size)  {
+  void* operator new(std::size_t size)
+  {
     debug_print("aligned\n");
     T* ptr = static_cast<T*>(SPS_MM_MALLOC(size, Alignment));
     return ptr ? ptr : throw std::bad_alloc{};
@@ -131,20 +193,20 @@ class dynaligned : public sps::aligned<Alignment> {
   // Placement
   // void* operator new(std::size_t, void* ptr) noexcept;
 
-  void operator delete(void* ptr) {
+  void operator delete(void* ptr)
+  {
     debug_print("aligned\n");
     SPS_MM_FREE(ptr);
   }
 
-  void* operator new[]( std::size_t size) {
+  void* operator new[](std::size_t size)
+  {
     debug_print("aligned\n");
     T* ptr = static_cast<T*>(SPS_MM_MALLOC(size, Alignment));
     return ptr ? ptr : throw std::bad_alloc{};
   }
 
-  void operator delete[](void* ptr, size_t /* count */) {
-    SPS_MM_FREE(ptr);
-  }
+  void operator delete[](void* ptr, size_t /* count */) { SPS_MM_FREE(ptr); }
 
 #if CXX17
   /** @name C++17 provide over-aligned allocators and deallocators
@@ -155,7 +217,8 @@ class dynaligned : public sps::aligned<Alignment> {
    */
   ///@{
 
-  void* operator new(std::size_t size, std::align_val_t al)  {
+  void* operator new(std::size_t size, std::align_val_t al)
+  {
     debug_print("aligned\n");
     static_assert(static_cast<size_t>(al) == Alignment, "Alignment mismatch");
 #if 1
@@ -167,7 +230,8 @@ class dynaligned : public sps::aligned<Alignment> {
 #endif
   }
 
-  void operator delete(void* ptr, std::align_val_t /* align */) {
+  void operator delete(void* ptr, std::align_val_t /* align */)
+  {
     debug_print("aligned\n");
 #if 1
     return ::operator delete(ptr);
@@ -178,7 +242,8 @@ class dynaligned : public sps::aligned<Alignment> {
   }
 
   // Called if the above is left undefined
-  void operator delete(void* ptr, std::size_t /* size */, std::align_val_t /* align */) {
+  void operator delete(void* ptr, std::size_t /* size */, std::align_val_t /* align */)
+  {
     debug_print("aligned\n");
 #if 1
     return ::operator delete(ptr);
@@ -187,24 +252,26 @@ class dynaligned : public sps::aligned<Alignment> {
 #endif
   }
 
-  void* operator new[]( std::size_t count, std::align_val_t al)  {
+  void* operator new[](std::size_t count, std::align_val_t al)
+  {
     debug_print("aligned\n");
     return ::operator new[](count, al);
   }
 
-  void operator delete[](void* ptr, std::size_t /* count */, std::align_val_t al) {
+  void operator delete[](void* ptr, std::size_t /* count */, std::align_val_t al)
+  {
     debug_print("aligned\n");
-    return ::operator delete[](ptr, al);  // C++ standard doesn't have 3-arg version
+    return ::operator delete[](ptr, al); // C++ standard doesn't have 3-arg version
   }
 
 #endif
   ///@}
 
- private:
+private:
   dynaligned() = default;
   friend T;
 };
 
-}  // namespace sps
+} // namespace sps
 
 // dynamic heap alignment

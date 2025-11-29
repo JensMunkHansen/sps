@@ -11,17 +11,18 @@
  *
  */
 #if defined(__GNUG__) && (__GNUG__ < 7)
-# include <experimental/optional>
+#include <experimental/optional>
 #else
-# include <optional>
-# include <functional>
+#include <functional>
+#include <optional>
 #endif
 
 #include <memory>
 
 // #include <boost/none.hpp>
 
-namespace sps {
+namespace sps
+{
 
 /*
   // void_t trick
@@ -29,45 +30,59 @@ namespace sps {
   template<typename... Ts> using void_t = typename make_void<Ts...>::type;
  */
 
-struct called_flag {};
+struct called_flag
+{
+};
 
 #if defined(__GNUG__) && (__GNUG__ < 7)
-  using std::experimental::optional;
-  using std::experimental::nullopt;
+using std::experimental::nullopt;
+using std::experimental::optional;
 #else
-  using std::optional;
-  using std::nullopt;
+using std::nullopt;
+using std::optional;
 #endif
 
-namespace detail {
+namespace detail
+{
 template <class Target, class Fun>
-struct weak_binder {
+struct weak_binder
+{
   using target_type = Target;
   using weak_ptr_type = std::weak_ptr<Target>;
 
-  weak_binder(weak_ptr_type weak_ptr, Fun fun) :
-    m_weak_ptr(std::move(weak_ptr)), m_fun(std::move(fun)) {}
+  weak_binder(weak_ptr_type weak_ptr, Fun fun)
+    : m_weak_ptr(std::move(weak_ptr))
+    , m_fun(std::move(fun))
+  {
+  }
 
   template <class... Args, class Result = std::result_of_t<Fun(Args...)>,
-            std::enable_if_t<not std::is_void<Result>::value>* = nullptr>
-  auto operator()(Args&& ...args) const -> optional<Result> {
+    std::enable_if_t<not std::is_void<Result>::value>* = nullptr>
+  auto operator()(Args&&... args) const -> optional<Result>
+  {
     auto locked_ptr = m_weak_ptr.lock();
-    if (locked_ptr) {
+    if (locked_ptr)
+    {
       return m_fun(std::forward<Args>(args)...);
-    } else {
+    }
+    else
+    {
       return nullopt;
     }
   }
 
-  template<class...Args,
-           class Result = std::result_of_t<Fun(Args...)>,
-           std::enable_if_t<std::is_void<Result>::value>* = nullptr>
-  auto operator()(Args&&...args) const -> optional<called_flag> {
+  template <class... Args, class Result = std::result_of_t<Fun(Args...)>,
+    std::enable_if_t<std::is_void<Result>::value>* = nullptr>
+  auto operator()(Args&&... args) const -> optional<called_flag>
+  {
     auto locked_ptr = m_weak_ptr.lock();
-    if (locked_ptr) {
+    if (locked_ptr)
+    {
       m_fun(std::forward<Args>(args)...);
-      return called_flag {};
-    } else {
+      return called_flag{};
+    }
+    else
+    {
       return nullopt;
     }
   }
@@ -75,7 +90,7 @@ struct weak_binder {
   weak_ptr_type m_weak_ptr;
   Fun m_fun;
 };
-}  // namespace detail
+} // namespace detail
 
 /**
  * Versions for handling member functions
@@ -83,15 +98,12 @@ struct weak_binder {
  *
  * @return
  */
-template<class Ret, class Target, class...FuncArgs, class...Args>
-auto bind_weak(Ret (Target::*mfp)(FuncArgs...),
-               const std::shared_ptr<Target>& ptr, Args&&...args) {
-  using binder_type =
-    decltype(std::bind(mfp, ptr.get(), std::forward<Args>(args)...));
-  return detail::weak_binder<Target, binder_type> {
-    std::weak_ptr<Target>(ptr),
-    std::bind(mfp, ptr.get(), std::forward<Args>(args)...)
-  };
+template <class Ret, class Target, class... FuncArgs, class... Args>
+auto bind_weak(Ret (Target::*mfp)(FuncArgs...), const std::shared_ptr<Target>& ptr, Args&&... args)
+{
+  using binder_type = decltype(std::bind(mfp, ptr.get(), std::forward<Args>(args)...));
+  return detail::weak_binder<Target, binder_type>{ std::weak_ptr<Target>(ptr),
+    std::bind(mfp, ptr.get(), std::forward<Args>(args)...) };
 }
 
 //
@@ -105,16 +117,12 @@ auto bind_weak(Ret (Target::*mfp)(FuncArgs...),
  *
  * @return
  */
-template<class Callable, class Pointee, class...Args>
-auto bind_weak(Callable&& f,
-               const std::shared_ptr<Pointee>& ptr, Args&&...args) {
-  using binder_type =
-    decltype(std::bind(std::forward<Callable>(f),
-                       std::forward<Args>(args)...));
-  return detail::weak_binder<Pointee, binder_type> {
-    std::weak_ptr<Pointee>(ptr),
-    std::bind(std::forward<Callable>(f), std::forward<Args>(args)...)
-  };
+template <class Callable, class Pointee, class... Args>
+auto bind_weak(Callable&& f, const std::shared_ptr<Pointee>& ptr, Args&&... args)
+{
+  using binder_type = decltype(std::bind(std::forward<Callable>(f), std::forward<Args>(args)...));
+  return detail::weak_binder<Pointee, binder_type>{ std::weak_ptr<Pointee>(ptr),
+    std::bind(std::forward<Callable>(f), std::forward<Args>(args)...) };
 }
 
 /**
@@ -125,11 +133,10 @@ auto bind_weak(Callable&& f,
  *
  * @return
  */
-template<class Callable, class Pointee>
-auto bind_weak(Callable&& f, const std::shared_ptr<Pointee>& ptr) {
-  return detail::weak_binder<Pointee, Callable> {
-    std::weak_ptr<Pointee>(ptr),
-    std::forward<Callable>(f)
-  };
+template <class Callable, class Pointee>
+auto bind_weak(Callable&& f, const std::shared_ptr<Pointee>& ptr)
+{
+  return detail::weak_binder<Pointee, Callable>{ std::weak_ptr<Pointee>(ptr),
+    std::forward<Callable>(f) };
 }
-}  // namespace sps
+} // namespace sps

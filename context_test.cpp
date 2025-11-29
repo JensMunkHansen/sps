@@ -10,7 +10,8 @@
 
 #include <sps/context.hpp>
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
   SPS_UNREFERENCED_PARAMETERS(argc, argv);
   // Create context
   sps::ContextIF* pContext = nullptr;

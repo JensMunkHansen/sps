@@ -30,28 +30,33 @@
 // TODO: Make specialization of garbage_collected type, indexed and indexed nodes
 
 //#include <sps/env.h>
+#include <cstdint>
 #include <sps/cstdio>
 #include <sps/cstdlib>
-#include <cstdint>
 
-#include <vector>
 #include <algorithm>
 #include <stdexcept>
+#include <vector>
 
-#include <typeinfo>
 #include <cstring>
+#include <typeinfo>
 
-#if (defined(__GNUC__) && __GNUC__ >= 3)                                \
-  || (defined(_WIN32))                                                  \
-  || (defined(linux) && defined(__INTEL_COMPILER) && defined(__ICC))
-# define SPS_TYPE_ID_NAME
+#if (defined(__GNUC__) && __GNUC__ >= 3) || (defined(_WIN32)) ||                                   \
+  (defined(linux) && defined(__INTEL_COMPILER) && defined(__ICC))
+#define SPS_TYPE_ID_NAME
 #endif
 
-namespace sps {
-class base_node {
- public:
-  base_node() : children(NULL) {}
- protected:
+namespace sps
+{
+class base_node
+{
+public:
+  base_node()
+    : children(NULL)
+  {
+  }
+
+protected:
   virtual ~base_node() {}
 
   /// Two-dimensional array of nodes (multiple instances of different types)
@@ -59,13 +64,20 @@ class base_node {
 };
 
 /// Forward declaration of indexed_auto_ptr_collector
-template<typename T> class indexed_node_collector;
+template <typename T>
+class indexed_node_collector;
 
 // Suggestion, include template int specifying how many can co-exist
 template <typename T>
-class indexed_node : public base_node {
- public:
-  indexed_node() : signature(nullptr), type("None"), t(NULL) {}
+class indexed_node : public base_node
+{
+public:
+  indexed_node()
+    : signature(nullptr)
+    , type("None")
+    , t(NULL)
+  {
+  }
 
   /**
    * Ctor
@@ -73,9 +85,15 @@ class indexed_node : public base_node {
    * @param ptr
    */
 #ifdef SPS_TYPE_ID_NAME
-  indexed_node(T*& ptr) : signature(nullptr), type(typeid(T).name()), t(ptr)
+  indexed_node(T*& ptr)
+    : signature(nullptr)
+    , type(typeid(T).name())
+    , t(ptr)
 #else
-  indexed_node(T*& ptr) : signature(nullptr), type(&typeid(T)), t(ptr)
+  indexed_node(T*& ptr)
+    : signature(nullptr)
+    , type(&typeid(T))
+    , t(ptr)
 #endif
   {
     signature = this;
@@ -87,9 +105,10 @@ class indexed_node : public base_node {
    * Dtor
    *
    */
-  ~indexed_node() {
-    delete t;        // destroy object
-    signature= NULL; // destroy signature
+  ~indexed_node()
+  {
+    delete t;         // destroy object
+    signature = NULL; // destroy signature
   }
 
   /**
@@ -99,7 +118,7 @@ class indexed_node : public base_node {
    *
    * @return
    */
-  static indexed_node* from_index( const uint64_t index );
+  static indexed_node* from_index(const uint64_t index);
 
   /**
    * Convert node<T> to an index.
@@ -115,24 +134,25 @@ class indexed_node : public base_node {
    *
    * @return
    */
-  T& get_object() const {
+  T& get_object() const
+  {
     return *t;
   }
 
- private:
-
+private:
   /// used as a unique object signature
   indexed_node* signature;
   /// type checkig information
   base_id_t type;
   /// object pointer
-  T *t;
+  T* t;
 
   /// Collector
   friend class indexed_node_collector<T>;
 };
 
-namespace nodes {
+namespace nodes
+{
 
 /**
    \defgroup IndexedNode helper functions
@@ -146,7 +166,9 @@ namespace nodes {
  *
  * @return
  */
-template <typename T> uint64_t create_handle(T* t) {
+template <typename T>
+uint64_t create_handle(T* t)
+{
   indexed_node<T>* handle = new indexed_node<T>(t);
   return handle->to_index();
 }
@@ -158,8 +180,10 @@ template <typename T> uint64_t create_handle(T* t) {
  *
  * @return
  */
-template <typename T> T& get_object(const uint64_t index) {
-  indexed_node<T>* handle= indexed_node<T>::from_index(index);
+template <typename T>
+T& get_object(const uint64_t index)
+{
+  indexed_node<T>* handle = indexed_node<T>::from_index(index);
   return handle->get_object();
 }
 
@@ -170,8 +194,10 @@ template <typename T> T& get_object(const uint64_t index) {
  *
  * @return
  */
-template <typename T> indexed_node<T>& get_node(const uint64_t index) {
-  indexed_node<T>* handle= indexed_node<T>::from_index(index);
+template <typename T>
+indexed_node<T>& get_node(const uint64_t index)
+{
+  indexed_node<T>* handle = indexed_node<T>::from_index(index);
   return *handle;
 }
 
@@ -182,8 +208,10 @@ template <typename T> indexed_node<T>& get_node(const uint64_t index) {
  *
  * @param index
  */
-template <typename T> void destroy_object(const uint64_t index) {
-  indexed_node<T>* handle= indexed_node<T>::from_index(index);
+template <typename T>
+void destroy_object(const uint64_t index)
+{
+  indexed_node<T>* handle = indexed_node<T>::from_index(index);
   delete handle;
 }
 
@@ -194,7 +222,9 @@ template <typename T> void destroy_object(const uint64_t index) {
  *
  * @return
  */
-template <typename T> uint64_t clone_object(const uint64_t index) {
+template <typename T>
+uint64_t clone_object(const uint64_t index)
+{
   indexed_node<T>* hCurrent = indexed_node<T>::from_index(index);
   T* clone = new T(hCurrent->get_object());
   indexed_node<T>* hClone = new indexed_node<T>(clone);
@@ -206,47 +236,56 @@ template <typename T> uint64_t clone_object(const uint64_t index) {
 }
 
 template <typename T>
-class indexed_node_collector {
- public:
+class indexed_node_collector
+{
+public:
   static std::vector<indexed_node<T>*> objvector;
 
   /**
    * Dtor
    *
    */
-  ~indexed_node_collector() {
+  ~indexed_node_collector()
+  {
     size_t nObjectsCleared = 0;
 
     typename std::vector<indexed_node<T>*>::iterator i;
     typename std::vector<indexed_node<T>*>::iterator end = objvector.end();
-    for (i = objvector.begin(); i!=end; ++i) {
+    for (i = objvector.begin(); i != end; ++i)
+    {
       // check for valid signature
-      if ((*i)->signature == *i) {
+      if ((*i)->signature == *i)
+      {
         delete *i;
         nObjectsCleared++;
       }
     }
-    if (nObjectsCleared) {
-      fprintf(stderr,"Garbage collector: ");
-      fprintf(stderr,"Cleared %zu %s item(s)\n",
-              nObjectsCleared, this->objname);
+    if (nObjectsCleared)
+    {
+      fprintf(stderr, "Garbage collector: ");
+      fprintf(stderr, "Cleared %zu %s item(s)\n", nObjectsCleared, this->objname);
     }
   }
 
-  static void register_handle (indexed_node<T>* obj) {
+  static void register_handle(indexed_node<T>* obj)
+  {
     static indexed_node_collector singleton(obj);
 
     typename std::vector<indexed_node<T>*>::iterator i;
     typename std::vector<indexed_node<T>*>::iterator end = objvector.end();
 
-    i = std::find(objvector.begin(),objvector.end(),nullptr);
-    if (i!=end) {
+    i = std::find(objvector.begin(), objvector.end(), nullptr);
+    if (i != end)
+    {
       (*i) = obj;
-    } else {
+    }
+    else
+    {
       singleton.objvector.push_back(obj);
     }
   }
- private:
+
+private:
   /// Name
   char objname[256];
 
@@ -255,7 +294,8 @@ class indexed_node_collector {
    *
    * @param obj
    */
-  indexed_node_collector(indexed_node<T>* obj) {
+  indexed_node_collector(indexed_node<T>* obj)
+  {
     char buffer[128];
 #ifdef SPS_TYPE_ID_NAME
     sprintf(buffer, "%zu", strlen(obj->type));
@@ -265,10 +305,10 @@ class indexed_node_collector {
 
 #if defined(__GNUC__)
     // GNU use the length followed by the name
-    strcpy(objname,obj->type+strlen(buffer));
+    strcpy(objname, obj->type + strlen(buffer));
 #elif defined(_MSC_VER)
     // Microsoft have 6 extra characters in names
-    strcpy(objname,obj->type+6);
+    strcpy(objname, obj->type + 6);
 #endif
   }
 };
@@ -278,12 +318,17 @@ template <typename T>
 std::vector<indexed_node<T>*> indexed_node_collector<T>::objvector;
 
 template <typename T>
-uint64_t indexed_node<T>::to_index() {
+uint64_t indexed_node<T>::to_index()
+{
   // Find pointer in vector
-  auto it = find(indexed_node_collector<T>::objvector.begin(),indexed_node_collector<T>::objvector.end(),this);
-  if (it!=indexed_node_collector<T>::objvector.end()) {
+  auto it = find(
+    indexed_node_collector<T>::objvector.begin(), indexed_node_collector<T>::objvector.end(), this);
+  if (it != indexed_node_collector<T>::objvector.end())
+  {
     return uint64_t(it - indexed_node_collector<T>::objvector.begin());
-  } else {
+  }
+  else
+  {
     fprintf(stderr, "Invalid index.\n");
     throw std::runtime_error("indexed_node<T>::to_index");
   }

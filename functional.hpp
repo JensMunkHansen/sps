@@ -1,12 +1,12 @@
 /**
-* @file   functional.hpp
-* @author Jens Munk Hansen <jmh@debian9laptop.parknet.dk>
-* @date   Sat Feb 24 17:40:38 2018
-*
-* @brief
-*
-*
-*/
+ * @file   functional.hpp
+ * @author Jens Munk Hansen <jmh@debian9laptop.parknet.dk>
+ * @date   Sat Feb 24 17:40:38 2018
+ *
+ * @brief
+ *
+ *
+ */
 /*
  *  This file is part of SOFUS.
  *
@@ -24,39 +24,49 @@
  *  along with SOFUS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #pragma once
 
 #include <functional>
-#include <type_traits>
 #include <new>
+#include <type_traits>
 
 #include "Assert.h"
 
-namespace sps {
+namespace sps
+{
 
-template <typename CT, typename ... A> struct function_helper
-: public function_helper<decltype(&CT::operator())(A...)> {};
+template <typename CT, typename... A>
+struct function_helper : public function_helper<decltype (&CT::operator())(A...)>
+{
+};
 
-template <typename C> struct function_helper<C> {
- private:
+template <typename C>
+struct function_helper<C>
+{
+private:
   C mObject;
 
- public:
-  explicit function_helper(const C & obj) : mObject(obj) {}
+public:
+  explicit function_helper(const C& obj)
+    : mObject(obj)
+  {
+  }
 
-  template<typename... Args> typename
-  std::result_of<C(Args...)>::type operator()(Args... a) {
+  template <typename... Args>
+  typename std::result_of<C(Args...)>::type operator()(Args... a)
+  {
     return this->mObject.operator()(a...);
   }
 
-  template<typename... Args> typename
-  std::result_of<const C(Args...)>::type operator()(Args... a) const {
+  template <typename... Args>
+  typename std::result_of<const C(Args...)>::type operator()(Args... a) const
+  {
     return this->mObject.operator()(a...);
   }
 };
 
-namespace make {
+namespace make
+{
 
 /**
  * @brief make::function
@@ -66,11 +76,12 @@ namespace make {
  *
  * @return Function pointer with the signature of the callable
  */
-template<typename C>
-auto function(const C & obj) {
+template <typename C>
+auto function(const C& obj)
+{
   return sps::function_helper<C>(obj);
 }
-}  // namespace make
+} // namespace make
 
 /*! \brief static_function
  *
@@ -104,8 +115,9 @@ class static_function;
 
 // Change to Ret, Args, Size
 template <std::size_t Size, typename Ret, typename... Args>
-class static_function<Ret(Args...), Size> {
- public:
+class static_function<Ret(Args...), Size>
+{
+public:
   /// @brief Result type
   typedef Ret result_type;
 
@@ -176,21 +188,24 @@ class static_function<Ret(Args...), Size> {
   /// @brief Non-const version of operator().
   Ret operator()(Args... args);
 
- private:
+private:
   /// @cond DOCUMENT_STATIC_FUNCTION_INVOKER
-  class Invoker {
-   public:
+  class Invoker
+  {
+  public:
     virtual ~Invoker();
     virtual Ret exec(Args... args) const = 0;
     virtual Ret exec(Args... args) = 0;
     virtual void copyTo(void* other) const = 0;
     virtual void moveTo(void* other) = 0;
-   private:
+
+  private:
   };
 
   template <typename TBound>
-  class InvokerBound : public Invoker {
-   public:
+  class InvokerBound : public Invoker
+  {
+  public:
     template <typename Func>
     explicit InvokerBound(Func&& func);
     InvokerBound(const InvokerBound&) = default;
@@ -200,15 +215,15 @@ class static_function<Ret(Args...), Size> {
     Ret exec(Args... args) override;
     void copyTo(void* other) const override;
     void moveTo(void* other) override;
-   private:
+
+  private:
     TBound func_;
   };
   /// @endcond
 
   static const std::size_t StorageAreaSize = Size + sizeof(Invoker);
-  typedef typename
-  std::aligned_storage<StorageAreaSize,
-      std::alignment_of<Invoker>::value>::type StorageType;
+  typedef typename std::aligned_storage<StorageAreaSize, std::alignment_of<Invoker>::value>::type
+    StorageType;
 
   Invoker* getInvoker();
   const Invoker* getInvoker() const;
@@ -224,30 +239,36 @@ class static_function<Ret(Args...), Size> {
 
 // Implementation
 template <std::size_t Size, typename Ret, typename... Args>
-static_function<Ret(Args...), Size>::static_function() : valid_(false) {}
+static_function<Ret(Args...), Size>::static_function()
+  : valid_(false)
+{
+}
 
 template <std::size_t Size, typename Ret, typename... Args>
 template <typename Func>
 static_function<Ret(Args...), Size>::static_function(Func&& func)
-  : valid_(true) {
+  : valid_(true)
+{
   assignHandler(std::forward<Func>(func));
 }
 
 template <std::size_t Size, typename Ret, typename... Args>
-static_function<Ret(Args...), Size>::static_function(
-  const static_function& other)
-  : valid_(other.valid_) {
-  if (valid_) {
+static_function<Ret(Args...), Size>::static_function(const static_function& other)
+  : valid_(other.valid_)
+{
+  if (valid_)
+  {
     auto otherInvoker = other.getInvoker();
     otherInvoker->copyTo(&handler_);
   }
 }
 
 template <std::size_t Size, typename Ret, typename... Args>
-static_function<Ret(Args...), Size>::static_function(
-  static_function&& other)
-  : valid_(other.valid_) {
-  if (valid_) {
+static_function<Ret(Args...), Size>::static_function(static_function&& other)
+  : valid_(other.valid_)
+{
+  if (valid_)
+  {
     auto otherInvoker = other.getInvoker();
     otherInvoker->moveTo(&handler_);
     other = nullptr;
@@ -255,45 +276,53 @@ static_function<Ret(Args...), Size>::static_function(
 }
 
 template <std::size_t Size, typename Ret, typename... Args>
-static_function<Ret(Args...), Size>::~static_function() {
+static_function<Ret(Args...), Size>::~static_function()
+{
   destroyHandler();
 }
 
 template <std::size_t Size, typename Ret, typename... Args>
-static_function<Ret(Args...), Size>&
-static_function<Ret(Args...), Size>::operator=(const static_function& other) {
-  if (&other == this) {
+static_function<Ret(Args...), Size>& static_function<Ret(Args...), Size>::operator=(
+  const static_function& other)
+{
+  if (&other == this)
+  {
     return *this;
   }
 
   destroyHandler();
   valid_ = other.valid_;
-  if (valid_) {
+  if (valid_)
+  {
     auto otherInvoker = other.getInvoker();
-    //GASSERT(otherInvoker != nullptr);
+    // GASSERT(otherInvoker != nullptr);
     otherInvoker->copyTo(&handler_);
   }
   return *this;
 }
 
 template <std::size_t Size, typename Ret, typename... Args>
-static_function<Ret(Args...), Size>&
-static_function<Ret(Args...), Size>::operator=(static_function& other) {
+static_function<Ret(Args...), Size>& static_function<Ret(Args...), Size>::operator=(
+  static_function& other)
+{
   return operator=(static_cast<const static_function&>(other));
 }
 
 template <std::size_t Size, typename Ret, typename... Args>
-static_function<Ret(Args...), Size>&
-static_function<Ret(Args...), Size>::operator=(static_function&& other) {
-  if (&other == this) {
+static_function<Ret(Args...), Size>& static_function<Ret(Args...), Size>::operator=(
+  static_function&& other)
+{
+  if (&other == this)
+  {
     return *this;
   }
 
   destroyHandler();
   valid_ = other.valid_;
-  if (valid_) {
+  if (valid_)
+  {
     auto otherInvoker = other.getInvoker();
-    //GASSERT(otherInvoker != nullptr);
+    // GASSERT(otherInvoker != nullptr);
     otherInvoker->moveTo(&handler_);
     other = nullptr;
   }
@@ -301,8 +330,8 @@ static_function<Ret(Args...), Size>::operator=(static_function&& other) {
 }
 
 template <std::size_t Size, typename Ret, typename... Args>
-static_function<Ret(Args...), Size>&
-static_function<Ret(Args...), Size>::operator=(std::nullptr_t) {
+static_function<Ret(Args...), Size>& static_function<Ret(Args...), Size>::operator=(std::nullptr_t)
+{
   destroyHandler();
   valid_ = false;
   return *this;
@@ -310,8 +339,8 @@ static_function<Ret(Args...), Size>::operator=(std::nullptr_t) {
 
 template <std::size_t Size, typename Ret, typename... Args>
 template <typename Func>
-static_function<Ret (Args...), Size>&
-static_function<Ret (Args...), Size>::operator=(Func&& func) {
+static_function<Ret(Args...), Size>& static_function<Ret(Args...), Size>::operator=(Func&& func)
+{
   destroyHandler();
   assignHandler(std::forward<Func>(func));
   valid_ = true;
@@ -320,9 +349,9 @@ static_function<Ret (Args...), Size>::operator=(Func&& func) {
 
 template <std::size_t Size, typename Ret, typename... Args>
 template <typename Func>
-static_function<Ret (Args...), Size>&
-static_function<Ret (Args...), Size>::operator=(
-  std::reference_wrapper<Func> func) {
+static_function<Ret(Args...), Size>& static_function<Ret(Args...), Size>::operator=(
+  std::reference_wrapper<Func> func)
+{
   destroyHandler();
   assignHandler(std::forward<Func>(func));
   valid_ = true;
@@ -330,72 +359,79 @@ static_function<Ret (Args...), Size>::operator=(
 }
 
 template <std::size_t Size, typename Ret, typename... Args>
-static_function<Ret (Args...), Size>::operator bool() const {
+static_function<Ret(Args...), Size>::operator bool() const
+{
   return valid_;
 }
 
 template <std::size_t Size, typename Ret, typename... Args>
-bool static_function<Ret (Args...), Size>::operator!() const {
+bool static_function<Ret(Args...), Size>::operator!() const
+{
   return !valid_;
 }
 
 template <std::size_t Size, typename Ret, typename... Args>
-Ret static_function<Ret (Args...), Size>::operator()(
-  Args... args) const {
-  //GASSERT(valid_);
+Ret static_function<Ret(Args...), Size>::operator()(Args... args) const
+{
+  // GASSERT(valid_);
   auto invoker = getInvoker();
   return invoker->exec(std::forward<Args>(args)...);
 }
 
 template <std::size_t Size, typename Ret, typename... Args>
-Ret static_function<Ret (Args...), Size>::operator()(
-  Args... args) {
-  //GASSERT(valid_);
+Ret static_function<Ret(Args...), Size>::operator()(Args... args)
+{
+  // GASSERT(valid_);
   auto invoker = getInvoker();
   return invoker->exec(std::forward<Args>(args)...);
 }
 
 /// @cond DOCUMENT_STATIC_FUNCTION_INVOKER
 template <std::size_t Size, typename Ret, typename... Args>
-static_function<Ret(Args...), Size>::Invoker::~Invoker() {}
+static_function<Ret(Args...), Size>::Invoker::~Invoker()
+{
+}
 
 template <std::size_t Size, typename Ret, typename... Args>
 template <typename TBound>
 template <typename Func>
-static_function<Ret(Args...), Size>::InvokerBound<TBound>::InvokerBound(
-  Func&& func)
-  : func_(std::forward<Func>(func)) {}
+static_function<Ret(Args...), Size>::InvokerBound<TBound>::InvokerBound(Func&& func)
+  : func_(std::forward<Func>(func))
+{
+}
 
 template <std::size_t Size, typename Ret, typename... Args>
 template <typename TBound>
-static_function<Ret(Args...), Size>::InvokerBound<TBound>::~InvokerBound() {}
+static_function<Ret(Args...), Size>::InvokerBound<TBound>::~InvokerBound()
+{
+}
 
 template <std::size_t Size, typename Ret, typename... Args>
 template <typename TBound>
-Ret static_function<Ret(Args...), Size>::InvokerBound<TBound>::exec(
-  Args... args) const {
+Ret static_function<Ret(Args...), Size>::InvokerBound<TBound>::exec(Args... args) const
+{
   return func_(std::forward<Args>(args)...);
 }
 
 template <std::size_t Size, typename Ret, typename... Args>
 template <typename TBound>
-Ret static_function<Ret(Args...), Size>::InvokerBound<TBound>::exec(
-  Args... args) {
+Ret static_function<Ret(Args...), Size>::InvokerBound<TBound>::exec(Args... args)
+{
   return func_(std::forward<Args>(args)...);
 }
 
 template <std::size_t Size, typename Ret, typename... Args>
 template <typename TBound>
-void static_function<Ret(Args...), Size>::InvokerBound<TBound>::copyTo(
-  void* place) const {
+void static_function<Ret(Args...), Size>::InvokerBound<TBound>::copyTo(void* place) const
+{
   auto otherInvoker = new (place) InvokerBound(*this);
   static_cast<void>(otherInvoker);
 }
 
 template <std::size_t Size, typename Ret, typename... Args>
 template <typename TBound>
-void static_function<Ret(Args...), Size>::InvokerBound<TBound>::moveTo(
-  void* place) {
+void static_function<Ret(Args...), Size>::InvokerBound<TBound>::moveTo(void* place)
+{
   auto otherInvoker = new (place) InvokerBound(std::move(*this));
   static_cast<void>(otherInvoker);
 }
@@ -403,19 +439,23 @@ void static_function<Ret(Args...), Size>::InvokerBound<TBound>::moveTo(
 
 template <std::size_t Size, typename Ret, typename... Args>
 typename static_function<Ret(Args...), Size>::Invoker*
-static_function<Ret(Args...), Size>::getInvoker() {
+static_function<Ret(Args...), Size>::getInvoker()
+{
   return reinterpret_cast<Invoker*>(&handler_);
 }
 
 template <std::size_t Size, typename Ret, typename... Args>
 const typename static_function<Ret(Args...), Size>::Invoker*
-static_function<Ret(Args...), Size>::getInvoker() const {
+static_function<Ret(Args...), Size>::getInvoker() const
+{
   return reinterpret_cast<const Invoker*>(&handler_);
 }
 
 template <std::size_t Size, typename Ret, typename... Args>
-void static_function<Ret(Args...), Size>::destroyHandler() {
-  if (valid_) {
+void static_function<Ret(Args...), Size>::destroyHandler()
+{
+  if (valid_)
+  {
     auto invoker = getInvoker();
     invoker->~Invoker();
   }
@@ -423,53 +463,61 @@ void static_function<Ret(Args...), Size>::destroyHandler() {
 
 template <std::size_t Size, typename Ret, typename... Args>
 template <typename Func>
-void static_function<Ret(Args...), Size>::assignHandler(Func&& func) {
+void static_function<Ret(Args...), Size>::assignHandler(Func&& func)
+{
   typedef static_function<Ret(Args...), Size> ThisType;
   typedef typename std::decay<Func>::type DecayedFuncType;
   typedef InvokerBound<DecayedFuncType> InvokerBoundType;
 
-  static_assert(!std::is_same<ThisType, DecayedFuncType>::value,
-                "Wrong function invocation");
+  static_assert(!std::is_same<ThisType, DecayedFuncType>::value, "Wrong function invocation");
 
   static_assert(sizeof(InvokerBoundType) <= StorageAreaSize,
-                "Increase the Size template argument of the static_function");
+    "Increase the Size template argument of the static_function");
 
   static_assert(alignof(Invoker) == alignof(InvokerBoundType),
-                "Alignment requirement for Invoker object must be the same as "
-                "alignment requirement for InvokerBoundType type object");
+    "Alignment requirement for Invoker object must be the same as "
+    "alignment requirement for InvokerBoundType type object");
 
   auto handlerPtr = new (&handler_) InvokerBoundType(std::forward<Func>(func));
   static_cast<void>(handlerPtr);
 }
-template <typename F, typename ...Args> struct trailing_binder;
+template <typename F, typename... Args>
+struct trailing_binder;
 
-template <typename R, typename ...Frgs, typename ...Args>
-struct trailing_binder<R(Frgs...), Args...> {
-  template <typename ...Brgs>
-  trailing_binder(R (*f)(Frgs...), Brgs &&... brgs)
+template <typename R, typename... Frgs, typename... Args>
+struct trailing_binder<R(Frgs...), Args...>
+{
+  template <typename... Brgs>
+  trailing_binder(R (*f)(Frgs...), Brgs&&... brgs)
     : the_function(f)
-    , the_args(std::forward<Brgs>(brgs)...) {}
+    , the_args(std::forward<Brgs>(brgs)...)
+  {
+  }
 
-  template <unsigned int ...I> struct intlist {};
+  template <unsigned int... I>
+  struct intlist
+  {
+  };
 
-  template <typename ...Brgs>
-  typename std::enable_if<sizeof...(Brgs) + sizeof...(Args) == sizeof...(Frgs), R>::type
-  operator()(Brgs &&... brgs) {
-    return unwrap(std::integral_constant<bool, 0 == sizeof...(Args)>(),
-                  intlist<>(),
-                  std::forward<Brgs>(brgs)...);
+  template <typename... Brgs>
+  typename std::enable_if<sizeof...(Brgs) + sizeof...(Args) == sizeof...(Frgs), R>::type operator()(
+    Brgs&&... brgs)
+  {
+    return unwrap(std::integral_constant<bool, 0 == sizeof...(Args)>(), intlist<>(),
+      std::forward<Brgs>(brgs)...);
   }
 
 private:
-  template <unsigned int ...I, typename ...Brgs>
-  R unwrap(std::false_type, intlist<I...>, Brgs &&... brgs) {
+  template <unsigned int... I, typename... Brgs>
+  R unwrap(std::false_type, intlist<I...>, Brgs&&... brgs)
+  {
     return unwrap(std::integral_constant<bool, sizeof...(I) + 1 == sizeof...(Args)>(),
-                  intlist<I..., sizeof...(I)>(),
-                  std::forward<Brgs>(brgs)...);
+      intlist<I..., sizeof...(I)>(), std::forward<Brgs>(brgs)...);
   }
 
-  template <unsigned int ...I, typename ...Brgs>
-  R unwrap(std::true_type, intlist<I...>, Brgs &&... brgs) {
+  template <unsigned int... I, typename... Brgs>
+  R unwrap(std::true_type, intlist<I...>, Brgs&&... brgs)
+  {
     return the_function(std::get<I>(the_args)..., std::forward<Brgs>(brgs)...);
   }
 
@@ -477,95 +525,106 @@ private:
   std::tuple<Args...> the_args;
 };
 
-template <typename R, typename ...Args, typename ...Frgs>
-trailing_binder<R(Frgs...), Args...> trailing_bind(
-  R (*f)(Frgs...),
-  Args &&... args) {
-  return trailing_binder<R(Frgs...), typename std::decay<Args>::type...>
-         (f, std::forward<Args>(args)...);
+template <typename R, typename... Args, typename... Frgs>
+trailing_binder<R(Frgs...), Args...> trailing_bind(R (*f)(Frgs...), Args&&... args)
+{
+  return trailing_binder<R(Frgs...), typename std::decay<Args>::type...>(
+    f, std::forward<Args>(args)...);
 }
 
-struct pb_tag {};  // use inheritance to mark prebinder structs
+struct pb_tag
+{
+}; // use inheritance to mark prebinder structs
 
 // result_of_t will be defined by default in c++1y
 // std::result_of is deprecated in C++17, use std::invoke_result when available
 #if __cplusplus >= 201703L
 // For C++17+, we suppress the deprecation warning since migrating to
 // std::invoke_result requires different template signature (F, Args... vs F(Args...))
-# ifdef __clang__
-#  pragma clang diagnostic push
-#  pragma clang diagnostic ignored "-Wdeprecated-declarations"
-# elif defined(__GNUC__)
-#  pragma GCC diagnostic push
-#  pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-# endif
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#elif defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
-template<typename T > using result_of_t = typename std::result_of<T>::type;
+#endif
+template <typename T>
+using result_of_t = typename std::result_of<T>::type;
 #if __cplusplus >= 201703L
-# ifdef __clang__
-#  pragma clang diagnostic pop
-# elif defined(__GNUC__)
-#  pragma GCC diagnostic pop
-# endif
+#ifdef __clang__
+#pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#pragma GCC diagnostic pop
 #endif
-template<typename T> using is_prebinder =
-  std::is_base_of<pb_tag, typename std::remove_reference<T>::type >;
+#endif
+template <typename T>
+using is_prebinder = std::is_base_of<pb_tag, typename std::remove_reference<T>::type>;
 
 //  ugly sequence generators for something different
-template<int N, int ...S> struct seq : seq<N-1, N, S...> {};
-template<int ...S> struct seq<0, S...> {
+template <int N, int... S>
+struct seq : seq<N - 1, N, S...>
+{
+};
+template <int... S>
+struct seq<0, S...>
+{
   typedef seq type;
 };
 
 //  these three functions are only for nested prebind. they map
 //  T t -> T t and Prebind<f, T...> -> f(T...)
-template<typename T>
-auto dispatchee(T&& t, std::false_type) -> decltype(std::forward<T>(t)) {
+template <typename T>
+auto dispatchee(T&& t, std::false_type) -> decltype(std::forward<T>(t))
+{
   return std::forward<T>(t);
 }
 
-template<typename T>
-auto
-dispatchee(T&& t, std::true_type) -> decltype(t()) {
+template <typename T>
+auto dispatchee(T&& t, std::true_type) -> decltype(t())
+{
   return t();
 }
 
-template<typename T>
-auto
-expand(T&& t) -> decltype(dispatchee(std::forward<T>(t), is_prebinder<T>())) {
+template <typename T>
+auto expand(T&& t) -> decltype(dispatchee(std::forward<T>(t), is_prebinder<T>()))
+{
   return dispatchee(std::forward<T>(t), is_prebinder<T>());
 }
 
-
-
-template<typename T> using expand_type = decltype(expand(std::declval<T>()));
+template <typename T>
+using expand_type = decltype(expand(std::declval<T>()));
 
 //  the functor which holds the closure in a tuple
-template<typename f, typename ...ltypes>
-struct prebinder : public pb_tag {
+template <typename f, typename... ltypes>
+struct prebinder : public pb_tag
+{
   std::tuple<f, ltypes...> closure;
   typedef typename seq<sizeof...(ltypes)>::type sequence;
-  prebinder(f F, ltypes... largs) : closure(F, largs...) {}
-
-  template<int ...S, typename ...rtypes>
-  result_of_t<f(expand_type<ltypes>..., rtypes...)>
-  apply(seq<0, S...>, rtypes&& ... rargs) {
-    return (std::get<0>(closure))(expand(std::get<S>(closure))...,
-                                  std::forward<rtypes>(rargs)...);
+  prebinder(f F, ltypes... largs)
+    : closure(F, largs...)
+  {
   }
 
-  template<typename ...rtypes>
-  result_of_t<f(expand_type<ltypes>..., rtypes...)>
-  operator() (rtypes&& ... rargs) {
+  template <int... S, typename... rtypes>
+  result_of_t<f(expand_type<ltypes>..., rtypes...)> apply(seq<0, S...>, rtypes&&... rargs)
+  {
+    return (std::get<0>(closure))(expand(std::get<S>(closure))..., std::forward<rtypes>(rargs)...);
+  }
+
+  template <typename... rtypes>
+  result_of_t<f(expand_type<ltypes>..., rtypes...)> operator()(rtypes&&... rargs)
+  {
     return apply(sequence(), std::forward<rtypes>(rargs)...);
   }
 };
 
-template<typename f, typename ...ltypes>
-prebinder<f, ltypes...> prebind(f&& F, ltypes&&... largs) {
+template <typename f, typename... ltypes>
+prebinder<f, ltypes...> prebind(f&& F, ltypes&&... largs)
+{
   return prebinder<f, ltypes...>(std::forward<f>(F), std::forward<ltypes>(largs)...);
 }
-}  // namespace sps
+} // namespace sps
 
 /* Local variables: */
 /* indent-tabs-mode: nil */

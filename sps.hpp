@@ -12,5 +12,6 @@
 #include <sps/debug.h>
 
 //! Single Purpose Solutions. A number of lighweight additions to C and/or C++
-namespace sps {
+namespace sps
+{
 }

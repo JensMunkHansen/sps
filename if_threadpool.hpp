@@ -10,14 +10,16 @@
 
 #pragma once
 
-#include <sps/sps_export.h>
 #include <cstddef>
+#include <sps/sps_export.h>
 
-namespace sps {
+namespace sps
+{
 typedef void (*SimpleCallback)(void*);
 
-class SPS_EXPORT IThreadPool {
- public:
+class SPS_EXPORT IThreadPool
+{
+public:
   virtual int Initialize() = 0;
   virtual int SubmitJob(SimpleCallback cb, void* pUserData) = 0;
   virtual ~IThreadPool() = default;
@@ -26,11 +28,11 @@ class SPS_EXPORT IThreadPool {
   // and you need to provide a default ctor
   // IThreadPool(IThreadPool&& other) = default;
   // IThreadPool& operator=(IThreadPool&& other) = default;
- protected:
+protected:
   // If you add ctors, you must define em
   // IThreadPool() = default;
   // IThreadPool(const std::size_t nThreads);
- private:
+private:
   // If you start to delete functions - no longer a pure virtual interface
   // and you need to provide a default ctor
   // IThreadPool(const IThreadPool& other) = delete;
@@ -40,4 +42,4 @@ class SPS_EXPORT IThreadPool {
 SPS_EXPORT int ThreadPoolCreate(IThreadPool** ppObj);
 SPS_EXPORT int ThreadPoolDestroy(IThreadPool* pObj);
 
-}  // namespace sps
+} // namespace sps

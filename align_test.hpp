@@ -2,7 +2,7 @@
 #include <sps/cenv.h>
 
 #ifndef CXX11
-# error This software requires C++11
+#error This software requires C++11
 #endif
 
 #include <cstdint>
@@ -16,15 +16,16 @@
 #define S__LINE__ S_(__LINE__)
 
 #ifndef SPS_ALIGN_THROW
-# define SPS_ALIGN_THROW 1
+#define SPS_ALIGN_THROW 1
 #endif
 
 #if SPS_ALIGN_THROW
-# define SPS_ALIGN_TEST(pointer, byteAlignment)   \
-  do {              \
-    if (reinterpret_cast<uintptr_t>(pointer) % byteAlignment != 0)                       \
-      throw std::runtime_error("Invalid alignment: " __FILE__ ":" S__LINE__);  \
+#define SPS_ALIGN_TEST(pointer, byteAlignment)                                                     \
+  do                                                                                               \
+  {                                                                                                \
+    if (reinterpret_cast<uintptr_t>(pointer) % byteAlignment != 0)                                 \
+      throw std::runtime_error("Invalid alignment: " __FILE__ ":" S__LINE__);                      \
   } while (0)
 #else
-# define SPS_ALIGN_TEST(pointer, byteAlignment)
+#define SPS_ALIGN_TEST(pointer, byteAlignment)
 #endif

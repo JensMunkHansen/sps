@@ -25,11 +25,10 @@
  */
 #pragma once
 
-#include <sps/stdio.h>
-#include <sps/cenv.h>
-#include <string.h> // strerror
 #include <errno.h>
-
+#include <sps/cenv.h>
+#include <sps/stdio.h>
+#include <string.h> // strerror
 
 /**
  * Macro for calling functions.
@@ -38,10 +37,11 @@
  * @param arg
  *
  */
-#define CallErr(fun, arg)  {                                  \
-  if ((fun arg)<0)                                            \
-    FailErr(#fun)                                             \
-}
+#define CallErr(fun, arg)                                                                          \
+  {                                                                                                \
+    if ((fun arg) < 0)                                                                             \
+      FailErr(#fun)                                                                                \
+  }
 
 /**
  * Macro for calling functions. Functions registered using atexit will
@@ -52,12 +52,14 @@
  *
  * @return
  */
-#define CallErrExit(fun, arg) {                               \
-  if ((fun arg)<0) {                                          \
-    FailErr(#fun);                                            \
-    exit(EXIT_FAILURE);                                       \
-  }                                                           \
-}
+#define CallErrExit(fun, arg)                                                                      \
+  {                                                                                                \
+    if ((fun arg) < 0)                                                                             \
+    {                                                                                              \
+      FailErr(#fun);                                                                               \
+      exit(EXIT_FAILURE);                                                                          \
+    }                                                                                              \
+  }
 
 /**
  * Macro for calling functions. If function fails (retval < 0), the
@@ -69,31 +71,38 @@
  *
  * @return
  */
-#define CallErr_Exit(fun, arg) {                              \
-  if ((fun arg)<0) {                                          \
-    FailErr(#fun);                                            \
-    _exit(EXIT_FAILURE);                                      \
-  }                                                           \
-}
+#define CallErr_Exit(fun, arg)                                                                     \
+  {                                                                                                \
+    if ((fun arg) < 0)                                                                             \
+    {                                                                                              \
+      FailErr(#fun);                                                                               \
+      _exit(EXIT_FAILURE);                                                                         \
+    }                                                                                              \
+  }
 
-#define FailErr(msg) {                                        \
-    (void)fprintf(stderr, "%s, %s(%d)\n",                     \
-                msg, strerror(errno), errno);                 \
-    (void)fflush(stderr);}
+#define FailErr(msg)                                                                               \
+  {                                                                                                \
+    (void)fprintf(stderr, "%s, %s(%d)\n", msg, strerror(errno), errno);                            \
+    (void)fflush(stderr);                                                                          \
+  }
 
-#define CallErrReturn(fun, arg, ret)  {                       \
-  if ((fun arg)<0) {                                          \
-    FailErr(#fun);                                            \
-    return ret;                                               \
-  }                                                           \
-}
+#define CallErrReturn(fun, arg, ret)                                                               \
+  {                                                                                                \
+    if ((fun arg) < 0)                                                                             \
+    {                                                                                              \
+      FailErr(#fun);                                                                               \
+      return ret;                                                                                  \
+    }                                                                                              \
+  }
 
-#define CallZeroErrReturn(fun, arg, ret) {    \
-  if ((fun arg) == 0) {                       \
-    FailErr(#fun);                            \
-    return ret;                               \
-  }                                           \
-}
+#define CallZeroErrReturn(fun, arg, ret)                                                           \
+  {                                                                                                \
+    if ((fun arg) == 0)                                                                            \
+    {                                                                                              \
+      FailErr(#fun);                                                                               \
+      return ret;                                                                                  \
+    }                                                                                              \
+  }
 
 /* Local variables: */
 /* indent-tabs-mode: nil */

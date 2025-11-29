@@ -6,9 +6,9 @@
 void Init()     __attribute__((constructor(101)));
 
 void Init() {
-# if !defined(NDEBUG)
+#if !defined(NDEBUG)
   sps::STrace::Instance().Enable();
-# endif
+#endif
 }
 #endif
 
@@ -16,19 +16,22 @@ void Init() {
 // .exchange(curVal+1)
 // If it is increased, we have a valid buffer
 
+int main()
+{
+  GCTestObject obj;
 
-int main() {
-  GCTestObject  obj;
-
-  try {
+  try
+  {
     GCTestObject* pObj;
     uintptr_t index = GCTestObject::Create(&pObj);
     SPS_UNREFERENCED_PARAMETER(index);
     pObj->test();
-    //GCTestObject::Destroy(pObj); // invalid read of size ptr_size
-    //sps::Destroy<GCTestObject>(index);
+    // GCTestObject::Destroy(pObj); // invalid read of size ptr_size
+    // sps::Destroy<GCTestObject>(index);
     pObj = nullptr;
-  } catch(...) {
+  }
+  catch (...)
+  {
   }
   return 0;
 }

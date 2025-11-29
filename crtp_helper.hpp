@@ -8,19 +8,19 @@
  * Copyright 2018 Jens Munk Hansen
  */
 #pragma once
-namespace sps {
-template <typename T, template<typename> class crtpType>
-class CRTP {
- public:
+namespace sps
+{
+template <typename T, template <typename> class crtpType>
+class CRTP
+{
+public:
   /**
    *
    *
    *
    * @return
    */
-  T& underlying() {
-    return static_cast<T&>(*this);
-  }
+  T& underlying() { return static_cast<T&>(*this); }
 
   /**
    *
@@ -28,9 +28,7 @@ class CRTP {
    *
    * @return
    */
-  T const& underlying() const {
-    return static_cast<T const&>(*this);
-  }
+  T const& underlying() const { return static_cast<T const&>(*this); }
 
   /**
    *
@@ -38,9 +36,7 @@ class CRTP {
    *
    * @return
    */
-  T* thisp() {
-    return static_cast<T*>(this);
-  }
+  T* thisp() { return static_cast<T*>(this); }
 
   /**
    *
@@ -48,12 +44,10 @@ class CRTP {
    *
    * @return
    */
-  const T* thisp() const {
-    return static_cast<const T*>(this);
-  }
+  const T* thisp() const { return static_cast<const T*>(this); }
 
- private:
+private:
   CRTP() = default;
   friend crtpType<T>;
 };
-}  // namespace sps
+} // namespace sps

@@ -17,104 +17,85 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#include "mrbuffer.h"
 #include <stdio.h>
 #include <string.h>
-#include "mrbuffer.h"
 
-#define LEN (1024*3-256)
+#define LEN (1024 * 3 - 256)
 char data[LEN];
 
-int main(int argc, char *argv[]) {
-  struct mrbuffer *mrbuf;
+int main(int argc, char* argv[])
+{
+  struct mrbuffer* mrbuf;
   size_t len;
   int i;
 
   for (i = 0; i < LEN; i++)
-    data[i] = i & 0xff ;
+    data[i] = i & 0xff;
 
   mrbuf = mrbuffer_alloc(MRBUF_FLAG_SHMAT, 0);
-  //mrbuf = mrbuffer_alloc(MRBUF_FLAG_MMAP, 0);
+  // mrbuf = mrbuffer_alloc(MRBUF_FLAG_MMAP, 0);
 
   len = mrbuffer_write(mrbuf, LEN, data);
-  printf("h:%04lu t:%04lu %04lu\n", \
-         MRBUF_WRITE_OFFSET(mrbuf), \
-         MRBUF_READ_OFFSET(mrbuf), \
-         MRBUF_FREE_LEN(mrbuf));
+  printf("h:%04lu t:%04lu %04lu\n", MRBUF_WRITE_OFFSET(mrbuf), MRBUF_READ_OFFSET(mrbuf),
+    MRBUF_FREE_LEN(mrbuf));
 
   len = mrbuffer_read(mrbuf, LEN, data);
   len = mrbuffer_write(mrbuf, LEN, data);
 
-  printf("h:%04lu t:%04lu %04lu\n", \
-         MRBUF_WRITE_OFFSET(mrbuf), \
-         MRBUF_READ_OFFSET(mrbuf), \
-         MRBUF_FREE_LEN(mrbuf));
+  printf("h:%04lu t:%04lu %04lu\n", MRBUF_WRITE_OFFSET(mrbuf), MRBUF_READ_OFFSET(mrbuf),
+    MRBUF_FREE_LEN(mrbuf));
 
   len = mrbuffer_read(mrbuf, LEN, data);
   len = mrbuffer_write(mrbuf, LEN, data);
 
-  printf("h:%04lu t:%04lu %04lu\n", \
-         MRBUF_WRITE_OFFSET(mrbuf), \
-         MRBUF_READ_OFFSET(mrbuf), \
-         MRBUF_FREE_LEN(mrbuf));
+  printf("h:%04lu t:%04lu %04lu\n", MRBUF_WRITE_OFFSET(mrbuf), MRBUF_READ_OFFSET(mrbuf),
+    MRBUF_FREE_LEN(mrbuf));
 
   len = mrbuffer_read(mrbuf, LEN, data);
   len = mrbuffer_write(mrbuf, LEN, data);
 
-  printf("h:%04lu t:%04lu %04lu\n", \
-         MRBUF_WRITE_OFFSET(mrbuf), \
-         MRBUF_READ_OFFSET(mrbuf), \
-         MRBUF_FREE_LEN(mrbuf));
+  printf("h:%04lu t:%04lu %04lu\n", MRBUF_WRITE_OFFSET(mrbuf), MRBUF_READ_OFFSET(mrbuf),
+    MRBUF_FREE_LEN(mrbuf));
 
   len = mrbuffer_read(mrbuf, LEN, data);
   len = mrbuffer_write(mrbuf, LEN, data);
 
-  printf("h:%04lu t:%04lu %04lu\n", \
-         MRBUF_WRITE_OFFSET(mrbuf), \
-         MRBUF_READ_OFFSET(mrbuf), \
-         MRBUF_FREE_LEN(mrbuf));
+  printf("h:%04lu t:%04lu %04lu\n", MRBUF_WRITE_OFFSET(mrbuf), MRBUF_READ_OFFSET(mrbuf),
+    MRBUF_FREE_LEN(mrbuf));
 
   len = mrbuffer_write(mrbuf, LEN, data);
-  printf("h:%04lu t:%04lu %04lu\n", \
-         MRBUF_WRITE_OFFSET(mrbuf), \
-         MRBUF_READ_OFFSET(mrbuf), \
-         MRBUF_FREE_LEN(mrbuf));
+  printf("h:%04lu t:%04lu %04lu\n", MRBUF_WRITE_OFFSET(mrbuf), MRBUF_READ_OFFSET(mrbuf),
+    MRBUF_FREE_LEN(mrbuf));
 
   len = mrbuffer_write(mrbuf, LEN, data);
-  printf("h:%04lu t:%04lu %04lu\n", \
-         MRBUF_WRITE_OFFSET(mrbuf), \
-         MRBUF_READ_OFFSET(mrbuf), \
-         MRBUF_FREE_LEN(mrbuf));
+  printf("h:%04lu t:%04lu %04lu\n", MRBUF_WRITE_OFFSET(mrbuf), MRBUF_READ_OFFSET(mrbuf),
+    MRBUF_FREE_LEN(mrbuf));
 
   if (MRBUF_FULL(mrbuf))
     printf("buffer full(data len): %lu\n", MRBUF_DATA_LEN(mrbuf));
 
   len = mrbuffer_read(mrbuf, LEN, data);
-  printf("h:%04lu t:%04lu %04lu\n", \
-         MRBUF_WRITE_OFFSET(mrbuf), MRBUF_READ_OFFSET(mrbuf), len);
+  printf("h:%04lu t:%04lu %04lu\n", MRBUF_WRITE_OFFSET(mrbuf), MRBUF_READ_OFFSET(mrbuf), len);
   len = mrbuffer_read(mrbuf, LEN, data);
-  printf("h:%04lu t:%04lu %04lu\n", \
-         MRBUF_WRITE_OFFSET(mrbuf), MRBUF_READ_OFFSET(mrbuf), len);
+  printf("h:%04lu t:%04lu %04lu\n", MRBUF_WRITE_OFFSET(mrbuf), MRBUF_READ_OFFSET(mrbuf), len);
   len = mrbuffer_read(mrbuf, LEN, data);
-  printf("h:%04lu t:%04lu %04lu\n", \
-         MRBUF_WRITE_OFFSET(mrbuf), MRBUF_READ_OFFSET(mrbuf), len);
+  printf("h:%04lu t:%04lu %04lu\n", MRBUF_WRITE_OFFSET(mrbuf), MRBUF_READ_OFFSET(mrbuf), len);
 
   if (MRBUF_EMPTY(mrbuf))
     printf("buffer empty(free len): %lu\n", MRBUF_FREE_LEN(mrbuf));
 
-  if (MRBUF_FREE_LEN(mrbuf) >= LEN) {
+  if (MRBUF_FREE_LEN(mrbuf) >= LEN)
+  {
     printf("write mrbuf using memcpy\n");
     memcpy(MRBUF_WRITE_ADDR(mrbuf), data, LEN);
     /* this must be done to update write pointer after every writes */
     len = mrbuffer_give(mrbuf, LEN);
-    printf("h:%04lu t:%04lu %04lu\n", \
-           MRBUF_WRITE_OFFSET(mrbuf), \
-           MRBUF_READ_OFFSET(mrbuf), \
-           len);
+    printf("h:%04lu t:%04lu %04lu\n", MRBUF_WRITE_OFFSET(mrbuf), MRBUF_READ_OFFSET(mrbuf), len);
   }
 
   if (!memcmp(mrbuf->vaddr, mrbuf->vaddr + mrbuf->size, mrbuf->size))
     printf("mrbuffer is working\n");
-
 
   mrbuffer_free(mrbuf);
 

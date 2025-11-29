@@ -1,10 +1,12 @@
+#include <iostream>
 #include <sps/cenv.h>
 #include <sps/progress.hpp>
-#include <iostream>
 
-namespace sps {
+namespace sps
+{
 
-void ProgressBar::show(float percent) {
+void ProgressBar::show(float percent)
+{
   SPS_UNREFERENCED_PARAMETERS(percent);
 }
 
@@ -20,15 +22,18 @@ void ProgressBar::cancel() {
 
 // std::chrono::duration::zero()
 template <typename P>
-void ProgressBar::wait(const P& period) {
+void ProgressBar::wait(const P& period)
+{
   std::unique_lock<std::mutex> lock(mtx);
-  if (bStop || cnd.wait_for(lock, period) == std::cv_status::no_timeout) {
+  if (bStop || cnd.wait_for(lock, period) == std::cv_status::no_timeout)
+  {
     bStop = false;
   }
 }
 
-void ProgressBarStdOut::show(float percent) {
+void ProgressBarStdOut::show(float percent)
+{
   std::cout.precision(4);
   std::cout << std::fixed << "Progress: " << percent << " %" << std::endl;
 }
-}  // namespace sps
+} // namespace sps

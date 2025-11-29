@@ -8,9 +8,11 @@
  *
  */
 
-namespace sps {
-class ContextIF  {
- public:
+namespace sps
+{
+class ContextIF
+{
+public:
   static int Create(ContextIF** ppContext);
   static int Destroy(ContextIF* pContext);
 
@@ -18,13 +20,14 @@ class ContextIF  {
   ContextIF(ContextIF&& other) = default;
   ContextIF& operator=(ContextIF&& other) = default;
 
- protected:
+protected:
   ContextIF() = default;
- private:
+
+private:
   ContextIF(const ContextIF& rhs) = delete;
   ContextIF& operator=(const ContextIF& rhs) = delete;
 };
-}  // namespace sps
+} // namespace sps
 
 /* Local variables: */
 /* indent-tabs-mode: nil */

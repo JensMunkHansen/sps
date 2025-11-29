@@ -30,13 +30,14 @@
 
 #pragma once
 
-namespace sps {
-class IMagicRingBuffer {
- public:
+namespace sps
+{
+class IMagicRingBuffer
+{
+public:
   virtual ~IMagicRingBuffer() = default;
   IMagicRingBuffer(size_t size, unsigned int flags = 0);
-  size_t write(size_t len, void *pData);
-  size_t read(size_t len, void *pData);
+  size_t write(size_t len, void* pData);
+  size_t read(size_t len, void* pData);
 };
 } // namespace sps
-

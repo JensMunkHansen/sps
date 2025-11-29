@@ -12,27 +12,32 @@
 
 #include <memory>
 
-namespace sps {
+namespace sps
+{
 class IEventListener;
 
-class IDispatcherEvent {
- public:
+class IDispatcherEvent
+{
+public:
   virtual ~IDispatcherEvent() = default;
   IDispatcherEvent(IDispatcherEvent&& other) = default;
   IDispatcherEvent& operator=(IDispatcherEvent&& other) = default;
 
   virtual inline bool Signal() = 0;
   virtual int ListenerAdd(IEventListener* pListener) = 0;
- protected:
+
+protected:
   IDispatcherEvent() = default;
- private:
+
+private:
   // Prevent copying
   IDispatcherEvent(const IDispatcherEvent& rhs) = delete;
   IDispatcherEvent& operator=(const IDispatcherEvent& rhs) = delete;
 };
 
-class IEventListener  {
- public:
+class IEventListener
+{
+public:
   static int Create(IEventListener** ppEvent);
   static int Destroy(IEventListener* pEvent);
 
@@ -44,10 +49,11 @@ class IEventListener  {
 
   virtual bool Signal(IDispatcherEvent* pEvent) = 0;
 
- protected:
+protected:
   IEventListener() = default;
- private:
+
+private:
   IEventListener(const IEventListener& rhs) = delete;
   IEventListener& operator=(const IEventListener& rhs) = delete;
 };
-}  // namespace sps
+} // namespace sps

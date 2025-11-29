@@ -12,37 +12,33 @@
 // vdk::lite::context instead of vdk::context.
 
 using std::string;
-using vdk::signal;
 using vdk::context;
+using vdk::signal;
 
-namespace {
-void function(const string & arg) {
+namespace
+{
+void function(const string& arg)
+{
   std::cout << "function(" << arg << ")" << std::endl;
 }
 
-struct functor {
+struct functor
+{
   explicit functor(int data) noexcept
-    : data_ {
-    data
+    : data_{ data }
+  {
   }
-  {}
-  void operator()(const string & arg) {
-    std::cout << "functor(" << arg << ")" << std::endl;
-  }
-  bool operator==(const functor & other) const noexcept {
-    return data_ == other.data_;
-  }
+  void operator()(const string& arg) { std::cout << "functor(" << arg << ")" << std::endl; }
+  bool operator==(const functor& other) const noexcept { return data_ == other.data_; }
   int data_;
 };
 
-class demo_class : public context {
- public:
-
+class demo_class : public context
+{
+public:
   demo_class() = default;
 
-  void method(const string & arg) {
-    std::cout << "demo_class::method(" << arg << ")" << std::endl;
-  }
+  void method(const string& arg) { std::cout << "demo_class::method(" << arg << ")" << std::endl; }
 };
 
 } // namespace
@@ -56,8 +52,9 @@ class demo_class : public context {
 // object gets destroyed, its methods and all other callable targets
 // associated with it are no longer reachable for signal emissions.
 
-void signals_track_objects() {
-  signal<void(const string &)> sig;
+void signals_track_objects()
+{
+  signal<void(const string&)> sig;
 
   {
     // This object provides a context for slot invocations, so it
@@ -71,9 +68,8 @@ void signals_track_objects() {
     // Now they all are associated with the 'context' object
     sig.connect(&object, function);
     sig.connect(&object, functor{ 4 });
-    sig.connect(&object, [](const string & arg) {
-      std::cout << "I am lambda(" << arg << ")" << std::endl;
-    });
+    sig.connect(
+      &object, [](const string& arg) { std::cout << "I am lambda(" << arg << ")" << std::endl; });
     sig.emit("text"); // object is alive, all slots are called
   }
 

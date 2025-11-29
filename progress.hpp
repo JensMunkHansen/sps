@@ -22,31 +22,35 @@
  */
 #pragma once
 
-#include <sps/sps_export.h>
 #include <sps/progress_if.hpp>
+#include <sps/sps_export.h>
 
-#include <mutex>
 #include <condition_variable>
+#include <mutex>
 
 // TODO(JMH): Export only ProgressBarInterface and not ProgressBar and ProgressBarStdOut
 
-namespace sps {
-class ProgressBar : public ProgressBarInterface {
- public:
+namespace sps
+{
+class ProgressBar : public ProgressBarInterface
+{
+public:
   void show(float percent) override = 0;
   ~ProgressBar() override = default;
 
   template <typename P>
   void wait(const P& period);
- private:
+
+private:
   bool bStop;
   std::mutex mtx;
   std::condition_variable cnd;
 };
 
-class SPS_EXPORT ProgressBarStdOut : public ProgressBarInterface {
- public:
+class SPS_EXPORT ProgressBarStdOut : public ProgressBarInterface
+{
+public:
   void show(float percent) override;
   ~ProgressBarStdOut() override = default;
 };
-}  // namespace sps
+} // namespace sps

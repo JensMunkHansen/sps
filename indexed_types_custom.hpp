@@ -16,27 +16,24 @@
  */
 #pragma once
 
-namespace sps {
-  class bad_indexed_auto_ptr : public std::exception {
-  public:
-    const char*
-    what() const noexcept override
-    {
-      return "sps::bad_indexed_auto_ptr";
-    }
-  };
+namespace sps
+{
+class bad_indexed_auto_ptr : public std::exception
+{
+public:
+  const char* what() const noexcept override { return "sps::bad_indexed_auto_ptr"; }
+};
 // Substitute for bad_weak_ptr object in the case of -fno-exceptions.
-  inline void
-  __throw_bad_indexed_auto_ptr()
-  {
+inline void __throw_bad_indexed_auto_ptr()
+{
 #if __EXCEPTIONS
-    throw bad_indexed_auto_ptr();
+  throw bad_indexed_auto_ptr();
 #else
 #ifdef __GNUC__
-    __builtin_abort();
+  __builtin_abort();
 #elif defined(_MSC_VER)
-    abort();
+  abort();
 #endif
 #endif
-  }
+}
 }

@@ -27,25 +27,25 @@
 #pragma once
 
 #include <sps/cenv.h>
-#include <sps/sps_export.h>
 #include <sps/math.h>
+#include <sps/sps_export.h>
 #include <sps/zip>
 
-#include <cstring>   // memcpy
-#include <iostream>  // for debug purposes
+#include <cstring>  // memcpy
+#include <iostream> // for debug purposes
 #include <limits>
 #include <utility>
 
 #if CXX17
-# include <algorithm>  // std::clamp
+#include <algorithm> // std::clamp
 #endif
 
-#include <sps/smath_types.hpp>
 #include <sps/smath_matrix_type.hpp>
+#include <sps/smath_types.hpp>
 
 #ifdef _WIN32
-# undef max
-# undef min
+#undef max
+#undef min
 /**
  * Signum function
  *
@@ -54,7 +54,8 @@
  * @return
  */
 template <class T>
-T signum(const T& x) {
+T signum(const T& x)
+{
   return T((T(0) < x) - (x < T(0)));
 }
 #else
@@ -66,8 +67,9 @@ T signum(const T& x) {
  *
  * @return
  */
-template <typename T> inline constexpr
-int signum(T x, std::false_type /* is_signed */) {
+template <typename T>
+inline constexpr int signum(T x, std::false_type /* is_signed */)
+{
   return T(0) < x;
 }
 
@@ -79,8 +81,9 @@ int signum(T x, std::false_type /* is_signed */) {
  *
  * @return
  */
-template <typename T> inline constexpr
-int signum(T x, std::true_type /* is_signed */) {
+template <typename T>
+inline constexpr int signum(T x, std::true_type /* is_signed */)
+{
   return (T(0) < x) - (x < T(0));
 }
 
@@ -91,44 +94,52 @@ int signum(T x, std::true_type /* is_signed */) {
  *
  * @return
  */
-template <typename T> inline constexpr
-int signum(T x) {
+template <typename T>
+inline constexpr int signum(T x)
+{
   return signum(x, std::is_signed<T>());
 }
 #endif
 
 /** @addtogroup SPS */
-namespace sps {
+namespace sps
+{
 
 template <typename I, typename J>
-std::pair<I, J>
-minmax_weighted_element(I begin, I end, J it) {
+std::pair<I, J> minmax_weighted_element(I begin, I end, J it)
+{
   std::pair<I, I> result(end, end);
 
-  std::zip([&](I xi,
-  J wi)->void {
-    if (*wi > 0) {
-      if (result.first == end) {
-        result.first = xi;
+  std::zip(
+    [&](I xi, J wi) -> void
+    {
+      if (*wi > 0)
+      {
+        if (result.first == end)
+        {
+          result.first = xi;
+        }
+        if (result.second == end)
+        {
+          result.second = xi;
+        }
+        if (*result.first < *xi)
+        {
+          result.first = xi;
+        }
+        if (*result.second > *xi)
+        {
+          result.second = xi;
+        }
       }
-      if (result.second == end) {
-        result.second = xi;
-      }
-      if (*result.first < *xi) {
-        result.first = xi;
-      }
-      if (*result.second > *xi) {
-        result.second = xi;
-      }
-    }
-  }, begin, end, it);
+    },
+    begin, end, it);
   return result;
 }
 
 /* if STATIC_INLINE - used but never defined */
 template <typename T, typename U>
-std::pair<T, T> SPS_EXPORT
-minmax_delay(const T* xs, const U* ws, size_t nData);
+std::pair<T, T> SPS_EXPORT minmax_delay(const T* xs, const U* ws, size_t nData);
 
 /**
  * Distance from point to point
@@ -139,8 +150,9 @@ minmax_delay(const T* xs, const U* ws, size_t nData);
  * @return \f$d = |\mathbf{a}-\mathbf{b}|\f$
  */
 template <class T>
-inline T dist_point_to_point(const point_t<T>& a, const point_t<T>& b) {
-  return sqrt(SQUARE(a[0]-b[0])+SQUARE(a[1]-b[1])+SQUARE(a[2]-b[2]));
+inline T dist_point_to_point(const point_t<T>& a, const point_t<T>& b)
+{
+  return sqrt(SQUARE(a[0] - b[0]) + SQUARE(a[1] - b[1]) + SQUARE(a[2] - b[2]));
 }
 
 /**
@@ -152,8 +164,9 @@ inline T dist_point_to_point(const point_t<T>& a, const point_t<T>& b) {
  * @return \f$d= \mathbf{a}\cdot\mathbf{b}\f$
  */
 template <typename T>
-inline T dot(const point_t<T> &a, const point_t<T> &b) {
-  return a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+inline T dot(const point_t<T>& a, const point_t<T>& b)
+{
+  return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 
 /**
@@ -165,11 +178,12 @@ inline T dot(const point_t<T> &a, const point_t<T> &b) {
  * @return a - b
  */
 template <typename T>
-inline point_t<T> operator-(const point_t<T> &a, const point_t<T> &b) {
+inline point_t<T> operator-(const point_t<T>& a, const point_t<T>& b)
+{
   point_t<T> c;
-  c[0] = a[0]-b[0];
-  c[1] = a[1]-b[1];
-  c[2] = a[2]-b[2];
+  c[0] = a[0] - b[0];
+  c[1] = a[1] - b[1];
+  c[2] = a[2] - b[2];
 
   return c;
 }
@@ -183,7 +197,8 @@ inline point_t<T> operator-(const point_t<T> &a, const point_t<T> &b) {
  * @return a + b
  */
 template <typename T>
-inline point_t<T> operator+(const point_t<T> &a, const point_t<T> &b) {
+inline point_t<T> operator+(const point_t<T>& a, const point_t<T>& b)
+{
   point_t<T> c;
   c[0] = a[0] + b[0];
   c[1] = a[1] + b[1];
@@ -200,11 +215,12 @@ inline point_t<T> operator+(const point_t<T> &a, const point_t<T> &b) {
  * @return a x b
  */
 template <typename T>
-inline point_t<T> cross(const point_t<T> &a, const point_t<T> &b) {
+inline point_t<T> cross(const point_t<T>& a, const point_t<T>& b)
+{
   point_t<T> c;
-  c[0] = a[1]*b[2] - b[1]*a[2];
-  c[1] = a[2]*b[0] - b[2]*a[0];
-  c[2] = a[0]*b[1] - b[0]*a[1];
+  c[0] = a[1] * b[2] - b[1] * a[2];
+  c[1] = a[2] * b[0] - b[2] * a[0];
+  c[2] = a[0] * b[1] - b[0] * a[1];
   return c;
 }
 
@@ -217,11 +233,12 @@ inline point_t<T> cross(const point_t<T> &a, const point_t<T> &b) {
  * @return
  */
 template <typename T>
-inline point_t<T> operator*(const T &a, const point_t<T> &b) {
+inline point_t<T> operator*(const T& a, const point_t<T>& b)
+{
   point_t<T> c;
-  c[0] = a*b[0];
-  c[1] = a*b[1];
-  c[2] = a*b[2];
+  c[0] = a * b[0];
+  c[1] = a * b[1];
+  c[2] = a * b[2];
   return c;
 }
 
@@ -233,7 +250,8 @@ inline point_t<T> operator*(const T &a, const point_t<T> &b) {
  * @return \f$|\mathbf{a}|\f$
  */
 template <typename T>
-inline T norm(const point_t<T> &a) {
+inline T norm(const point_t<T>& a)
+{
   return sqrt(dot(a, a));
 }
 
@@ -247,8 +265,9 @@ inline T norm(const point_t<T> &a) {
  * @return
  */
 template <typename T>
-inline T dist_point_to_line(const point_t<T>& point, const point_t<T>& pointOnLine,
-                            const point_t<T>& direction) {
+inline T dist_point_to_line(
+  const point_t<T>& point, const point_t<T>& pointOnLine, const point_t<T>& direction)
+{
   return norm(cross(direction, point - pointOnLine));
 }
 
@@ -262,9 +281,9 @@ inline T dist_point_to_line(const point_t<T>& point, const point_t<T>& pointOnLi
  * @return \f$d = (\mathbf{p} - \mathbf{q})\cdot \mathbf{n}\f$
  */
 template <typename T>
-inline
-T sgn_dist_to_plane(const point_t<T>& point, const point_t<T>& pointOnPlane,
-                    const point_t<T>& unitNormal) {
+inline T sgn_dist_to_plane(
+  const point_t<T>& point, const point_t<T>& pointOnPlane, const point_t<T>& unitNormal)
+{
   return dot((point - pointOnPlane), unitNormal);
 }
 
@@ -280,14 +299,12 @@ template <typename T>
 T SPS_EXPORT dist_point_to_circle(const point_t<T>& point, const circle_t<T>& circle);
 
 template <typename T>
-void SPS_EXPORT dist_point_to_circle_local(const point_t<T>& point,
-    const circle_t<T>& circle,
-    T* r, T* z, T* distNear);
+void SPS_EXPORT dist_point_to_circle_local(
+  const point_t<T>& point, const circle_t<T>& circle, T* r, T* z, T* distNear);
 
 template <typename T>
-void SPS_EXPORT dist_point_to_circle_local(const point_t<T>& point,
-    const circle_t<T>& circle,
-    T* r, T* z, T* distNear, T* distFar);
+void SPS_EXPORT dist_point_to_circle_local(
+  const point_t<T>& point, const circle_t<T>& circle, T* r, T* z, T* distNear, T* distFar);
 
 /**
  * Clamp a vector inside a box
@@ -298,27 +315,32 @@ void SPS_EXPORT dist_point_to_circle_local(const point_t<T>& point,
  * @return
  */
 template <typename T>
-inline
-sps::point_t<T> clamp_vector(const sps::point_t<T> &point,
-                             const sps::bbox_t<T> &box) {
+inline sps::point_t<T> clamp_vector(const sps::point_t<T>& point, const sps::bbox_t<T>& box)
+{
   sps::point_t<T> clamped;
-  // clamped[0] = std::clamp<T>(point[0], box.min[0], box.max[0]) or std::min<T>(box.max[0],std::max<T>(box.min[0], point[0]));
-#if 0 //CXX17
+  // clamped[0] = std::clamp<T>(point[0], box.min[0], box.max[0]) or
+  // std::min<T>(box.max[0],std::max<T>(box.min[0], point[0]));
+#if 0 // CXX17
   clamped[0] = std::clamp<T>(point[0], box.min[0], box.max[0]);
   clamped[1] = std::clamp<T>(point[1], box.min[1], box.max[1]);
   clamped[2] = std::clamp<T>(point[2], box.min[2], box.max[2]);
 #elif 1
-  clamped[0] = (point[0] < box.min[0]) ? box.min[0] : (point[0] > box.max[0]) ? box.max[0] : point[0];
-  clamped[1] = (point[1] < box.min[1]) ? box.min[1] : (point[1] > box.max[1]) ? box.max[1] : point[1];
-  clamped[2] = (point[2] < box.min[2]) ? box.min[2] : (point[2] > box.max[2]) ? box.max[2] : point[2];
+  clamped[0] = (point[0] < box.min[0]) ? box.min[0]
+    : (point[0] > box.max[0])          ? box.max[0]
+                                       : point[0];
+  clamped[1] = (point[1] < box.min[1]) ? box.min[1]
+    : (point[1] > box.max[1])          ? box.max[1]
+                                       : point[1];
+  clamped[2] = (point[2] < box.min[2]) ? box.min[2]
+    : (point[2] > box.max[2])          ? box.max[2]
+                                       : point[2];
 #else
-  clamped[0] = std::min<T>(box.max[0],std::max<T>(box.min[0], point[0]));
-  clamped[1] = std::min<T>(box.max[1],std::max<T>(box.min[1], point[1]));
-  clamped[2] = std::min<T>(box.max[2],std::max<T>(box.min[2], point[2]));
+  clamped[0] = std::min<T>(box.max[0], std::max<T>(box.min[0], point[0]));
+  clamped[1] = std::min<T>(box.max[1], std::max<T>(box.min[1], point[1]));
+  clamped[2] = std::min<T>(box.max[2], std::max<T>(box.min[2], point[2]));
 #endif
   return clamped;
 }
-
 
 /**
  * Compute bounding box aligned with the axes for 3D positions
@@ -327,35 +349,36 @@ sps::point_t<T> clamp_vector(const sps::point_t<T> &point,
  * @param nPos
  * @param box
  */
-template<typename T>
-void compute_bounding_box3(const T* pos, const size_t nPos,
-                           sps::bbox_t<T>* box) {
+template <typename T>
+void compute_bounding_box3(const T* pos, const size_t nPos, sps::bbox_t<T>* box)
+{
 
   size_t iPoint = 0;
   size_t iXYZ = 0;
 
-  box->min[0] = pos[iPoint*3 + 0];
-  box->min[1] = pos[iPoint*3 + 1];
-  box->min[2] = pos[iPoint*3 + 2];
-  box->max[0] = pos[iPoint*3 + 0];
-  box->max[1] = pos[iPoint*3 + 1];
-  box->max[2] = pos[iPoint*3 + 2];
+  box->min[0] = pos[iPoint * 3 + 0];
+  box->min[1] = pos[iPoint * 3 + 1];
+  box->min[2] = pos[iPoint * 3 + 2];
+  box->max[0] = pos[iPoint * 3 + 0];
+  box->max[1] = pos[iPoint * 3 + 1];
+  box->max[2] = pos[iPoint * 3 + 2];
 
-  for (iPoint = 0 ; iPoint < nPos ; iPoint++) {
-    for (iXYZ = 0 ; iXYZ < 3 ; iXYZ++) {
-      box->min[iXYZ] = std::min<T>(box->min[iXYZ], pos[iPoint*3+iXYZ]);
-      box->max[iXYZ] = std::max<T>(box->max[iXYZ], pos[iPoint*3+iXYZ]);
+  for (iPoint = 0; iPoint < nPos; iPoint++)
+  {
+    for (iXYZ = 0; iXYZ < 3; iXYZ++)
+    {
+      box->min[iXYZ] = std::min<T>(box->min[iXYZ], pos[iPoint * 3 + iXYZ]);
+      box->max[iXYZ] = std::max<T>(box->max[iXYZ], pos[iPoint * 3 + iXYZ]);
     }
   }
 }
 
 template <typename T>
-inline bool point_inside_box(const sps::point_t<T>& point, const sps::bbox_t<T>& box) {
-  return ((point[0] > box.min[0]) && (point[0] < box.max[0]) &&
-          (point[1] > box.min[1]) && (point[1] < box.max[1]) &&
-          (point[2] > box.min[2]) && (point[2] < box.max[2]));
+inline bool point_inside_box(const sps::point_t<T>& point, const sps::bbox_t<T>& box)
+{
+  return ((point[0] > box.min[0]) && (point[0] < box.max[0]) && (point[1] > box.min[1]) &&
+    (point[1] < box.max[1]) && (point[2] > box.min[2]) && (point[2] < box.max[2]));
 }
-
 
 /**
  * Nearest point on a box (from a point)
@@ -366,8 +389,10 @@ inline bool point_inside_box(const sps::point_t<T>& point, const sps::bbox_t<T>&
  * @return
  */
 template <typename T>
-inline sps::point_t<T> nearest_point_on_bbox(const sps::point_t<T> &point, const sps::bbox_t<T> &box) {
-  return clamp_vector(point,box);
+inline sps::point_t<T> nearest_point_on_bbox(
+  const sps::point_t<T>& point, const sps::bbox_t<T>& box)
+{
+  return clamp_vector(point, box);
 }
 
 /**
@@ -379,18 +404,23 @@ inline sps::point_t<T> nearest_point_on_bbox(const sps::point_t<T> &point, const
  * @return
  */
 template <typename T>
-inline sps::point_t<T> farthest_point_on_bbox(const sps::point_t<T> &point, const sps::bbox_t<T> &box) {
+inline sps::point_t<T> farthest_point_on_bbox(
+  const sps::point_t<T>& point, const sps::bbox_t<T>& box)
+{
   sps::point_t<T> farthest;
 
-  farthest[0] = (point[0] < box.min[0]) ? box.max[0] :
-                (point[0] > box.max[0]) ? box.min[0] :
-                (point[0] - box.min[0]) > (box.max[0] - point[0]) ? box.min[0] : box.max[0];
-  farthest[1] = (point[1] < box.min[1]) ? box.max[1] :
-                (point[1] > box.max[1]) ? box.min[1] :
-                (point[1] - box.min[1]) > (box.max[1] - point[1]) ? box.min[1] : box.max[1];
-  farthest[2] = (point[2] < box.min[2]) ? box.max[2] :
-                (point[2] > box.max[2]) ? box.min[2] :
-                (point[2] - box.min[2]) > (box.max[2] - point[2]) ? box.min[2] : box.max[2];
+  farthest[0] = (point[0] < box.min[0])                 ? box.max[0]
+    : (point[0] > box.max[0])                           ? box.min[0]
+    : (point[0] - box.min[0]) > (box.max[0] - point[0]) ? box.min[0]
+                                                        : box.max[0];
+  farthest[1] = (point[1] < box.min[1])                 ? box.max[1]
+    : (point[1] > box.max[1])                           ? box.min[1]
+    : (point[1] - box.min[1]) > (box.max[1] - point[1]) ? box.min[1]
+                                                        : box.max[1];
+  farthest[2] = (point[2] < box.min[2])                 ? box.max[2]
+    : (point[2] > box.max[2])                           ? box.min[2]
+    : (point[2] - box.min[2]) > (box.max[2] - point[2]) ? box.min[2]
+                                                        : box.max[2];
   return farthest;
 }
 
@@ -405,56 +435,59 @@ inline sps::point_t<T> farthest_point_on_bbox(const sps::point_t<T> &point, cons
  * TODO: Verify if point is inside a box
  */
 template <typename T>
-inline
-void dists_most_distant_and_closest(const sps::bbox_t<T> &box0,
-                                    const sps::bbox_t<T> &box1,
-                                    T* distNear,
-                                    T* distFar) {
+inline void dists_most_distant_and_closest(
+  const sps::bbox_t<T>& box0, const sps::bbox_t<T>& box1, T* distNear, T* distFar)
+{
   // Corners
   T boundaries[6];
   sps::point_t<T> border_points0[8] = {};
   sps::point_t<T> border_points1[8] = {};
 
-  memcpy(&boundaries[0], &box0.min[0], 3*sizeof(T));
-  memcpy(&boundaries[3], &box0.max[0], 3*sizeof(T));
-  for (size_t i = 0 ; i < 2 ; i++) {
-    for (size_t j = 0 ; j < 2 ; j++) {
-      for (size_t k = 0 ; k < 2 ; k++) {
-        border_points0[i*4+j*2+k][0] = boundaries[i*3];    // 0,3
-        border_points0[i*4+j*2+k][1] = boundaries[1+j*3];  // 1,4
-        border_points0[i*4+j*2+k][2] = boundaries[2+k*3];  // 2,5
+  memcpy(&boundaries[0], &box0.min[0], 3 * sizeof(T));
+  memcpy(&boundaries[3], &box0.max[0], 3 * sizeof(T));
+  for (size_t i = 0; i < 2; i++)
+  {
+    for (size_t j = 0; j < 2; j++)
+    {
+      for (size_t k = 0; k < 2; k++)
+      {
+        border_points0[i * 4 + j * 2 + k][0] = boundaries[i * 3];     // 0,3
+        border_points0[i * 4 + j * 2 + k][1] = boundaries[1 + j * 3]; // 1,4
+        border_points0[i * 4 + j * 2 + k][2] = boundaries[2 + k * 3]; // 2,5
       }
     }
   }
 
-  memcpy(&boundaries[0], &box1.min[0], 3*sizeof(T));
-  memcpy(&boundaries[3], &box1.max[0], 3*sizeof(T));
-  for (size_t i = 0 ; i < 2 ; i++) {
-    for (size_t j = 0 ; j < 2 ; j++) {
-      for (size_t k = 0 ; k < 2 ; k++) {
-        border_points1[i*4+j*2+k][0] = boundaries[i*3];    // 0,3
-        border_points1[i*4+j*2+k][1] = boundaries[1+j*3];  // 1,4
-        border_points1[i*4+j*2+k][2] = boundaries[2+k*3];  // 2,5
+  memcpy(&boundaries[0], &box1.min[0], 3 * sizeof(T));
+  memcpy(&boundaries[3], &box1.max[0], 3 * sizeof(T));
+  for (size_t i = 0; i < 2; i++)
+  {
+    for (size_t j = 0; j < 2; j++)
+    {
+      for (size_t k = 0; k < 2; k++)
+      {
+        border_points1[i * 4 + j * 2 + k][0] = boundaries[i * 3];     // 0,3
+        border_points1[i * 4 + j * 2 + k][1] = boundaries[1 + j * 3]; // 1,4
+        border_points1[i * 4 + j * 2 + k][2] = boundaries[2 + k * 3]; // 2,5
       }
     }
   }
 
   *distNear = std::numeric_limits<T>::max();
-  *distFar  = std::numeric_limits<T>::min();
+  *distFar = std::numeric_limits<T>::min();
 
-  for (size_t iBorderPoint = 0 ; iBorderPoint < 8 ; iBorderPoint++) {
+  for (size_t iBorderPoint = 0; iBorderPoint < 8; iBorderPoint++)
+  {
     sps::point_t<T> corner0 = border_points0[iBorderPoint];
-    sps::point_t<T> near0 = nearest_point_on_bbox(corner0,
-                            box1);
-    for (size_t jBorderPoint = 0 ; jBorderPoint < 8 ; jBorderPoint++) {
+    sps::point_t<T> near0 = nearest_point_on_bbox(corner0, box1);
+    for (size_t jBorderPoint = 0; jBorderPoint < 8; jBorderPoint++)
+    {
       sps::point_t<T> corner1 = border_points1[jBorderPoint];
 
-      *distFar =
-        std::max<T>(*distFar, dist_point_to_point<T>(corner0, corner1));
+      *distFar = std::max<T>(*distFar, dist_point_to_point<T>(corner0, corner1));
 
       sps::point_t<T> near1 = nearest_point_on_bbox(near0, box0);
-      *distNear =
-        std::min<T>(*distNear, dist_point_to_point<T>(near0, near1));
+      *distNear = std::min<T>(*distNear, dist_point_to_point<T>(near0, near1));
     }
   }
 }
@@ -466,7 +499,8 @@ template struct SPS_EXPORT euler_t<float>;
 template struct SPS_EXPORT euler_t<double>;
 #endif
 
-typedef enum RotationConvention {
+typedef enum RotationConvention
+{
   EulerIntrinsicZYZ = 0x00,
   EulerIntrinsicYXY = 0x01,
 } RotationConvention;
@@ -482,20 +516,17 @@ typedef enum RotationConvention {
  * @param index
  */
 template <typename T, RotationConvention conv>
-void SPS_EXPORT basis_vectors(sps::point_t<T>* output,
-                              const sps::euler_t<T>& euler, size_t index);
-
+void SPS_EXPORT basis_vectors(sps::point_t<T>* output, const sps::euler_t<T>& euler, size_t index);
 
 template <typename T, RotationConvention conv>
-void SPS_EXPORT euler2rot(const sps::euler_t<T>& euler,
-                          sps::mat3_t<T>* mat);
+void SPS_EXPORT euler2rot(const sps::euler_t<T>& euler, sps::mat3_t<T>* mat);
 
 template <typename T, RotationConvention conv>
-void SPS_EXPORT rot2euler(const sps::mat3_t<T>& rot,
-                          euler_t<T>* euler);
+void SPS_EXPORT rot2euler(const sps::mat3_t<T>& rot, euler_t<T>* euler);
 
 template <typename T>
-bool SPS_EXPORT svd(const sps::mat3_t<T>& mat, sps::mat3_t<T>* u, sps::point_t<T>* s, sps::mat3_t<T>* v);
+bool SPS_EXPORT svd(
+  const sps::mat3_t<T>& mat, sps::mat3_t<T>* u, sps::point_t<T>* s, sps::mat3_t<T>* v);
 
 /**
  * Rotate point using 3 Euler angles according to the convention.
@@ -509,13 +540,12 @@ bool SPS_EXPORT svd(const sps::mat3_t<T>& mat, sps::mat3_t<T>* u, sps::point_t<T
  */
 template <typename T, RotationConvention conv>
 void SPS_EXPORT basis_rotate(
-  const sps::point_t<T>& input, const euler_t<T>& euler,
-  sps::point_t<T>* output);
+  const sps::point_t<T>& input, const euler_t<T>& euler, sps::point_t<T>* output);
 
 /**
-* Function for returning the basis vector for a given coordinate
-* system defined using 3 Euler angles according to the the z-x-z'
-* convention. Using SIMD for packed singles
+ * Function for returning the basis vector for a given coordinate
+ * system defined using 3 Euler angles according to the the z-x-z'
+ * convention. Using SIMD for packed singles
  *
  * @param vec0
  * @param vec1
@@ -534,26 +564,27 @@ void SPS_EXPORT basis_vectors(T* vec0, T* vec1, T* vec2, const sps::euler_t<T>& 
  * @return
  */
 template <typename T>
-inline std::ostream& operator<<(std::ostream& out, const point_t<T>& point) {
+inline std::ostream& operator<<(std::ostream& out, const point_t<T>& point)
+{
   out << "x: " << point[0] << " y: " << point[1] << " z: " << point[2] << std::endl;
   return out;
 }
 
 template <typename T>
-inline std::ostream& operator<<(std::ostream& out, const mat3_t<T>& mat) {
+inline std::ostream& operator<<(std::ostream& out, const mat3_t<T>& mat)
+{
   out << mat.data[0][0] << " " << mat.data[0][1] << " " << mat.data[0][2] << std::endl;
   out << mat.data[1][0] << " " << mat.data[1][1] << " " << mat.data[1][2] << std::endl;
   out << mat.data[2][0] << " " << mat.data[2][1] << " " << mat.data[2][2];
   return out;
 }
 
-
-
-template<typename T>
-void compute_bounding_box_circle(const sps::circle_t<T>& circle, sps::bbox_t<T>* box) {
+template <typename T>
+void compute_bounding_box_circle(const sps::circle_t<T>& circle, sps::bbox_t<T>* box)
+{
   sps::point_t<T> u, v;
-  basis_vectors<T,sps::EulerIntrinsicYXY>(&u, circle.euler, 0);
-  basis_vectors<T,sps::EulerIntrinsicYXY>(&v, circle.euler, 1);
+  basis_vectors<T, sps::EulerIntrinsicYXY>(&u, circle.euler, 0);
+  basis_vectors<T, sps::EulerIntrinsicYXY>(&v, circle.euler, 1);
 
   T hw = circle.radius * fabs(dot(sps::point_t<T>::xaxis, u));
   T hh = circle.radius * fabs(dot(sps::point_t<T>::yaxis, v));
@@ -562,8 +593,7 @@ void compute_bounding_box_circle(const sps::circle_t<T>& circle, sps::bbox_t<T>*
   box->min[1] = circle.center[1] - hh;
   box->max[1] = circle.center[1] + hh;
 
-  T hd = std::max<T>(fabs(dot(sps::point_t<T>::zaxis, u)),
-                     fabs(dot(sps::point_t<T>::zaxis, v)));
+  T hd = std::max<T>(fabs(dot(sps::point_t<T>::zaxis, u)), fabs(dot(sps::point_t<T>::zaxis, v)));
 
   box->min[2] = circle.center[2] - hd;
   box->max[2] = circle.center[2] + hd;
@@ -581,22 +611,18 @@ void compute_bounding_box_circle(const sps::circle_t<T>& circle, sps::bbox_t<T>*
  * @param[in] arc angle
  * @param[out] point intersection point
  */
-template<typename T>
-void arc_point_ellipsis(const sps::ellipsis_t<T>& ellipsis, const T& arc,
-                        sps::point_t<T>* point);
-template<typename T>
-void tan_point_ellipsis(const sps::ellipsis_t<T>& ellipsis,
-                        const T& y, const T& x,
-                        sps::point_t<T>* point);
+template <typename T>
+void arc_point_ellipsis(const sps::ellipsis_t<T>& ellipsis, const T& arc, sps::point_t<T>* point);
+template <typename T>
+void tan_point_ellipsis(
+  const sps::ellipsis_t<T>& ellipsis, const T& y, const T& x, sps::point_t<T>* point);
 
 // TODO(JMH): Make more general line
-template<typename T>
-void intcp_line_rect(const sps::element_rect_t<T>& rect,
-                     const T& y, const T& x,
-                     sps::point_t<T>* point);
+template <typename T>
+void intcp_line_rect(
+  const sps::element_rect_t<T>& rect, const T& y, const T& x, sps::point_t<T>* point);
 
-
-}  // namespace sps
+} // namespace sps
 
 /*@}*/
 

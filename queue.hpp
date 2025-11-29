@@ -17,21 +17,23 @@
 
 #pragma once
 
+#include <condition_variable>
+#include <mutex>
 #include <queue>
 #include <thread>
-#include <mutex>
-#include <condition_variable>
 
-namespace sps {
+namespace sps
+{
 template <typename T>
-class queue {
- public:
-
+class queue
+{
+public:
   T pop()
   {
     std::unique_lock<std::mutex> mlock(mutex_);
     // Alternatively, use predicate, cond_.wait(mlock, !queue_.empty())
-    while (queue_.empty()) {
+    while (queue_.empty())
+    {
       cond_.wait(mlock);
     }
     auto item = queue_.front();
@@ -43,7 +45,8 @@ class queue {
   {
     std::unique_lock<std::mutex> mlock(mutex_);
     // Alternatively, use predicate, cond_.wait(mlock, !queue_.empty())
-    while (queue_.empty()) {
+    while (queue_.empty())
+    {
       cond_.wait(mlock);
     }
     item = queue_.front();
@@ -66,9 +69,9 @@ class queue {
     cond_.notify_one();
   }
 
- private:
+private:
   std::queue<T> queue_;
   std::mutex mutex_;
   std::condition_variable cond_;
 };
-}  // namespace sps
+} // namespace sps

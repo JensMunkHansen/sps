@@ -2,7 +2,8 @@
 
 using namespace std;
 
-int main() {
+int main()
+{
   std::cout << "==== Basic demo ====" << std::endl;
   signals_basic_demo();
   std::cout << std::endl;

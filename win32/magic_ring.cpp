@@ -1,6 +1,6 @@
-#include <windows.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <windows.h>
 
 //
 // This function creates a ring buffer by allocating a pagefile-backed section
@@ -9,11 +9,8 @@
 // using its base VA.
 //
 
-void*
-CreateRingBuffer (
-  unsigned int bufferSize,
-  _Outptr_ void** secondaryView
-) {
+void* CreateRingBuffer(unsigned int bufferSize, _Outptr_ void** secondaryView)
+{
   BOOL result;
   HANDLE section = nullptr;
   SYSTEM_INFO sysInfo;
@@ -23,10 +20,11 @@ CreateRingBuffer (
   void* view1 = nullptr;
   void* view2 = nullptr;
 
-  GetSystemInfo (&sysInfo);
+  GetSystemInfo(&sysInfo);
 
   // Take max of dwPageSize and below - to avoid wasting space (or?)
-  if ((bufferSize % sysInfo.dwAllocationGranularity) != 0) {
+  if ((bufferSize % sysInfo.dwAllocationGranularity) != 0)
+  {
     return nullptr;
   }
 
@@ -34,17 +32,12 @@ CreateRingBuffer (
   // Reserve a placeholder region where the buffer will be mapped.
   //
 
-  placeholder1 = (PCHAR) VirtualAlloc2 (
-                   nullptr,
-                   nullptr,
-                   2 * bufferSize,
-                   MEM_RESERVE | MEM_RESERVE_PLACEHOLDER,
-                   PAGE_NOACCESS,
-                   nullptr, 0
-                 );
+  placeholder1 = (PCHAR)VirtualAlloc2(nullptr, nullptr, 2 * bufferSize,
+    MEM_RESERVE | MEM_RESERVE_PLACEHOLDER, PAGE_NOACCESS, nullptr, 0);
 
-  if (placeholder1 == nullptr) {
-    printf ("VirtualAlloc2 failed, error %#x\n", GetLastError());
+  if (placeholder1 == nullptr)
+  {
+    printf("VirtualAlloc2 failed, error %#x\n", GetLastError());
     goto Exit;
   }
 
@@ -52,33 +45,26 @@ CreateRingBuffer (
   // Split the placeholder region into two regions of equal size.
   //
 
-  result = VirtualFree (
-             placeholder1,
-             bufferSize,
-             MEM_RELEASE | MEM_PRESERVE_PLACEHOLDER
-           );
+  result = VirtualFree(placeholder1, bufferSize, MEM_RELEASE | MEM_PRESERVE_PLACEHOLDER);
 
-  if (result == FALSE) {
-    printf ("VirtualFreeEx failed, error %#x\n", GetLastError());
+  if (result == FALSE)
+  {
+    printf("VirtualFreeEx failed, error %#x\n", GetLastError());
     goto Exit;
   }
 
-  placeholder2 = (void*) ((ULONG_PTR) placeholder1 + bufferSize);
+  placeholder2 = (void*)((ULONG_PTR)placeholder1 + bufferSize);
 
   //
   // Create a pagefile-backed section for the buffer.
   //
 
-  section = CreateFileMapping (
-              INVALID_HANDLE_VALUE,
-              nullptr,
-              PAGE_READWRITE,
-              0,
-              bufferSize, nullptr
-            );
+  section =
+    CreateFileMapping(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE, 0, bufferSize, nullptr);
 
-  if (section == nullptr) {
-    printf ("CreateFileMapping failed, error %#x\n", GetLastError());
+  if (section == nullptr)
+  {
+    printf("CreateFileMapping failed, error %#x\n", GetLastError());
     goto Exit;
   }
 
@@ -86,19 +72,12 @@ CreateRingBuffer (
   // Map the section into the first placeholder region.
   //
 
-  view1 = MapViewOfFile3 (
-            section,
-            nullptr,
-            placeholder1,
-            0,
-            bufferSize,
-            MEM_REPLACE_PLACEHOLDER,
-            PAGE_READWRITE,
-            nullptr, 0
-          );
+  view1 = MapViewOfFile3(section, nullptr, placeholder1, 0, bufferSize, MEM_REPLACE_PLACEHOLDER,
+    PAGE_READWRITE, nullptr, 0);
 
-  if (view1 == nullptr) {
-    printf ("MapViewOfFile3 failed, error %#x\n", GetLastError());
+  if (view1 == nullptr)
+  {
+    printf("MapViewOfFile3 failed, error %#x\n", GetLastError());
     goto Exit;
   }
 
@@ -112,19 +91,12 @@ CreateRingBuffer (
   // Map the section into the second placeholder region.
   //
 
-  view2 = MapViewOfFile3 (
-            section,
-            nullptr,
-            placeholder2,
-            0,
-            bufferSize,
-            MEM_REPLACE_PLACEHOLDER,
-            PAGE_READWRITE,
-            nullptr, 0
-          );
+  view2 = MapViewOfFile3(section, nullptr, placeholder2, 0, bufferSize, MEM_REPLACE_PLACEHOLDER,
+    PAGE_READWRITE, nullptr, 0);
 
-  if (view2 == nullptr) {
-    printf ("MapViewOfFile3 failed, error %#x\n", GetLastError());
+  if (view2 == nullptr)
+  {
+    printf("MapViewOfFile3 failed, error %#x\n", GetLastError());
     goto Exit;
   }
 
@@ -141,38 +113,45 @@ CreateRingBuffer (
 
 Exit:
 
-  if (section != nullptr) {
-    CloseHandle (section);
+  if (section != nullptr)
+  {
+    CloseHandle(section);
   }
 
-  if (placeholder1 != nullptr) {
-    VirtualFree (placeholder1, 0, MEM_RELEASE);
+  if (placeholder1 != nullptr)
+  {
+    VirtualFree(placeholder1, 0, MEM_RELEASE);
   }
 
-  if (placeholder2 != nullptr) {
-    VirtualFree (placeholder2, 0, MEM_RELEASE);
+  if (placeholder2 != nullptr)
+  {
+    VirtualFree(placeholder2, 0, MEM_RELEASE);
   }
 
-  if (view1 != nullptr) {
-    UnmapViewOfFileEx (view1, 0);
+  if (view1 != nullptr)
+  {
+    UnmapViewOfFileEx(view1, 0);
   }
 
-  if (view2 != nullptr) {
-    UnmapViewOfFileEx (view2, 0);
+  if (view2 != nullptr)
+  {
+    UnmapViewOfFileEx(view2, 0);
   }
 
   return ringBuffer;
 }
 
-int __cdecl wmain() {
+int __cdecl wmain()
+{
   char* ringBuffer;
   void* secondaryView;
   unsigned int bufferSize = 0x10000;
 
-  ringBuffer = (char*) CreateRingBuffer (bufferSize, &secondaryView);
+  ringBuffer = (char*)CreateRingBuffer(bufferSize, &secondaryView);
 
-  if (ringBuffer == nullptr) {
-    printf ("CreateRingBuffer failed\n");
+  if (ringBuffer == nullptr)
+  {
+    printf("CreateRingBuffer failed\n");
     return 0;
   }
 
@@ -182,10 +161,11 @@ int __cdecl wmain() {
 
   ringBuffer[0] = 'a';
 
-  if (ringBuffer[bufferSize] == 'a') {
-    printf ("The buffer wraps as expected\n");
+  if (ringBuffer[bufferSize] == 'a')
+  {
+    printf("The buffer wraps as expected\n");
   }
 
-  UnmapViewOfFile (ringBuffer);
-  UnmapViewOfFile (secondaryView);
+  UnmapViewOfFile(ringBuffer);
+  UnmapViewOfFile(secondaryView);
 }
