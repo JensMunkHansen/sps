@@ -1,26 +1,29 @@
 
 #include <gtest/gtest.h>
 
-#include <sps/weak_binder.hpp>
 #include <memory>
+#include <sps/weak_binder.hpp>
 
 #include <iostream>
 
 // Use std::optional
 
-TEST(bindWeakTest, testBasics) {
-  struct Y {
-    void bar() {};
+TEST(bindWeakTest, testBasics)
+{
+  struct Y
+  {
+    void bar(){};
   };
 
-  struct X : std::enable_shared_from_this<X> {
-    int increment(int by) {
+  struct X : std::enable_shared_from_this<X>
+  {
+    int increment(int by)
+    {
       count += by;
       return count;
     }
 
-    void foo() {
-    }
+    void foo() {}
 
     Y y;
 
@@ -56,10 +59,12 @@ TEST(bindWeakTest, testBasics) {
   EXPECT_FALSE(bool(retbar2));
 }
 
-struct Resource {
+struct Resource
+{
 };
 
-std::string something() {
+std::string something()
+{
   return "foo";
 }
 
@@ -119,7 +124,8 @@ TEST(invokeTest, invoke1) {
 
 #endif
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

@@ -1,27 +1,29 @@
 #include <gtest/gtest.h>
-#include <sps/memory>
 #include <sps/functional.hpp>
+#include <sps/memory>
 #include <sps/multi_malloc.hpp>
-class A {
- public:
-  A() {
-    m_data = sps::unique_aligned_array_create<float>(20);
-  }
- private:
+class A
+{
+public:
+  A() { m_data = sps::unique_aligned_array_create<float>(20); }
+
+private:
   sps::unique_aligned_array<float> m_data;
 };
 
-struct B {
-  B() : pData(nullptr)  {
+struct B
+{
+  B()
+    : pData(nullptr)
+  {
     pData = new int[10];
   }
-  ~B() {
-    delete pData;
-  }
+  ~B() { delete pData; }
   int* pData;
 };
 
-TEST(memory_test, aligned_unique_array) {
+TEST(memory_test, aligned_unique_array)
+{
   auto a = sps::unique_aligned_array_create<float>(0);
 
   auto b = sps::unique_aligned_array_create<float>(35);
@@ -54,11 +56,13 @@ TEST(memory_test, aligned_unique_array) {
   ASSERT_TRUE(true);
 }
 
-TEST(memory_test, unique_member) {
+TEST(memory_test, unique_member)
+{
   A a;
 }
 
-TEST(memory_test, multi_malloc) {
+TEST(memory_test, multi_malloc)
+{
   float* pFloat0 = static_cast<float*>(_mm_multi_malloc<float>(3, 2, 2, 4));
   _mm_multi_free<float>(pFloat0, 3);
 #ifndef _MSC_VER
@@ -67,28 +71,32 @@ TEST(memory_test, multi_malloc) {
 #endif
 }
 
-TEST(memory_test, reset_array) {
+TEST(memory_test, reset_array)
+{
   auto b = sps::unique_aligned_array_create<float>(35);
-  b.reset(static_cast<float*>(_mm_malloc(45*sizeof(float), 16)));
-  b.get_deleter() = sps::make::function([](float* f)->void { _mm_free(f);});
+  b.reset(static_cast<float*>(_mm_malloc(45 * sizeof(float), 16)));
+  b.get_deleter() = sps::make::function([](float* f) -> void { _mm_free(f); });
 }
 
 template <class T>
-struct AlignedData : sps::aligned<4*sizeof(T)> {
+struct AlignedData : sps::aligned<4 * sizeof(T)>
+{
   T a;
 };
 
-TEST(memory_test, inherit_alignment) {
+TEST(memory_test, inherit_alignment)
+{
   float f;
   SPS_UNREFERENCED_PARAMETER(f);
   AlignedData<double> c[2];
   ASSERT_EQ((reinterpret_cast<uintptr_t>(&c[1]) & 0x1F), 0UL);
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
 #ifdef __GNUG__
   static_assert(sps::ptr_depth<sps::depth_ptr<float, 2>::value_type>::level == 2,
-                "The level of depth_ptr<T,2>::value_type must equal 2");
+    "The level of depth_ptr<T,2>::value_type must equal 2");
 #endif
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();

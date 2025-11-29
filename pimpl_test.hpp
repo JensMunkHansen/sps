@@ -4,14 +4,17 @@
 
 class PimplTestPrivate;
 
-class PimplTest {
- public:
+class PimplTest
+{
+public:
   PimplTest();
   virtual ~PimplTest();
   void doNothing();
- protected:
+
+protected:
   std::unique_ptr<PimplTestPrivate> d_ptr;
- private:
+
+private:
   SPS_DECLARE_PRIVATE(PimplTest);
   SPS_DISABLE_COPY(PimplTest);
 };

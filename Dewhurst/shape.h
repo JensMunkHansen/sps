@@ -13,36 +13,46 @@
 #ifndef INCLUDED_SHAPE
 #define INCLUDED_SHAPE
 
-class ShapeBase {};
-
-class Rollable {
-public:
-	virtual ~Rollable() = default;
-	virtual void roll() = 0;
+class ShapeBase
+{
 };
 
-class Shape : public ShapeBase {
+class Rollable
+{
 public:
-	virtual ~Shape() = default;
-	virtual void draw() const = 0;
+  virtual ~Rollable() = default;
+  virtual void roll() = 0;
 };
 
-class Circle : public Shape, public Rollable {
+class Shape : public ShapeBase
+{
 public:
-    Circle() {}
-	void draw() const override {}
-	void roll() override {}
+  virtual ~Shape() = default;
+  virtual void draw() const = 0;
 };
 
-class Square : public Shape {
+class Circle
+  : public Shape
+  , public Rollable
+{
+public:
+  Circle() {}
+  void draw() const override {}
+  void roll() override {}
 };
 
-class Triangle : public Shape {
+class Square : public Shape
+{
+};
+
+class Triangle : public Shape
+{
 public:
-    Triangle() {}
-	void draw() const override {}
+  Triangle() {}
+  void draw() const override {}
+
 private:
-	int a_;
+  int a_;
 };
 
 #endif

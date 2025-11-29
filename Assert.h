@@ -42,23 +42,20 @@ namespace util
 class Assert
 {
 public:
-    /// @brief Destructor
-    /// @note Thread safety: Safe
-    /// @note Exception guarantee: No throw.
-    virtual ~Assert() {}
+  /// @brief Destructor
+  /// @note Thread safety: Safe
+  /// @note Exception guarantee: No throw.
+  virtual ~Assert() {}
 
-    /// @brief Pure virtual function to be called when assertion fails.
-    /// @param[in] expr Assertion condition/expression
-    /// @param[in] file File name
-    /// @param[in] line Line number of the assert statement.
-    /// @param[in] function Function name.
-    /// @note Thread safety: Safe.
-    /// @note Exception guarantee: No throw.
-    virtual void fail(
-        const char* expr,
-        const char* file,
-        unsigned int line,
-        const char* function) = 0;
+  /// @brief Pure virtual function to be called when assertion fails.
+  /// @param[in] expr Assertion condition/expression
+  /// @param[in] file File name
+  /// @param[in] line Line number of the assert statement.
+  /// @param[in] function Function name.
+  /// @note Thread safety: Safe.
+  /// @note Exception guarantee: No throw.
+  virtual void fail(
+    const char* expr, const char* file, unsigned int line, const char* function) = 0;
 
 private:
 };
@@ -67,43 +64,41 @@ private:
 class AssertManager
 {
 public:
+  static AssertManager& instance()
+  {
+    static AssertManager mgr;
+    return mgr;
+  }
 
-    static AssertManager& instance()
+  AssertManager(const AssertManager&) = delete;
+
+  AssertManager& operator=(const AssertManager&) = delete;
+
+  Assert* reset(Assert* newAssert = nullptr)
+  {
+    auto prevAssert = assert_;
+    assert_ = newAssert;
+    return prevAssert;
+  }
+
+  Assert* getAssert() { return assert_; }
+
+  bool hasAssertRegistered() const { return (assert_ != nullptr); }
+
+  static void infiniteLoop()
+  {
+    while (true)
     {
-        static AssertManager mgr;
-        return mgr;
-    }
-
-    AssertManager(const AssertManager&) = delete;
-
-    AssertManager& operator=(const AssertManager&) = delete;
-
-    Assert* reset(Assert* newAssert = nullptr)
-    {
-        auto prevAssert = assert_;
-        assert_ = newAssert;
-        return prevAssert;
-    }
-
-    Assert* getAssert()
-    {
-        return assert_;
-    }
-
-    bool hasAssertRegistered() const
-    {
-        return (assert_ != nullptr);
-    }
-
-    static void infiniteLoop()
-    {
-        while (true) {};
-    }
+    };
+  }
 
 private:
-    AssertManager() : assert_(nullptr) {}
+  AssertManager()
+    : assert_(nullptr)
+  {
+  }
 
-    Assert* assert_;
+  Assert* assert_;
 };
 
 /// @endcond
@@ -118,55 +113,48 @@ private:
 ///       defined in single binary, all of them must be done in the main thread
 ///       and preferable before any other threads are created.
 /// @headerfile embxx/util/Assert.h
-template < typename TAssert>
+template <typename TAssert>
 class EnableAssert
 {
-    static_assert(std::is_base_of<Assert, TAssert>::value,
-        "TAssert class must be derived class of Assert");
+  static_assert(
+    std::is_base_of<Assert, TAssert>::value, "TAssert class must be derived class of Assert");
+
 public:
-    /// Type of assert object.
-    typedef TAssert AssertType;
+  /// Type of assert object.
+  typedef TAssert AssertType;
 
-    /// @brief Constructor
-    /// @details Registers new assertion failure behaviour. It forwards
-    ///          all the provided parameters to the constructor of embedded
-    ///          assertion object of type TAssert.
-    /// @note Thread safety: Unsafe
-    /// @note Exception guarantee: Depends on exception guarantee of the
-    ///       TAssert's constructor.
-    template<typename... TParams>
-    EnableAssert(TParams&&... args)
-        : assert_(std::forward<TParams>(args)...),
-          prevAssert_(AssertManager::instance().reset(&assert_))
-    {
-    }
+  /// @brief Constructor
+  /// @details Registers new assertion failure behaviour. It forwards
+  ///          all the provided parameters to the constructor of embedded
+  ///          assertion object of type TAssert.
+  /// @note Thread safety: Unsafe
+  /// @note Exception guarantee: Depends on exception guarantee of the
+  ///       TAssert's constructor.
+  template <typename... TParams>
+  EnableAssert(TParams&&... args)
+    : assert_(std::forward<TParams>(args)...)
+    , prevAssert_(AssertManager::instance().reset(&assert_))
+  {
+  }
 
-    /// @brief Destructor
-    /// @details Restores the assertion behaviour that was recorded during
-    ///          the instantiation of this object.
-    /// @note Thread safety: Unsafe
-    /// @note Exception guarantee: Depends on exception guarantee of the
-    ///       TAssert's destructor.
-    ~EnableAssert()
-    {
-        AssertManager::instance().reset(prevAssert_);
-    }
+  /// @brief Destructor
+  /// @details Restores the assertion behaviour that was recorded during
+  ///          the instantiation of this object.
+  /// @note Thread safety: Unsafe
+  /// @note Exception guarantee: Depends on exception guarantee of the
+  ///       TAssert's destructor.
+  ~EnableAssert() { AssertManager::instance().reset(prevAssert_); }
 
-
-    /// @brief Provides reference to internal Assert object
-    /// @return Reference to object of type TAssert.
-    /// @note Thread safety: Safe
-    /// @note Exception guarantee: No throw.
-    AssertType& getAssert()
-    {
-        return assert_;
-    }
+  /// @brief Provides reference to internal Assert object
+  /// @return Reference to object of type TAssert.
+  /// @note Thread safety: Safe
+  /// @note Exception guarantee: No throw.
+  AssertType& getAssert() { return assert_; }
 
 private:
-    AssertType assert_;
-    Assert* prevAssert_;
+  AssertType assert_;
+  Assert* prevAssert_;
 };
-
 
 #ifndef NDEBUG
 
@@ -191,13 +179,12 @@ private:
 ///          In case NOSTDLIB is defined and no custom assertion failure was
 ///          enabled, infinite loop will be executed.
 /// @param expr Boolean expression
-#define GASSERT(expr) \
-    ((expr)                               \
-      ? static_cast<void>(0)                     \
-      : (embxx::util::AssertManager::instance().hasAssertRegistered() \
-            ? embxx::util::AssertManager::instance().getAssert()->fail( \
-                #expr, __FILE__, __LINE__, GASSERT_FUNCTION_STR) \
-            : GASSERT_FAIL_FUNC(expr)))
+#define GASSERT(expr)                                                                              \
+  ((expr) ? static_cast<void>(0)                                                                   \
+          : (embxx::util::AssertManager::instance().hasAssertRegistered()                          \
+                ? embxx::util::AssertManager::instance().getAssert()->fail(                        \
+                    #expr, __FILE__, __LINE__, GASSERT_FUNCTION_STR)                               \
+                : GASSERT_FAIL_FUNC(expr)))
 
 #else // #ifndef NDEBUG
 
@@ -207,6 +194,6 @@ private:
 
 /// @}
 
-}  // namespace util
+} // namespace util
 
-}  // namespace embxx
+} // namespace embxx

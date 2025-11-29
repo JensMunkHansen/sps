@@ -3,14 +3,16 @@
 
 #include <QThread>
 
-class ConsoleReader : public QThread {
+class ConsoleReader : public QThread
+{
   Q_OBJECT
- signals:
+signals:
   void KeyPressed(char ch);
- public:
+
+public:
   ConsoleReader();
   ~ConsoleReader();
   void run();
 };
 
-#endif  /* CONSOLEREADER_H */
+#endif /* CONSOLEREADER_H */

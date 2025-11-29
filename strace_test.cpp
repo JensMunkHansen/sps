@@ -1,6 +1,7 @@
 #include <sps/strace.hpp>
 
-int testMe(int a, float* q) {
+int testMe(int a, float* q)
+{
   //  Debug::DeathHandler dh;
   int* p = NULL;
   *p = 0;
@@ -9,7 +10,8 @@ int testMe(int a, float* q) {
 
 using namespace sps;
 
-int main() {
+int main()
+{
   STrace::Instance().Enable();
 
   STrace::Instance().OptionSet(STrace::STRACE_GEN_CORE_DUMP, 1);

@@ -8,31 +8,34 @@
 
 #include <gtest/gtest.h>
 
-class alignas(64) A : public sps::DynAllocators<A> {
- public:
-   //static void* operator new(std::size_t count, void* pUser) {debug_print("\n");}
+class alignas(64) A : public sps::DynAllocators<A>
+{
+public:
+  // static void* operator new(std::size_t count, void* pUser) {debug_print("\n");}
   float m_f;
-  A() : m_f(1.0f) {
+  A()
+    : m_f(1.0f)
+  {
     debug_print("\n");
   }
-  ~A() {
-    debug_print("\n");
-  }
+  ~A() { debug_print("\n"); }
   // void* operator new(std::size_t size, std::align_val_t al) = delete;
 };
 
-class B : public sps::DynAllocators<B> {
+class B : public sps::DynAllocators<B>
+{
 public:
   float m_f;
-  B() : m_f(1.0f) {
+  B()
+    : m_f(1.0f)
+  {
     debug_print("\n");
   }
-  ~B() {
-    debug_print("\n");
-  }
+  ~B() { debug_print("\n"); }
 };
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
   SPS_UNREFERENCED_PARAMETERS(argc, argv);
   A* pAs = new A[2];
   delete[] pAs;

@@ -31,41 +31,41 @@
 #include <stdint.h>
 
 #ifdef _WIN32
-# ifndef NOMINMAX
-#  define NOMINMAX
-# endif
-# include <windows.h>
-# include <process.h>
-# include <io.h>
-# if defined(HAVE_PTHREAD_H)
-#  include <pthread.h>
-# endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <io.h>
+#include <process.h>
+#include <windows.h>
+#if defined(HAVE_PTHREAD_H)
+#include <pthread.h>
+#endif
 #else
-# if defined(HAVE_SIGNAL_H)
-#  include <csignal>
-# endif
-# if defined(HAVE_PTHREAD_H)
-#  include <pthread.h>
-# endif
-# include <unistd.h>
-# ifndef __CYGWIN__
-#  include <sys/syscall.h>
-# endif
+#if defined(HAVE_SIGNAL_H)
+#include <csignal>
+#endif
+#if defined(HAVE_PTHREAD_H)
+#include <pthread.h>
+#endif
+#include <unistd.h>
+#ifndef __CYGWIN__
+#include <sys/syscall.h>
+#endif
 #endif
 
 #include <float.h>
 
 #include <thread>
 
-STATIC_INLINE_BEGIN int setcpuid(int cpu_id) {
+STATIC_INLINE_BEGIN int setcpuid(int cpu_id)
+{
 #ifdef __GNUG__
-# ifndef __CYGWIN__
+#ifndef __CYGWIN__
   cpu_set_t set;
   CPU_ZERO(&set);
   CPU_SET(cpu_id, &set);
-  CallErrReturn(sched_setaffinity,
-                (gettid(), sizeof(cpu_set_t), &set), -1);
-# endif
+  CallErrReturn(sched_setaffinity, (gettid(), sizeof(cpu_set_t), &set), -1);
+#endif
 #elif defined(_WIN32)
   HANDLE hThread = GetCurrentThread();
   SetThreadIdealProcessor(hThread, cpu_id);
@@ -76,19 +76,19 @@ STATIC_INLINE_BEGIN int setcpuid(int cpu_id) {
 // TODO(JEM): Move this crap to windows crap
 
 #ifndef EM_INEXACT
-# ifdef _MSC_VER
-#  define EM_INEXACT _EM_INEXACT
-# else
-#  define EM_INEXACT 0
-# endif
+#ifdef _MSC_VER
+#define EM_INEXACT _EM_INEXACT
+#else
+#define EM_INEXACT 0
+#endif
 #endif
 
 #ifndef MCW_EM
-# ifdef _MSC_VER
-#  define MCW_EM _MCW_EM
-# else
-#  define MCW_EM 0
-# endif
+#ifdef _MSC_VER
+#define MCW_EM _MCW_EM
+#else
+#define MCW_EM 0
+#endif
 #endif
 
 /**
@@ -108,8 +108,9 @@ STATIC_INLINE_BEGIN int setcpuid(int cpu_id) {
  *
  * @return
  */
-STATIC_INLINE_BEGIN unsigned int controlfp(unsigned int newCtrlWordBits = EM_INEXACT,
-    unsigned int mask = MCW_EM) {
+STATIC_INLINE_BEGIN unsigned int controlfp(
+  unsigned int newCtrlWordBits = EM_INEXACT, unsigned int mask = MCW_EM)
+{
 #ifdef _MSC_VER
   unsigned int curCtrlWordBits = 0;
   errno_t retval = _controlfp_s(&curCtrlWordBits, newCtrlWordBits, mask);
@@ -121,7 +122,8 @@ STATIC_INLINE_BEGIN unsigned int controlfp(unsigned int newCtrlWordBits = EM_INE
   //   C/C++ -> Code Generation -> Modify the Enable C++ Exceptions to "Yes With SEH Exceptions"
 }
 
-STATIC_INLINE_BEGIN uint64_t sps_rdtsc() {
+STATIC_INLINE_BEGIN uint64_t sps_rdtsc()
+{
 #ifdef _MSC_VER
   return __rdtsc();
 #elif defined(__GNUC__)
@@ -130,19 +132,19 @@ STATIC_INLINE_BEGIN uint64_t sps_rdtsc() {
     We cannot use "=A", since this would use %rax on x86_64 and return
     only the lower 32bits of the TSC
   */
-  __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
+  __asm__ __volatile__("rdtsc" : "=a"(lo), "=d"(hi));
   return (uint64_t)hi << 32 | lo;
 #endif
 }
 
-STATIC_INLINE_BEGIN int getncpus() {
+STATIC_INLINE_BEGIN int getncpus()
+{
   int nproc = 0;
 #if defined(__linux__)
   // Why valgrind crashes here
   cpu_set_t cpuset;
   CPU_ZERO(&cpuset);
-  CallErr(sched_getaffinity,
-          (gettid(), sizeof( cpu_set_t ), &cpuset));
+  CallErr(sched_getaffinity, (gettid(), sizeof(cpu_set_t), &cpuset));
   nproc = CPU_COUNT(&cpuset);
 #elif defined(_WIN32)
   SYSTEM_INFO info;
@@ -152,39 +154,46 @@ STATIC_INLINE_BEGIN int getncpus() {
   return nproc;
 }
 
-namespace sps {
+namespace sps
+{
 
 #if defined(HAVE_PTHREAD_H)
-template<class T, void*(T::*thread_func)(void*)>
+template <class T, void* (T::*thread_func)(void*)>
 #elif defined(_WIN32)
-template<class T, unsigned int(__stdcall T::*thread_func)(void*)>
+template <class T, unsigned int (__stdcall T::*thread_func)(void*)>
 #endif
 
-class pthread_launcher {
- public:
-  explicit pthread_launcher(T* obj = NULL, void* arg = NULL) :
-    _obj(obj), _arg(arg) {}
+class pthread_launcher
+{
+public:
+  explicit pthread_launcher(T* obj = NULL, void* arg = NULL)
+    : _obj(obj)
+    , _arg(arg)
+  {
+  }
 #if defined(HAVE_PTHREAD_H)
-  void *launch() {
+  void* launch()
+  {
     return (_obj->*thread_func)(_arg);
   }
 #elif defined(_WIN32)
-  unsigned int launch() {
+  unsigned int launch()
+  {
     return (_obj->*thread_func)(_arg);
   }
 #endif
- private:
+private:
   /// Object pointer
   T* _obj;
   /// Command argument for member function
-  void *_arg;
+  void* _arg;
 };
 
-template<class T>
+template <class T>
 #if defined(HAVE_PTHREAD_H)
-void *launch_member_function(void *obj)
+void* launch_member_function(void* obj)
 #elif defined(_WIN32)
-unsigned int __stdcall launch_member_function(void *obj)
+unsigned int __stdcall launch_member_function(void* obj)
 #endif
 {
   T* launcher = reinterpret_cast<T*>(obj);
@@ -193,22 +202,23 @@ unsigned int __stdcall launch_member_function(void *obj)
 
 // Naming threads - consider upgrading to using SetThreadDescription
 #ifdef _WIN32
-# pragma warning(push)
-# pragma warning(disable : 6320)
+#pragma warning(push)
+#pragma warning(disable : 6320)
 
 const DWORD MS_VC_EXCEPTION = 0x406D1388;
 
 #pragma pack(push, 8)
-typedef struct tagTHREADNAME_INFO {
-  DWORD dwType;  // Must be 0x1000.
-  LPCSTR szName;  // Pointer to name (in user addr space).
-  DWORD dwThreadID;  // Thread ID (-1=caller thread).
-  DWORD dwFlags;  // Reserved for future use, must be zero.
+typedef struct tagTHREADNAME_INFO
+{
+  DWORD dwType;     // Must be 0x1000.
+  LPCSTR szName;    // Pointer to name (in user addr space).
+  DWORD dwThreadID; // Thread ID (-1=caller thread).
+  DWORD dwFlags;    // Reserved for future use, must be zero.
 } THREADNAME_INFO;
 #pragma pack(pop)
 
-STATIC_INLINE_BEGIN void SetThreadName(uint32_t dwThreadID,
-                                       const char* threadName) {
+STATIC_INLINE_BEGIN void SetThreadName(uint32_t dwThreadID, const char* threadName)
+{
   // DWORD dwThreadID =
   // ::GetThreadId( static_cast<HANDLE>( t.native_handle() ) );
 
@@ -220,71 +230,51 @@ STATIC_INLINE_BEGIN void SetThreadName(uint32_t dwThreadID,
   info.dwThreadID = dwThreadID;
   info.dwFlags = 0;
 
-  __try {
-    RaiseException(MS_VC_EXCEPTION,
-                   0,
-                   sizeof(info)/sizeof(ULONG_PTR),
-                   reinterpret_cast<ULONG_PTR*>(&info));
-  } __except(EXCEPTION_EXECUTE_HANDLER) {
+  __try
+  {
+    RaiseException(
+      MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(ULONG_PTR), reinterpret_cast<ULONG_PTR*>(&info));
+  }
+  __except (EXCEPTION_EXECUTE_HANDLER)
+  {
   }
 #ifdef WIN10
 #include <processthreadsapi.h>
   HRESULT r;
   // wchar_t
-  wchar_t* pWideString = alloca(len(threadName)*sizeof(wchar_t) + 1);
+  wchar_t* pWideString = alloca(len(threadName) * sizeof(wchar_t) + 1);
   mbstowcs(pWideString, threadName, len(threadName));
-  r = SetThreadDescription(
-        dwThreadID,
-        pWideString);
+  r = SetThreadDescription(dwThreadID, pWideString);
 #endif
 }
 
-STATIC_INLINE_BEGIN void SetThreadName(const char* threadName) {
+STATIC_INLINE_BEGIN void SetThreadName(const char* threadName)
+{
   SetThreadName(GetCurrentThreadId(), threadName);
 }
 
-STATIC_INLINE_BEGIN void SetThreadName(std::thread* thread,
-                                       const char* threadName) {
-  DWORD threadId =
-    ::GetThreadId(static_cast<HANDLE>(thread->native_handle()));
+STATIC_INLINE_BEGIN void SetThreadName(std::thread* thread, const char* threadName)
+{
+  DWORD threadId = ::GetThreadId(static_cast<HANDLE>(thread->native_handle()));
   SetThreadName(threadId, threadName);
 }
-# pragma warning(pop)
+#pragma warning(pop)
 
 #else
-STATIC_INLINE_BEGIN void SetThreadName(std::thread* thread,
-                                       const char* threadName) {
+STATIC_INLINE_BEGIN void SetThreadName(std::thread* thread, const char* threadName)
+{
   auto handle = thread->native_handle();
   pthread_setname_np(handle, threadName);
 }
 
 #include <sys/prctl.h>
-STATIC_INLINE_BEGIN void SetThreadName(const char* threadName) {
+STATIC_INLINE_BEGIN void SetThreadName(const char* threadName)
+{
   prctl(PR_SET_NAME, threadName, 0, 0, 0);
 }
 
 #endif
-}  // namespace sps
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+} // namespace sps
 
 /* Local variables: */
 /* indent-tabs-mode: nil */

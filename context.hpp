@@ -9,19 +9,21 @@
  */
 #pragma once
 
-#include <sps/cenv.h>
 #include <atomic>
+#include <sps/cenv.h>
 #include <sps/contextif.hpp>
 
 #ifdef _WIN32
-# include <windows.h>
+#include <windows.h>
 #endif
-namespace sps {
+namespace sps
+{
 
 class ThreadPool;
 
-class Context : public ContextIF {
- public:
+class Context : public ContextIF
+{
+public:
   static int Create(ContextIF** ppContext);
   static int Destroy(ContextIF* pContext);
 
@@ -40,18 +42,20 @@ class Context : public ContextIF {
   ThreadPool* ThreadPoolGet();
   ///@}
 
- private:
+private:
   static std::atomic<ThreadPool*> g_threadpool;
 
 #if defined(__GNUC__)
-  static void ThreadPoolInit()     __attribute__((constructor(101)));
-  static void ThreadPoolDestroy()  __attribute__((constructor(101)));
+  static void ThreadPoolInit() __attribute__((constructor(101)));
+  static void ThreadPoolDestroy() __attribute__((constructor(101)));
 #elif defined(_WIN32)
   static void ThreadPoolInit();
- public:
+
+public:
   static void ThreadPoolDestroy();
- private:
-  friend BOOL APIENTRY DllMain(HANDLE hModule, DWORD  ulReasonForCall, LPVOID lpReserved);
+
+private:
+  friend BOOL APIENTRY DllMain(HANDLE hModule, DWORD ulReasonForCall, LPVOID lpReserved);
 #endif
 
   Context(const Context& rhs) = delete;
@@ -60,7 +64,7 @@ class Context : public ContextIF {
   ThreadPool* m_threadpool;
   uint32_t m_id;
 };
-}  // namespace sps
+} // namespace sps
 
 /* Local variables: */
 /* indent-tabs-mode: nil */

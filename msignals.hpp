@@ -31,16 +31,17 @@
 
 #include <sps/sps_export.h>
 
-#include <cstddef>
-#include <memory>    // shared_ptr
 #include <complex>
+#include <cstddef>
+#include <memory> // shared_ptr
 
-namespace std {
+namespace std
+{
 // Not nice
 template class SPS_EXPORT std::shared_ptr<float>;
 template class SPS_EXPORT std::shared_ptr<double>;
-template class SPS_EXPORT std::shared_ptr<std::complex<float> >;
-template class SPS_EXPORT std::shared_ptr<std::complex<double> >;
+template class SPS_EXPORT std::shared_ptr<std::complex<float>>;
+template class SPS_EXPORT std::shared_ptr<std::complex<double>>;
 
 #ifdef _MSC_VER
 template class SPS_EXPORT shared_ptr<float>;
@@ -48,14 +49,16 @@ template class SPS_EXPORT shared_ptr<double>;
 #endif
 }
 
-namespace sps {
+namespace sps
+{
 
 template <typename T>
-void SPS_EXPORT DivideArray(T *Data, size_t NumEl, T Divisor);
+void SPS_EXPORT DivideArray(T* Data, size_t NumEl, T Divisor);
 
-template<typename T>
-class SPS_EXPORT msignal1D {
- public:
+template <typename T>
+class SPS_EXPORT msignal1D
+{
+public:
   msignal1D();
 
   msignal1D(size_t ndata);
@@ -103,23 +106,24 @@ class SPS_EXPORT msignal1D {
   ~msignal1D();
 
   // TODO: Consider using nsamples and (ndata >= sizeof(T)*nsamples)
-  int offset;              // Offset can be negative
-  size_t ndata;            // Number of samples
-  size_t nbytes;           // Number of bytes - may exceed sizeof(T) * ndata
+  int offset;    // Offset can be negative
+  size_t ndata;  // Number of samples
+  size_t nbytes; // Number of bytes - may exceed sizeof(T) * ndata
 
   std::shared_ptr<T>& data()
   {
     return this->m_data;
   }
- private:
- public:
 
+private:
+public:
   // Should not be here
   std::shared_ptr<T> m_data; // Data
 };
 
 template <typename T>
-struct SPS_EXPORT signal1D {
+struct SPS_EXPORT signal1D
+{
   signal1D();
   signal1D(size_t ndata);
   signal1D(const signal1D& other) = default;
@@ -141,7 +145,7 @@ struct SPS_EXPORT signal1D {
  *
  * @return
  */
-template<typename T>
+template <typename T>
 bool SPS_EXPORT mconv_fft(const msignal1D<T>& a, const msignal1D<T>& b, msignal1D<T>& c);
 
 /**
@@ -156,8 +160,9 @@ bool SPS_EXPORT mconv_fft(const msignal1D<T>& a, const msignal1D<T>& b, msignal1
  *
  * @return
  */
-template<typename T>
-bool SPS_EXPORT mconv_fft_fs(const T& fs, const msignal1D<T>& a, const msignal1D<T>& b, msignal1D<T>& c);
+template <typename T>
+bool SPS_EXPORT mconv_fft_fs(
+  const T& fs, const msignal1D<T>& a, const msignal1D<T>& b, msignal1D<T>& c);
 
 /**
  *
@@ -168,7 +173,7 @@ bool SPS_EXPORT mconv_fft_fs(const T& fs, const msignal1D<T>& a, const msignal1D
  *
  * @return
  */
-template<typename T>
+template <typename T>
 bool SPS_EXPORT mconv_fft(const msignal1D<T>& a, const msignal1D<T>& b, signal1D<T>& c);
 
 /**
@@ -181,9 +186,7 @@ bool SPS_EXPORT mconv_fft(const msignal1D<T>& a, const msignal1D<T>& b, signal1D
  * @return
  */
 template <typename T>
-bool SPS_EXPORT conv_fft(const sps::signal1D<T> &a,
-                         const sps::signal1D<T> &b,
-                         sps::signal1D<T>& c);
+bool SPS_EXPORT conv_fft(const sps::signal1D<T>& a, const sps::signal1D<T>& b, sps::signal1D<T>& c);
 
 /**
  * Convolution
@@ -196,10 +199,8 @@ bool SPS_EXPORT conv_fft(const sps::signal1D<T> &a,
  * @return
  */
 template <typename T>
-bool SPS_EXPORT conv_fft_fs(const T& fs,
-                            const sps::signal1D<T> &a,
-                            const sps::signal1D<T> &b,
-                            sps::signal1D<T>& c);
+bool SPS_EXPORT conv_fft_fs(
+  const T& fs, const sps::signal1D<T>& a, const sps::signal1D<T>& b, sps::signal1D<T>& c);
 
 /**
  * In-place convolution (2nd argument)
@@ -210,14 +211,13 @@ bool SPS_EXPORT conv_fft_fs(const T& fs,
  * @return
  */
 template <typename T>
-bool conv_fft_out_in(const signal1D<T> &a,
-                     signal1D<T> &b);
+bool conv_fft_out_in(const signal1D<T>& a, signal1D<T>& b);
 
 template <typename T>
-bool SPS_EXPORT pack_r2c(const sps::signal1D<T> &a, sps::signal1D<std::complex<T> >& c);
+bool SPS_EXPORT pack_r2c(const sps::signal1D<T>& a, sps::signal1D<std::complex<T>>& c);
 
 template <typename T>
-bool SPS_EXPORT unpack_c2r(const sps::signal1D<std::complex<T> >& a, sps::signal1D<T> &c);
+bool SPS_EXPORT unpack_c2r(const sps::signal1D<std::complex<T>>& a, sps::signal1D<T>& c);
 
 /**
  * FFT of signal
@@ -228,7 +228,7 @@ bool SPS_EXPORT unpack_c2r(const sps::signal1D<std::complex<T> >& a, sps::signal
  * @return
  */
 template <typename T>
-bool SPS_EXPORT fft(const sps::signal1D<T> &a, const size_t &n, sps::signal1D<std::complex<T> >& c);
+bool SPS_EXPORT fft(const sps::signal1D<T>& a, const size_t& n, sps::signal1D<std::complex<T>>& c);
 
 /**
  * FFT of signal
@@ -239,15 +239,17 @@ bool SPS_EXPORT fft(const sps::signal1D<T> &a, const size_t &n, sps::signal1D<st
  * @return
  */
 template <typename T>
-bool SPS_EXPORT ifft(const sps::signal1D<std::complex<T> >& a, const size_t &n, sps::signal1D<T> &c);
+bool SPS_EXPORT ifft(const sps::signal1D<std::complex<T>>& a, const size_t& n, sps::signal1D<T>& c);
 
 #if defined(__GNUG__) || (defined(_MSC_VER) && (_MSC_VER >= 1800))
 
 template <typename T>
-bool SPS_EXPORT mfft(const sps::msignal1D<T> &a, const size_t &n, sps::msignal1D<std::complex<T> >& c);
+bool SPS_EXPORT mfft(
+  const sps::msignal1D<T>& a, const size_t& n, sps::msignal1D<std::complex<T>>& c);
 
 template <typename T>
-bool SPS_EXPORT mifft(const sps::msignal1D<std::complex<T> >& a, const size_t &n, sps::msignal1D<T> &c);
+bool SPS_EXPORT mifft(
+  const sps::msignal1D<std::complex<T>>& a, const size_t& n, sps::msignal1D<T>& c);
 
 #endif
 
@@ -261,12 +263,9 @@ bool SPS_EXPORT mifft(const sps::msignal1D<std::complex<T> >& a, const size_t &n
  * @return
  */
 template <typename T>
-bool SPS_EXPORT conv(const sps::signal1D<T> &a,
-                     const sps::signal1D<T> &b,
-                     sps::signal1D<T>& c);
+bool SPS_EXPORT conv(const sps::signal1D<T>& a, const sps::signal1D<T>& b, sps::signal1D<T>& c);
 
-
-}  // namspace sps
+} // namspace sps
 
 /* Local variables: */
 /* indent-tab-mode: nil */

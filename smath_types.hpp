@@ -25,21 +25,21 @@
  */
 #pragma once
 
-#include <sps/sps_export.h>
 #include <sps/math.h>
 #include <sps/smath_matrix_type.hpp>
+#include <sps/sps_export.h>
 
 #ifdef _MSC_VER
-# include <sps/aligned_array.hpp>
+#include <sps/aligned_array.hpp>
 #else
-# include <array>
+#include <array>
 #endif
 
-#include <sps/memory>   // For sps::aligned
-
+#include <sps/memory> // For sps::aligned
 
 #ifdef _WIN32
-namespace sps {
+namespace sps
+{
 template class SPS_EXPORT aligned_array<float, 4>;
 template class SPS_EXPORT aligned_array<double, 4>;
 }
@@ -48,7 +48,8 @@ template class SPS_EXPORT aligned_array<double, 4>;
 /** @addtogroup SPS */
 /*@{*/
 
-namespace sps {
+namespace sps
+{
 
 /*! \brief Point type (aligned)
  *
@@ -65,26 +66,27 @@ struct SPS_EXPORT point_t : public sps::aligned_array<T, 4>
 #else
 
 template <typename T>
-struct __attribute__((aligned(4*sizeof(T))))
-SPS_EXPORT point_t : public std::array<T, 4>
+struct __attribute__((aligned(4 * sizeof(T)))) SPS_EXPORT point_t : public std::array<T, 4>
 
 #endif
 {
-  static const point_t xaxis;   ///< x-axis
-  static const point_t yaxis;   ///< y-axis
-  static const point_t zaxis;   ///< z-axis
+  static const point_t xaxis; ///< x-axis
+  static const point_t yaxis; ///< y-axis
+  static const point_t zaxis; ///< z-axis
 
   point_t() = default;
 
-  point_t(const T& a, const T& b, const T&c) {
+  point_t(const T& a, const T& b, const T& c)
+  {
     (*this)[0] = a;
     (*this)[1] = b;
     (*this)[2] = c;
   }
 #ifdef _MSC_VER
-  point_t(std::initializer_list<T> args) :
-    sps::aligned_array<T, 4>(reinterpret_cast<sps::aligned_array<T, 4> const&>(
-                               *(args.begin()))) {}
+  point_t(std::initializer_list<T> args)
+    : sps::aligned_array<T, 4>(reinterpret_cast<sps::aligned_array<T, 4> const&>(*(args.begin())))
+  {
+  }
 #else
   using std::array<T, 4>::array;
 
@@ -99,35 +101,35 @@ SPS_EXPORT point_t : public std::array<T, 4>
   }
 
 #endif
-  point_t<T>& operator+=(const point_t<T>& other) {
+  point_t<T>& operator+=(const point_t<T>& other)
+  {
     (*this)[0] += other[0];
     (*this)[1] += other[1];
     (*this)[2] += other[2];
     return *this;
   }
-  T length() {
-    return sqrt((*this)[0]*(*this)[0] +
-                (*this)[1]*(*this)[1] +
-                (*this)[2]*(*this)[2]);
+  T length()
+  {
+    return sqrt((*this)[0] * (*this)[0] + (*this)[1] * (*this)[1] + (*this)[2] * (*this)[2]);
   }
-  T dist(const sps::point_t<T>& other) {
-    return sqrt(SQUARE((*this)[0] - other[0]) +
-                SQUARE((*this)[1] - other[1]) +
-                SQUARE((*this)[2] - other[2]));
+  T dist(const sps::point_t<T>& other)
+  {
+    return sqrt(SQUARE((*this)[0] - other[0]) + SQUARE((*this)[1] - other[1]) +
+      SQUARE((*this)[2] - other[2]));
   }
   sps::mat3_t<T> dyadic_product(const sps::point_t<T>& other)
   {
     sps::mat3_t<T> result;
-    for (size_t i = 0 ; i < 3 ; i++) {
-      for (size_t j = 0 ; j < 3 ; j++) {
+    for (size_t i = 0; i < 3; i++)
+    {
+      for (size_t j = 0; j < 3; j++)
+      {
         result.data[i][j] = (*this)[i] * other[j];
       }
     }
     return result;
   }
 };
-
-
 
 template <typename T>
 const point_t<T> point_t<T>::xaxis = point_t<T>(T(1.0), T(0.0), T(0.0));
@@ -151,11 +153,14 @@ using vector_t = point_t<T>;
  */
 #ifdef _MSC_VER
 template <typename T>
-struct SPS_EXPORT rect_t : public sps::aligned_array<point_t<T>, 4> {};
+struct SPS_EXPORT rect_t : public sps::aligned_array<point_t<T>, 4>
+{
+};
 #else
 template <typename T>
-struct __attribute__((aligned(4*sizeof(T)))) SPS_EXPORT rect_t :
-public std::array<point_t<T>, 4> {};
+struct __attribute__((aligned(4 * sizeof(T)))) SPS_EXPORT rect_t : public std::array<point_t<T>, 4>
+{
+};
 #endif
 
 /*! \brief Bounding box
@@ -165,7 +170,8 @@ public std::array<point_t<T>, 4> {};
  *  optimize the cache usage.
  */
 template <typename T>
-struct SPS_EXPORT bbox_t {
+struct SPS_EXPORT bbox_t
+{
   /// Boundary minimum
   point_t<T> min;
   /// Boundary maximum
@@ -178,7 +184,8 @@ struct SPS_EXPORT bbox_t {
  *  Euler angles, the z-x-z' convention is used.
  */
 template <typename T>
-struct SPS_EXPORT euler_t : sps::aligned<4*sizeof(T)> {
+struct SPS_EXPORT euler_t : sps::aligned<4 * sizeof(T)>
+{
   /// alpha
   T alpha;
   /// beta
@@ -190,20 +197,21 @@ struct SPS_EXPORT euler_t : sps::aligned<4*sizeof(T)> {
 };
 
 template <typename T>
-struct SPS_EXPORT circle_t : sps::aligned<4*sizeof(T)> {
-  sps::point_t<T> center;  ///< Center position
-  sps::euler_t<T> euler;   ///< Euler angles
-  T radius;                ///< Radius
+struct SPS_EXPORT circle_t : sps::aligned<4 * sizeof(T)>
+{
+  sps::point_t<T> center; ///< Center position
+  sps::euler_t<T> euler;  ///< Euler angles
+  T radius;               ///< Radius
 };
 
 template <typename T>
-struct SPS_EXPORT ellipsis_t : sps::aligned<4*sizeof(T)> {
-  sps::point_t<T> center;  ///< Center position
-  sps::euler_t<T> euler;   ///< Euler angles
-  T hw;                    ///< Half width (half axis)
-  T hh;                    ///< Half height (half axis)
+struct SPS_EXPORT ellipsis_t : sps::aligned<4 * sizeof(T)>
+{
+  sps::point_t<T> center; ///< Center position
+  sps::euler_t<T> euler;  ///< Euler angles
+  T hw;                   ///< Half width (half axis)
+  T hh;                   ///< Half height (half axis)
 };
-
 
 /*! \brief Element representation
  *
@@ -214,14 +222,14 @@ struct SPS_EXPORT ellipsis_t : sps::aligned<4*sizeof(T)> {
 
 #if defined(_WIN32)
 template <typename T>
-struct SPS_EXPORT element_rect_t : sps::aligned<4*sizeof(T)>
+struct SPS_EXPORT element_rect_t : sps::aligned<4 * sizeof(T)>
 #else
 template <typename T>
-struct __attribute__((aligned(4*sizeof(T)))) SPS_EXPORT element_rect_t
+struct __attribute__((aligned(4 * sizeof(T)))) SPS_EXPORT element_rect_t
 #endif
 {
-  SPS_ALIGNAS(sizeof(T) * 4) sps::point_t<T> center;  ///< Center position
-  SPS_ALIGNAS(sizeof(T) * 4) sps::euler_t<T> euler;   ///< Euler angles
+  SPS_ALIGNAS(sizeof(T) * 4) sps::point_t<T> center; ///< Center position
+  SPS_ALIGNAS(sizeof(T) * 4) sps::euler_t<T> euler;  ///< Euler angles
   /** @name Cached variables (careful with alignment)
    *
    */
@@ -238,14 +246,15 @@ struct __attribute__((aligned(4*sizeof(T)))) SPS_EXPORT element_rect_t
   SPS_ALIGNAS(sizeof(T) * 4) T vertices[3][4];
 
   ///@}
-  T hw;        ///< Half width
-  T hh;        ///< Half height
-  T dummy[2];  ///< Dummy for alignment
+  T hw;       ///< Half width
+  T hh;       ///< Half height
+  T dummy[2]; ///< Dummy for alignment
 };
 
 template <typename T>
-struct SPS_EXPORT element_circular_t : sps::aligned<4*sizeof(T)> {
-  sps::circle_t<T> circle;  // Circular element
+struct SPS_EXPORT element_circular_t : sps::aligned<4 * sizeof(T)>
+{
+  sps::circle_t<T> circle; // Circular element
 
   /** @name Cached variables - alignas(4*sizeof(T))
    *
@@ -260,11 +269,11 @@ struct SPS_EXPORT element_circular_t : sps::aligned<4*sizeof(T)> {
   ALIGN16_BEGIN T vvector[4] ALIGN16_END;
 #else
   /// Normal vector
-  alignas(4*sizeof(T)) T normal[4];
+  alignas(4 * sizeof(T)) T normal[4];
   /// First basis vector
-  alignas(4*sizeof(T)) T uvector[4];
+  alignas(4 * sizeof(T)) T uvector[4];
   /// Second basis vector
-  alignas(4*sizeof(T)) T vvector[4];
+  alignas(4 * sizeof(T)) T vvector[4];
 #endif
   ///@}
 };
@@ -273,7 +282,7 @@ struct SPS_EXPORT element_circular_t : sps::aligned<4*sizeof(T)> {
 template struct SPS_EXPORT bbox_t<float>;
 template struct SPS_EXPORT bbox_t<double>;
 #endif
-}  // namespace sps
+} // namespace sps
 
 /*@}*/
 

@@ -1,40 +1,50 @@
 #include <sps/pimpl_test.hpp>
 
-#include <cstdlib>
 #include <cstdio>
+#include <cstdlib>
 
-class PimplTestPrivate {
+class PimplTestPrivate
+{
   SPS_DECLARE_PUBLIC(PimplTest);
- protected:
+
+protected:
   PimplTest* const q_ptr;
- public:
+
+public:
   PimplTestPrivate(PimplTest& object);
   void init();
 };
 
-PimplTestPrivate::PimplTestPrivate(PimplTest& object) : q_ptr(&object) {
+PimplTestPrivate::PimplTestPrivate(PimplTest& object)
+  : q_ptr(&object)
+{
 }
 
-void PimplTestPrivate::init() {
+void PimplTestPrivate::init()
+{
   SPS_Q(PimplTest);
   q->doNothing();
   printf("init\n");
 }
 
-PimplTest::PimplTest() : d_ptr(new PimplTestPrivate(*this)) {
+PimplTest::PimplTest()
+  : d_ptr(new PimplTestPrivate(*this))
+{
   // alternatively
   // this->d_ptr = std::make_unique<PimplTestPrivate>(*this);
   SPS_D(PimplTest);
   d->init();
 }
 
-void PimplTest::doNothing() {
+void PimplTest::doNothing()
+{
   printf("%s\n", SPS_FUNC_INFO);
 }
 
 PimplTest::~PimplTest() = default;
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
 
   PimplTest p;
   return EXIT_SUCCESS;

@@ -1,28 +1,32 @@
-#include <string>
 #include <iostream>
 #include <memory>
+#include <string>
 
 #include <sps/cenv.h>
 
 #ifndef CXX17
-# error
+#error
 #endif
 
 #ifdef _MSC_VER
-# pragma warning(disable : 4996)
+#pragma warning(disable : 4996)
 using mysnprintf = _snprintf;
 #else
-//using mysnprintf = std::snprintf;
+// using mysnprintf = std::snprintf;
 #endif
 
 /**
  * Convert all std::strings to const char* using constexpr if (C++17)
  */
-template<typename T>
-auto convert(T&& t) {
-  if constexpr (std::is_same<std::remove_cv_t<std::remove_reference_t<T>>, std::string>::value) {
+template <typename T>
+auto convert(T&& t)
+{
+  if constexpr (std::is_same<std::remove_cv_t<std::remove_reference_t<T>>, std::string>::value)
+  {
     return std::forward<T>(t).c_str();
-  } else {
+  }
+  else
+  {
     return std::forward<T>(t);
   }
 }
@@ -31,38 +35,44 @@ auto convert(T&& t) {
  * printf like formatting for C++ with std::string
  * Original source: https://stackoverflow.com/a/26221725/11722
  */
-template<typename ... Args>
-std::string stringFormatInternal(const std::string& format, Args&& ... args) {
-  size_t size = snprintf(nullptr, 0, format.c_str(), std::forward<Args>(args) ...) + 1;
-  if( size <= 0 ) {
-    throw std::runtime_error( "Error during formatting." );
+template <typename... Args>
+std::string stringFormatInternal(const std::string& format, Args&&... args)
+{
+  size_t size = snprintf(nullptr, 0, format.c_str(), std::forward<Args>(args)...) + 1;
+  if (size <= 0)
+  {
+    throw std::runtime_error("Error during formatting.");
   }
   std::unique_ptr<char[]> buf(new char[size]);
-  snprintf(buf.get(), size, format.c_str(), args ...);
+  snprintf(buf.get(), size, format.c_str(), args...);
   return std::string(buf.get(), buf.get() + size - 1);
 }
 
-template<typename ... Args>
-std::string stringFormat(std::string fmt, Args&& ... args) {
+template <typename... Args>
+std::string stringFormat(std::string fmt, Args&&... args)
+{
   return stringFormatInternal(fmt, convert(std::forward<Args>(args))...);
 }
 
 #include <memory>
-#include <string>
 #include <stdexcept>
+#include <string>
 
-template<typename ... Args>
-std::string string_format( const std::string& format, Args ... args ) {
-  size_t size = snprintf( nullptr, 0, format.c_str(), args ... ) + 1; // Extra space for '\0'
-  if( size <= 0 ) {
-    throw std::runtime_error( "Error during formatting." );
+template <typename... Args>
+std::string string_format(const std::string& format, Args... args)
+{
+  size_t size = snprintf(nullptr, 0, format.c_str(), args...) + 1; // Extra space for '\0'
+  if (size <= 0)
+  {
+    throw std::runtime_error("Error during formatting.");
   }
-  std::unique_ptr<char[]> buf( new char[ size ] );
-  snprintf( buf.get(), size, format.c_str(), args ... );
-  return std::string( buf.get(), buf.get() + size - 1 ); // We don't want the '\0' inside
+  std::unique_ptr<char[]> buf(new char[size]);
+  snprintf(buf.get(), size, format.c_str(), args...);
+  return std::string(buf.get(), buf.get() + size - 1); // We don't want the '\0' inside
 }
 
-int main() {
+int main()
+{
 
   std::string s = "a";
   const std::string cs = "b";
@@ -78,17 +88,16 @@ int main() {
   return 0;
 }
 
-
 #if 0
 
-#include <iostream>
 #include <format>
+#include <iostream>
 
 int main() {
   std::cout << std::format("Hello {}!\n", "world");
 }
 
-#include <stdarg.h>  // For va_start, etc.
+#include <stdarg.h> // For va_start, etc.
 
 std::string string_format(const std::string fmt, ...) {
   int size = ((int)fmt.size()) * 2 + 50;   // Use a rubric appropriate for your code
@@ -113,8 +122,8 @@ std::string string_format(const std::string fmt, ...) {
 
 A safer and more efficient (I tested it, and it is faster) approach:
 
-#include <stdarg.h>  // For va_start, etc.
-#include <memory>    // For std::unique_ptr
+#include <memory>   // For std::unique_ptr
+#include <stdarg.h> // For va_start, etc.
 
 std::string string_format(const std::string fmt_str, ...) {
   int final_n, n = ((int)fmt_str.size()) * 2; /* Reserve two times as much as the length of the fmt_str */

@@ -4,56 +4,56 @@
 *   You are welcome to contact the author at: vdksoft@gmail.com
 ===================================================================*/
 
-#include <thread>
 #include <atomic>
+#include <thread>
 
 #include "demo.h"
 
 using std::string;
-using vdk::signal;
 using vdk::context;
 using vdk::exec;
+using vdk::signal;
 using vdk::signals_execute;
 
-namespace {
-void function(int arg1, int arg2) {
-  std::cout << "function(" << arg1 << ", "
-            << arg2 << ") from thread:"
-            << std::this_thread::get_id() << std::endl;
+namespace
+{
+void function(int arg1, int arg2)
+{
+  std::cout << "function(" << arg1 << ", " << arg2 << ") from thread:" << std::this_thread::get_id()
+            << std::endl;
 }
 
-struct functor {
+struct functor
+{
   explicit functor(int data) noexcept
-    : data_ {
-    data
+    : data_{ data }
+  {
   }
-  {}
-  void operator()(int arg1, int arg2) {
-    std::cout << "functor(" << arg1 << ", "
-              << arg2 << ") from thread:"
-              << std::this_thread::get_id() << std::endl;
+  void operator()(int arg1, int arg2)
+  {
+    std::cout << "functor(" << arg1 << ", " << arg2
+              << ") from thread:" << std::this_thread::get_id() << std::endl;
   }
-  bool operator==(const functor & other) const noexcept {
-    return data_ == other.data_;
-  }
+  bool operator==(const functor& other) const noexcept { return data_ == other.data_; }
   int data_;
 };
 
-class demo_class : public context {
- public:
-
+class demo_class : public context
+{
+public:
   demo_class() = default;
 
-  void method(int arg1, int arg2) {
-    std::cout << "demo_class::method(" << arg1 << ", "
-              << arg2 << ") from thread:"
-              << std::this_thread::get_id() << std::endl;
+  void method(int arg1, int arg2)
+  {
+    std::cout << "demo_class::method(" << arg1 << ", " << arg2
+              << ") from thread:" << std::this_thread::get_id() << std::endl;
   }
 };
 
 } // namespace
 
-void signals_cross_thread_calls() {
+void signals_cross_thread_calls()
+{
   // An object of a class derived from 'context' has thread affinity
   // i.e., the object lives in the thread that created it.
   // In order to receive cross-thread signal emissions that thread
@@ -74,11 +74,12 @@ void signals_cross_thread_calls() {
       // emissions for functions, function objects and lambdas
       sig.connect(&object, function);
       sig.connect(&object, functor{ 4 });
-      sig.connect(&object, [](int arg1, int arg2) {
-        std::cout << "I am lambda(" << arg1 << ", "
-                  << arg2 << ") from thread:"
-                  << std::this_thread::get_id() << std::endl;
-      });
+      sig.connect(&object,
+        [](int arg1, int arg2)
+        {
+          std::cout << "I am lambda(" << arg1 << ", " << arg2
+                    << ") from thread:" << std::this_thread::get_id() << std::endl;
+        });
       flag = true;
 
       // This loop is very important! It extracts and executes all
@@ -90,7 +91,8 @@ void signals_cross_thread_calls() {
       // existing event loop, such as window messaging system.
       int number_of_calls = 0;
       while (number_of_calls < 4)
-        if (signals_execute()) ++number_of_calls;
+        if (signals_execute())
+          ++number_of_calls;
 
       // Note! As soon as the thread exits and destroys the 'context'
       // object all slots associated with the object will not be
@@ -98,14 +100,15 @@ void signals_cross_thread_calls() {
     } };
 
   // Give another thread a chance to start
-  while (!flag.load()) std::this_thread::yield();
+  while (!flag.load())
+    std::this_thread::yield();
 
-  std::cout << "signal emission from thread:" <<
-            std::this_thread::get_id() << std::endl;
+  std::cout << "signal emission from thread:" << std::this_thread::get_id() << std::endl;
 
   sig.emit(5, 10);
 
-  if (th.joinable()) th.join();
+  if (th.joinable())
+    th.join();
 
   std::cout << "-------------------------------" << std::endl;
 
@@ -125,8 +128,7 @@ void signals_cross_thread_calls() {
   sig.connect(&object, function, exec::sync);
 
   // Let's try to emit the signal
-  std::cout << "signal emission from thread:" <<
-            std::this_thread::get_id() << std::endl;
+  std::cout << "signal emission from thread:" << std::this_thread::get_id() << std::endl;
 
   sig.emit(100, 200);
 

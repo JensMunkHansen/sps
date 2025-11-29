@@ -37,37 +37,38 @@
 
 #include <sps/stdlib.h>
 
+#include <malloc.h> // __malloc_hook
 #include <stdint.h>
-#include <malloc.h>  // __malloc_hook
 
 #include <cxxabi.h>
-#include <execinfo.h>  // backtrace
+#include <execinfo.h> // backtrace
 
-#include <signal.h>
-#include <wait.h>
-#include <unistd.h>
 #include <fcntl.h>
 #include <pthread.h>
+#include <signal.h>
+#include <unistd.h>
+#include <wait.h>
 
 #ifndef _GNU_SOURCE
-# define _GNU_SOURCE
+#define _GNU_SOURCE
 #endif
 #include <dlfcn.h>
 
-#include <cstring>  // strlen, strcat, strcmp, strcpy
+#include <cstring> // strlen, strcat, strcmp, strcpy
 
 // We are not allowed to do malloc inside signal handlers
-#pragma GCC poison malloc realloc free backtrace_symbols  \
-  printf fprintf sprintf snprintf scanf sscanf
+#pragma GCC poison malloc realloc free backtrace_symbols printf fprintf sprintf snprintf scanf     \
+  sscanf
 
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 // strcat
 
 #ifndef STATIC_INLINE
-# define STATIC_INLINE __attribute__((always_inline)) static inline
+#define STATIC_INLINE __attribute__((always_inline)) static inline
 #endif
 
-static inline void safe_abort() {
+static inline void safe_abort()
+{
   // Read signal handler for abort
   struct sigaction sa;
   sigaction(SIGABRT, NULL, &sa);
@@ -97,24 +98,25 @@ static inline void safe_abort() {
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-namespace sps {
+namespace sps
+{
 
 //  STrace* STrace::m_pInstance = NULL; // Old style
-bool    STrace::m_bInitialized = false;
+bool STrace::m_bInitialized = false;
 
-bool   STrace::m_bGenerateCoreDump  = false;
-bool   STrace::m_bCallAtExit        = true;
-bool   STrace::m_bQuickExit         = false;
-size_t STrace::m_nFrames            = 16U;
-bool   STrace::m_bIncCommonPath     = false;
-bool   STrace::m_bIncRelativePaths  = false;
-bool   STrace::m_bAppendPID         = false;
-bool   STrace::m_bEnableColorOutput = true;
-bool   STrace::m_bThreadSafe        = false;
-int    STrace::m_fdOutput           = STDERR_FILENO;
+bool STrace::m_bGenerateCoreDump = false;
+bool STrace::m_bCallAtExit = true;
+bool STrace::m_bQuickExit = false;
+size_t STrace::m_nFrames = 16U;
+bool STrace::m_bIncCommonPath = false;
+bool STrace::m_bIncRelativePaths = false;
+bool STrace::m_bAppendPID = false;
+bool STrace::m_bEnableColorOutput = true;
+bool STrace::m_bThreadSafe = false;
+int STrace::m_fdOutput = STDERR_FILENO;
 
 // REMOVE
-char*  STrace::memory_             = NULL;
+char* STrace::memory_ = NULL;
 
 const size_t STrace::kNeededMemory = 12288;
 
@@ -122,36 +124,47 @@ struct sigaction STrace::m_sa_segv;
 struct sigaction STrace::m_sa_abrt;
 struct sigaction STrace::m_sa_fpe;
 
-void STrace::print2fd(const char *msg, size_t len) {
-  if (len > 0) {
-    if (write(m_fdOutput, msg, len) < 0) {
+void STrace::print2fd(const char* msg, size_t len)
+{
+  if (len > 0)
+  {
+    if (write(m_fdOutput, msg, len) < 0)
+    {
       _exit(EXIT_FAILURE);
     }
-  } else {
-    if (write(m_fdOutput, msg, strlen(msg)) < 0) {
+  }
+  else
+  {
+    if (write(m_fdOutput, msg, strlen(msg)) < 0)
+    {
       _exit(EXIT_FAILURE);
     }
   }
 }
 
-STrace::STrace() {
-  if (memory_ == NULL) {
+STrace::STrace()
+{
+  if (memory_ == NULL)
+  {
     memory_ = new char[kNeededMemory];
   }
 }
 
-STrace::~STrace() {
-  if (memory_) {
-    delete [] memory_;
+STrace::~STrace()
+{
+  if (memory_)
+  {
+    delete[] memory_;
   }
 }
 
 /// @brief Used to workaround backtrace() usage of malloc().
-void* STrace::mallocHook(size_t size,
-                         const void* caller ) {
+void* STrace::mallocHook(size_t size, const void* caller)
+{
   (void)caller;
   char* malloc_buffer = memory_ + kNeededMemory - 512;
-  if (size > 512U) {
+  if (size > 512U)
+  {
     const char* msg = "malloc() replacement function should not return "
                       "a memory block larger than 512 bytes\n";
     print2fd(msg, strlen(msg) + 1);
@@ -161,118 +174,141 @@ void* STrace::mallocHook(size_t size,
   return malloc_buffer;
 }
 
-STrace& STrace::Instance() {
+STrace& STrace::Instance()
+{
   // Meyer's Singleton - thread-safe after C++11
   static STrace singleton;
   return singleton;
 }
 
-sps::STrace::straceErrorCodes STrace::OptionSet(straceOption opt, int val) {
+sps::STrace::straceErrorCodes STrace::OptionSet(straceOption opt, int val)
+{
   sps::STrace::straceErrorCodes err = sps::STrace::straceErrorCodes(0);
-  switch (opt) {
-  case (STRACE_FILEDESCRIPTOR):
-    if (fcntl(val, F_GETFL, 0)) {
-      err = STRACE_ERR_INVALID_FD;
+  switch (opt)
+  {
+    case (STRACE_FILEDESCRIPTOR):
+      if (fcntl(val, F_GETFL, 0))
+      {
+        err = STRACE_ERR_INVALID_FD;
+        break;
+      }
+      m_fdOutput = val;
       break;
-    }
-    m_fdOutput = val;
-    break;
-  case (STRACE_GEN_CORE_DUMP):
-    m_bGenerateCoreDump = static_cast<bool>(val);
-    break;
-  case (STRACE_EXEC_EXIT_FUNCS):
-    m_bCallAtExit = static_cast<bool>(val);
-    break;
-  case (STRACE_FAST_EXIT):
-    m_bQuickExit = static_cast<bool>(val);
-    break;
-  case (STRACE_STACK_DEPTH):
-    m_nFrames = (size_t) val;
-    break;
-  case (STRACE_COMMON_PATH):
-    m_bIncCommonPath = static_cast<bool>(val);
-    break;
-  case (STRACE_REL_PATH):
-    m_bIncRelativePaths = static_cast<bool>(val);
-    break;
-  case (STRACE_PID):
-    m_bAppendPID = static_cast<bool>(val);
-    break;
-  case (STRACE_COLOR_OUTPUT):
-    m_bEnableColorOutput = static_cast<bool>(val);
-    break;
-  default:
-    break;
+    case (STRACE_GEN_CORE_DUMP):
+      m_bGenerateCoreDump = static_cast<bool>(val);
+      break;
+    case (STRACE_EXEC_EXIT_FUNCS):
+      m_bCallAtExit = static_cast<bool>(val);
+      break;
+    case (STRACE_FAST_EXIT):
+      m_bQuickExit = static_cast<bool>(val);
+      break;
+    case (STRACE_STACK_DEPTH):
+      m_nFrames = (size_t)val;
+      break;
+    case (STRACE_COMMON_PATH):
+      m_bIncCommonPath = static_cast<bool>(val);
+      break;
+    case (STRACE_REL_PATH):
+      m_bIncRelativePaths = static_cast<bool>(val);
+      break;
+    case (STRACE_PID):
+      m_bAppendPID = static_cast<bool>(val);
+      break;
+    case (STRACE_COLOR_OUTPUT):
+      m_bEnableColorOutput = static_cast<bool>(val);
+      break;
+    default:
+      break;
   }
   return err;
 }
 
-void STrace::signalHandler(int sig, ::siginfo_t* info, void* secret) {
+void STrace::signalHandler(int sig, ::siginfo_t* info, void* secret)
+{
   (void)info;
   // Stop all other running threads by forking
   pid_t forkedPid = fork();
-  if (forkedPid != 0) {
+  if (forkedPid != 0)
+  {
     // Main process
     int status;
-    if (m_bThreadSafe) {
+    if (m_bThreadSafe)
+    {
       // Freeze the original process, until it's child prints the stack trace
       kill(getpid(), SIGSTOP);
       // Wait for the child without blocking and exit as soon as possible,
       // so that no zombies are left.
       waitpid(forkedPid, &status, WNOHANG);
-    } else {
+    }
+    else
+    {
       // Wait for the child, blocking only the current thread.
       // All other threads will continue to run,
       // potentially crashing the parent.
       waitpid(forkedPid, &status, 0);
     }
-    if (m_bQuickExit) {
+    if (m_bQuickExit)
+    {
       ::quick_exit(EXIT_FAILURE);
     }
-    if (m_bGenerateCoreDump) {
+    if (m_bGenerateCoreDump)
+    {
       struct sigaction sa;
       sigaction(SIGABRT, NULL, &sa);
       sa.sa_handler = SIG_DFL;
       sigaction(SIGABRT, &sa, NULL);
       abort();
-    } else {
-      if (m_bCallAtExit) {
+    }
+    else
+    {
+      if (m_bCallAtExit)
+      {
         exit(EXIT_FAILURE);
-      } else {
+      }
+      else
+      {
         _exit(EXIT_FAILURE);
       }
     }
-  } else {
+  }
+  else
+  {
     // Child process - the else clause is for clarity
 
     // TODO(JEM): Consider using atexit for closing fd
 
-    ucontext_t *uc = reinterpret_cast<ucontext_t *>(secret);
+    ucontext_t* uc = reinterpret_cast<ucontext_t*>(secret);
 
-    if (dup2(STDERR_FILENO, STDOUT_FILENO) == -1) {
+    if (dup2(STDERR_FILENO, STDOUT_FILENO) == -1)
+    {
       print2fd("Failed to redirect stdout to stderr\n");
     }
     char* memory = memory_;
     {
       char* msg = memory;
       const int msg_max_length = 128;
-      if (m_bEnableColorOutput) {
+      if (m_bEnableColorOutput)
+      {
         // Bold red
-        strcpy(msg, "\033[31;1m");  // use snprintf
-      } else {
+        strcpy(msg, "\033[31;1m"); // use snprintf
+      }
+      else
+      {
         msg[0] = '\0';
       }
-      switch (sig) {
-      case SIGSEGV:
-        strcat(msg, "Segmentation fault");  // snprintf
-        break;
-      case SIGABRT:
-        strcat(msg, "Aborted");
-        break;
-      default:
-        strcat(msg, "Caught signal ");
-        strcat(msg, sps::itoa(sig, msg + msg_max_length));
-        break;
+      switch (sig)
+      {
+        case SIGSEGV:
+          strcat(msg, "Segmentation fault"); // snprintf
+          break;
+        case SIGABRT:
+          strcat(msg, "Aborted");
+          break;
+        default:
+          strcat(msg, "Caught signal ");
+          strcat(msg, sps::itoa(sig, msg + msg_max_length));
+          break;
       }
       if (m_bEnableColorOutput)
         strcat(msg, "\033[0m");
@@ -291,7 +327,7 @@ void STrace::signalHandler(int sig, ::siginfo_t* info, void* secret) {
       strcat(msg, ", pid ");
 
       if (m_bEnableColorOutput)
-        strcat(msg, "\033[33;1m");  // yellow bold
+        strcat(msg, "\033[33;1m"); // yellow bold
 
       strcat(msg, sps::itoa(getppid(), msg + msg_max_length));
 
@@ -303,45 +339,47 @@ void STrace::signalHandler(int sig, ::siginfo_t* info, void* secret) {
     }
 
     print2fd("\n\nStack trace:\n");
-    void **trace = reinterpret_cast<void**>(memory);
+    void** trace = reinterpret_cast<void**>(memory);
     memory += (m_nFrames + 2) * sizeof(void*);
 
     // Workaround malloc() inside backtrace()
     void* (*oldMallocHook)(size_t, const void*) = __malloc_hook;
-    void (*oldFreeHook)(void *, const void *)   = __free_hook;
+    void (*oldFreeHook)(void*, const void*) = __free_hook;
     __malloc_hook = mallocHook;
     __free_hook = NULL;
     int trace_size = backtrace(trace, m_nFrames + 2);
     __malloc_hook = oldMallocHook;
     __free_hook = oldFreeHook;
-    if (trace_size <= 2) {
+    if (trace_size <= 2)
+    {
       close(m_fdOutput);
       safe_abort();
     }
 
     // Overwrite sigaction with caller's address
 #if defined(__arm__)
-    trace[1] = reinterpret_cast<void *>(uc->uc_mcontext.arm_pc);
+    trace[1] = reinterpret_cast<void*>(uc->uc_mcontext.arm_pc);
 #elif defined(__x86_64__)
-    trace[1] = reinterpret_cast<void *>(uc->uc_mcontext.gregs[REG_RIP]);
+    trace[1] = reinterpret_cast<void*>(uc->uc_mcontext.gregs[REG_RIP]);
 #elif defined(__i386__)
-    trace[1] = reinterpret_cast<void *>(uc->uc_mcontext.gregs[REG_EIP]);
+    trace[1] = reinterpret_cast<void*>(uc->uc_mcontext.gregs[REG_EIP]);
 #else
-# error Only ARM, x86 and x86-64 are supported
+#error Only ARM, x86 and x86-64 are supported
 #endif
 
     const int path_max_length = 2048;
     char* name_buf = memory;
-    ssize_t name_buf_length = readlink("/proc/self/exe", name_buf,
-                                       path_max_length - 1);
-    if (name_buf_length < 1) {
+    ssize_t name_buf_length = readlink("/proc/self/exe", name_buf, path_max_length - 1);
+    if (name_buf_length < 1)
+    {
       close(m_fdOutput);
       safe_abort();
     }
     name_buf[name_buf_length] = 0;
     memory += name_buf_length + 1;
     char* cwd = memory;
-    if (getcwd(cwd, path_max_length) == NULL) {
+    if (getcwd(cwd, path_max_length) == NULL)
+    {
       close(m_fdOutput);
       safe_abort();
     }
@@ -350,51 +388,56 @@ void STrace::signalHandler(int sig, ::siginfo_t* info, void* secret) {
     char* prev_memory = memory;
 
     int stackOffset = trace[2] == trace[1] ? 2 : 1;
-    for (int i = stackOffset; i < trace_size; i++) {
+    for (int i = stackOffset; i < trace_size; i++)
+    {
       memory = prev_memory;
-      char *line;
+      char* line;
       Dl_info dlinf;
       void* pAddr;
       if (dladdr(trace[i], &dlinf) == 0 || dlinf.dli_fname[0] != '/' ||
-          !strcmp(name_buf, dlinf.dli_fname)) {
-#if __GNUC__ > 4 || \
-    (__GNUC__ == 4 && (__GNUC_MINOR__ > 9 || \
-                       (__GNUC_MINOR__ == 9 && \
-                        __GNUC_PATCHLEVEL__ > 2)))
+        !strcmp(name_buf, dlinf.dli_fname))
+      {
+#if __GNUC__ > 4 ||                                                                                \
+  (__GNUC__ == 4 && (__GNUC_MINOR__ > 9 || (__GNUC_MINOR__ == 9 && __GNUC_PATCHLEVEL__ > 2)))
         // This is needed for GCC version 6.3.0-18, but not for 4.9.2
         // TODO(JEM): It seems that line number is one to high
-        pAddr = reinterpret_cast<void *>(reinterpret_cast<char *>(trace[i]) -
-                                         reinterpret_cast<char *>(dlinf.dli_fbase));
+        pAddr = reinterpret_cast<void*>(
+          reinterpret_cast<char*>(trace[i]) - reinterpret_cast<char*>(dlinf.dli_fbase));
 #else
         pAddr = trace[i];
 #endif
         line = addr2line(name_buf, pAddr, m_bEnableColorOutput, &memory);
-      } else {
-        pAddr = reinterpret_cast<void *>(reinterpret_cast<char *>(trace[i]) -
-                                         reinterpret_cast<char *>(dlinf.dli_fbase));
-        line = addr2line(dlinf.dli_fname,
-                         pAddr,
-                         m_bEnableColorOutput, &memory);
+      }
+      else
+      {
+        pAddr = reinterpret_cast<void*>(
+          reinterpret_cast<char*>(trace[i]) - reinterpret_cast<char*>(dlinf.dli_fbase));
+        line = addr2line(dlinf.dli_fname, pAddr, m_bEnableColorOutput, &memory);
       }
 
-      char *function_name_end = strstr(line, "\n");
-      if (function_name_end != NULL) {
+      char* function_name_end = strstr(line, "\n");
+      if (function_name_end != NULL)
+      {
         *function_name_end = 0;
         {
           // "\033[34;1m[%s]\033[0m \033[33;1m(%i)\033[0m\n
           char* msg = memory;
           const int msg_max_length = 512;
-          if (m_bEnableColorOutput) {
-            strcpy(msg, "\033[34;1m");  // bold blue
-          } else {
+          if (m_bEnableColorOutput)
+          {
+            strcpy(msg, "\033[34;1m"); // bold blue
+          }
+          else
+          {
             msg[0] = 0;
           }
           strcat(msg, "[");
           strcat(msg, line);
           strcat(msg, "]");
-          if (m_bAppendPID) {
+          if (m_bAppendPID)
+          {
             if (m_bEnableColorOutput)
-              strcat(msg, "\033[33;1m");  // bold yellow
+              strcat(msg, "\033[33;1m"); // bold yellow
             //                strcat(msg, "\033[0m\033[33;1m"); // normal bold yellow
 
             strcat(msg, " (");
@@ -404,7 +447,9 @@ void STrace::signalHandler(int sig, ::siginfo_t* info, void* secret) {
               strcat(msg, "\033[0m");
 
             strcat(msg, "\n");
-          } else {
+          }
+          else
+          {
             if (m_bEnableColorOutput)
               strcat(msg, "\033[0m");
 
@@ -415,23 +460,33 @@ void STrace::signalHandler(int sig, ::siginfo_t* info, void* secret) {
         line = function_name_end + 1;
 
         // Remove the common path root
-        if (!m_bIncCommonPath) {
+        if (!m_bIncCommonPath)
+        {
           int cpi;
-          for (cpi = 0 ; cwd[cpi] == line[cpi] ; cpi++) {}
-          if (line[cpi - 1] != '/') {
-            for (; line[cpi - 1] != '/'; cpi--) {}
+          for (cpi = 0; cwd[cpi] == line[cpi]; cpi++)
+          {
           }
-          if (cpi > 1) {
+          if (line[cpi - 1] != '/')
+          {
+            for (; line[cpi - 1] != '/'; cpi--)
+            {
+            }
+          }
+          if (cpi > 1)
+          {
             line = line + cpi;
           }
         }
 
         // Remove relative path root
-        if (!m_bIncRelativePaths) {
-          char *path_cut_pos = strstr(line, "../");
-          if (path_cut_pos != NULL) {
+        if (!m_bIncRelativePaths)
+        {
+          char* path_cut_pos = strstr(line, "../");
+          if (path_cut_pos != NULL)
+          {
             path_cut_pos += 3;
-            while (!strncmp(path_cut_pos, "../", 3)) {
+            while (!strncmp(path_cut_pos, "../", 3))
+            {
               path_cut_pos += 3;
             }
             line = path_cut_pos;
@@ -439,18 +494,20 @@ void STrace::signalHandler(int sig, ::siginfo_t* info, void* secret) {
         }
 
         // Mark line number
-        if (m_bEnableColorOutput) {
+        if (m_bEnableColorOutput)
+        {
           char* number_pos = strstr(line, ":");
-          if (number_pos != NULL) {
+          if (number_pos != NULL)
+          {
             // TODO(JMH): Remove when correcting MIME types
-            *(number_pos) = ' ';         // Remove
-            char* line_number = memory;  // 128
+            *(number_pos) = ' ';               // Remove
+            char* line_number = memory;        // 128
             strcpy(line_number, ++number_pos); // One past colon (remove ++)
             // Overwrite the new line char
             line_number[strlen(line_number) - 1] = 0;
             // \033[32;1m%s\033[0m\n
             strcpy(number_pos, "\033[32;1m"); // bold green
-            strcat(line, ":"); // Remove line
+            strcat(line, ":");                // Remove line
             strcat(line, line_number);
             strcat(line, "\033[0m\n");
           }
@@ -461,7 +518,8 @@ void STrace::signalHandler(int sig, ::siginfo_t* info, void* secret) {
       line[strlen(line) - 1] = 0;
 
       // Append pid
-      if (m_bAppendPID) {
+      if (m_bAppendPID)
+      {
         // %s\033[33;1m(%i)\033[0m\n
         strcat(line, " ");
         if (m_bEnableColorOutput)
@@ -489,7 +547,8 @@ void STrace::signalHandler(int sig, ::siginfo_t* info, void* secret) {
     char end = '\0';
     write(STDERR_FILENO, &end, 1);
 
-    if (m_bThreadSafe) {
+    if (m_bThreadSafe)
+    {
       // Resume the parent process
       kill(getppid(), SIGCONT);
     }
@@ -501,12 +560,14 @@ void STrace::signalHandler(int sig, ::siginfo_t* info, void* secret) {
   }
 }
 
-sps::STrace::straceErrorCodes STrace::Enable() {
-  if (!m_bInitialized) {
+sps::STrace::straceErrorCodes STrace::Enable()
+{
+  if (!m_bInitialized)
+  {
     this->init();
   }
   struct sigaction sa;
-  //sa.sa_handler = (__sighandler_t)signalHandler;
+  // sa.sa_handler = (__sighandler_t)signalHandler;
   sigemptyset(&sa.sa_mask);
   sa.sa_flags = SA_RESTART | SA_SIGINFO | SA_ONSTACK;
 
@@ -519,8 +580,10 @@ sps::STrace::straceErrorCodes STrace::Enable() {
   return sps::STrace::straceErrorCodes(EXIT_SUCCESS);
 }
 
-sps::STrace::straceErrorCodes STrace::Disable() {
-  if (m_bInitialized) {
+sps::STrace::straceErrorCodes STrace::Disable()
+{
+  if (m_bInitialized)
+  {
     sigaction(SIGSEGV, &m_sa_segv, NULL);
     sigaction(SIGABRT, &m_sa_abrt, NULL);
     // TEST
@@ -529,8 +592,10 @@ sps::STrace::straceErrorCodes STrace::Disable() {
   return sps::STrace::straceErrorCodes(EXIT_SUCCESS);
 }
 
-int STrace::init() {
-  if (!m_bInitialized) {
+int STrace::init()
+{
+  if (!m_bInitialized)
+  {
     // Store old state, once
     sigaction(SIGABRT, NULL, &m_sa_abrt);
     sigaction(SIGSEGV, NULL, &m_sa_segv); // TODO: Was m_sa_abrt
@@ -543,25 +608,26 @@ int STrace::init() {
 }
 
 // modify memory
-char* STrace::addr2line(const char *image /* input exe name */,
-                        void *addr /* input */,
-                        bool color_output /* input */,
-                        char** memory) {
+char* STrace::addr2line(const char* image /* input exe name */, void* addr /* input */,
+  bool color_output /* input */, char** memory)
+{
   // Pipe from child to parent process
   int pipefd[2];
-  if (pipe(pipefd) != 0) {
+  if (pipe(pipefd) != 0)
+  {
     safe_abort();
   }
   pid_t pid = fork();
 
-  if (pid == 0) {
+  if (pid == 0)
+  {
     // Child
     close(pipefd[0]);
     dup2(pipefd[1], STDOUT_FILENO);
     dup2(pipefd[1], STDERR_FILENO);
-    if (execlp("addr2line", "addr2line",
-               sps::ptoa(addr, *memory), "-f", "-C", "-e", image,
-               reinterpret_cast<void*>(NULL)) == -1) {
+    if (execlp("addr2line", "addr2line", sps::ptoa(addr, *memory), "-f", "-C", "-e", image,
+          reinterpret_cast<void*>(NULL)) == -1)
+    {
       // Take care if execlp fails
       close(pipefd[1]);
       safe_abort();
@@ -576,16 +642,19 @@ char* STrace::addr2line(const char *image /* input exe name */,
   *memory += line_max_length;
   ssize_t len = read(pipefd[0], line, line_max_length);
   close(pipefd[0]);
-  if (len == 0) {
+  if (len == 0)
+  {
     safe_abort();
   }
   line[len] = 0;
 
   // Wait for child
-  if (waitpid(pid, NULL, 0) != pid) {
+  if (waitpid(pid, NULL, 0) != pid)
+  {
     safe_abort();
   }
-  if (line[0] == '?') {
+  if (line[0] == '?')
+  {
     // TODO(JEM): Always happens for g++ 6.3.0-18, which is not good
     // Suspect offsets are offsets in virtual memory and
     // not in the .text section, i.e. in the binary
@@ -604,8 +673,11 @@ char* STrace::addr2line(const char *image /* input exe name */,
     strcat(line, " at ");
     strcat(line, image);
     strcat(line, " ");
-  } else {
-    if (*(strstr(line, "\n") + 1) == '?') {
+  }
+  else
+  {
+    if (*(strstr(line, "\n") + 1) == '?')
+    {
       char* straddr = sps::ptoa(addr, *memory);
       strcpy(strstr(line, "\n") + 1, image);
       strcat(line, ":");
@@ -615,8 +687,7 @@ char* STrace::addr2line(const char *image /* input exe name */,
   }
   return line;
 }
-}  // namespace sps
-
+} // namespace sps
 
 #if __GNUC__ >= 4 && __GNUC_MINOR__ >= 6
 #pragma GCC diagnostic pop

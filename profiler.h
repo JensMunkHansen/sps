@@ -22,21 +22,24 @@
 #include <sps/cenv.h>
 
 #ifdef _MSC_VER
-# include <windows.h>
+#include <windows.h>
 #else
-# include <time.h>
-# include <sys/time.h>
-# include <sys/resource.h>
+#include <sys/resource.h>
+#include <sys/time.h>
+#include <time.h>
 #endif
 
-namespace sps {
-class profiler {
- public:
+namespace sps
+{
+class profiler
+{
+public:
 #ifdef _MSC_VER
   static double time(void)
   {
     static __THREAD double freq = 0.0;
-    if (freq == 0.0) {
+    if (freq == 0.0)
+    {
       LARGE_INTEGER llDiv;
       QueryPerformanceFrequency(&llDiv);
       freq = double(llDiv.QuadPart);
@@ -59,7 +62,7 @@ class profiler {
     usec = static_cast<double>(tspec.tv_nsec) / 1000000000.0;
 #else
     static __THREAD struct rusage foo;
-    getrusage (RUSAGE_SELF, &foo); // process values
+    getrusage(RUSAGE_SELF, &foo); // process values
     sec = static_cast<double>(foo.ru_utime.tv_sec);
     usec = static_cast<double>(foo.ru_utime.tv_usec) / 1000000.0;
 #endif
@@ -67,9 +70,9 @@ class profiler {
   }
 #endif
 };
-}  // namespace sps
+} // namespace sps
 
-#endif  // SPS_PROFILER_H_
+#endif // SPS_PROFILER_H_
 
 /*
 

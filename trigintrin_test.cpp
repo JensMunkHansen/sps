@@ -1,10 +1,10 @@
-#include <cstdio>
-#include <cstdlib>
-#include <sps/trigintrin.h>
-#include <sps/cmath>
-#include <cstring>
 #include <algorithm> // std::min, std::max
 #include <cassert>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <sps/cmath>
+#include <sps/trigintrin.h>
 
 #include <gtest/gtest.h>
 
@@ -14,62 +14,65 @@ TEST(trigintrin_test, test_sin_cos_log)
   __m128 b = _mm_set1_ps(4.0f);
   _mm_arccos_ps(a);
   _mm_arcsin_ps(a);
-  _mm_arctan2_ps(a,b);
-
+  _mm_arctan2_ps(a, b);
 
   ALIGN16_BEGIN float vout[4] ALIGN16_END;
 
-  float max_diff[] = {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f, 0.0f};
-  float x,diff;
-  __m128 vx,vr;
+  float max_diff[] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+  float x, diff;
+  __m128 vx, vr;
 
-  for (size_t i = 0 ; i < 1000 ; i++) {
-    x  = -float(M_PI)/2.0f + float(i)/1000 * float(M_PI);
+  for (size_t i = 0; i < 1000; i++)
+  {
+    x = -float(M_PI) / 2.0f + float(i) / 1000 * float(M_PI);
     vx = _mm_set1_ps(x);
     vr = _mm_cos_ps(vx);
     memcpy(vout, &vr, 16);
-    diff = fabs(vout[0]-cos(x));
+    diff = fabs(vout[0] - cos(x));
     max_diff[3] = std::max<float>(diff, max_diff[3]);
   }
 
-  for (size_t i = 0 ; i < 1000 ; i++) {
-    x  = -float(M_PI)/2.0f + float(i)/1000 * float(M_PI);
+  for (size_t i = 0; i < 1000; i++)
+  {
+    x = -float(M_PI) / 2.0f + float(i) / 1000 * float(M_PI);
     vx = _mm_set1_ps(x);
     vr = _mm_sin_ps(vx);
     memcpy(vout, &vr, 16);
-    diff = fabs(vout[0]-sin(x));
+    diff = fabs(vout[0] - sin(x));
     max_diff[4] = std::max<float>(diff, max_diff[4]);
   }
 
   __m128 vr1 = _mm_setzero_ps();
-  for (size_t i = 0 ; i < 1000 ; i++) {
+  for (size_t i = 0; i < 1000; i++)
+  {
     x = -float(M_PI) / 2.0f + float(i) / 1000 * float(M_PI);
     vx = _mm_set1_ps(x);
-    _mm_sin_cos_ps(vx,&vr,&vr1);
+    _mm_sin_cos_ps(vx, &vr, &vr1);
     memcpy(vout, &vr, 16);
-    diff = fabs(vout[0]-sin(x));
+    diff = fabs(vout[0] - sin(x));
     max_diff[5] = std::max<float>(diff, max_diff[5]);
     memcpy(vout, &vr1, 16);
-    diff = fabs(vout[0]-cos(x));
+    diff = fabs(vout[0] - cos(x));
     max_diff[6] = std::max<float>(diff, max_diff[6]);
-
   }
 
-  for (size_t i = 0 ; i < 1000 ; i++) {
-    x = exp(float(i+1)/12.0f);
+  for (size_t i = 0; i < 1000; i++)
+  {
+    x = exp(float(i + 1) / 12.0f);
     vx = _mm_set1_ps(x);
     vr = _mm_log_ps(vx);
-    //vr = (__m128) xlogf((vfloat)vx);
+    // vr = (__m128) xlogf((vfloat)vx);
     memcpy(vout, &vr, 16);
-    diff = fabs(vout[0]-logf(x));
+    diff = fabs(vout[0] - logf(x));
     max_diff[7] = std::max<float>(diff, max_diff[7]);
   }
 
-  for (size_t i = 0 ; i < 1000 ; i++) {
+  for (size_t i = 0; i < 1000; i++)
+  {
     x = float(i);
     vx = _mm_set1_ps(x);
     vr = _mm_cbrtf_ps(vx);
-    //vr = xcbrtf(vx);
+    // vr = xcbrtf(vx);
 
     memcpy(vout, &vr, 16);
     diff = fabs(vout[0] - cbrtf(x));
@@ -82,13 +85,13 @@ TEST(trigintrin_test, test_sin_cos_log)
   //  printf("log error: %f\n",max_diff[7]);
   //  printf("cbrtf error: %f\n",max_diff[8]);
 
-  ASSERT_LT( max_diff[0]/2.0f, 6.7e-5);
+  ASSERT_LT(max_diff[0] / 2.0f, 6.7e-5);
 }
 
 // TODO: Check if AVX2
 TEST(trigintrin_test, arccos_double)
 {
-  ALIGN32_BEGIN double args[4] ALIGN32_END = {-0.5,-0.25,0.25,0.5};
+  ALIGN32_BEGIN double args[4] ALIGN32_END = { -0.5, -0.25, 0.25, 0.5 };
   __m256d arg = _mm256_load_pd(args);
   __m256d result = _mm256_arccos_pd(arg);
 
@@ -97,11 +100,13 @@ TEST(trigintrin_test, arccos_double)
 
   double reference[4];
 
-  for (size_t i = 0 ; i < 4 ; i++) {
-    reference[3-i] = acos(args[3-i]);
+  for (size_t i = 0; i < 4; i++)
+  {
+    reference[3 - i] = acos(args[3 - i]);
   }
 
-  for (size_t i = 0 ; i < 4 ; i++) {
+  for (size_t i = 0; i < 4; i++)
+  {
     std::cout << "result: " << results[i] << std::endl;
     std::cout << "reference: " << reference[i] << std::endl;
   }
@@ -109,76 +114,80 @@ TEST(trigintrin_test, arccos_double)
   ASSERT_TRUE(true);
 }
 
-
 TEST(trigintrin_test, arcsin_arccos_arctan2)
 {
   ALIGN16_BEGIN float vout[4] ALIGN16_END;
 
-  float max_diff[] = {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f,0.0f, 0.0f};
-  float x,diff;
-  __m128 vx,vr;
+  float max_diff[] = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+  float x, diff;
+  __m128 vx, vr;
 
-  for (size_t i = 0 ; i < 1000 ; i++) {
-    x  = -1.0f + float(i)/1000 * 2.0f;
+  for (size_t i = 0; i < 1000; i++)
+  {
+    x = -1.0f + float(i) / 1000 * 2.0f;
     vx = _mm_set1_ps(x);
     vr = _mm_arccos_ps(vx);
     memcpy(vout, &vr, 16);
-    diff = fabs(vout[0]-acos(x));
+    diff = fabs(vout[0] - acos(x));
     if (diff < 3.14)
       max_diff[0] = std::max<float>(diff, max_diff[0]);
 
     vr = _mm_arcsin_ps(vx);
     memcpy(vout, &vr, 16);
-    diff = fabs(vout[0]-asin(x));
+    diff = fabs(vout[0] - asin(x));
     if (diff < 3.14)
       max_diff[1] = std::max<float>(diff, max_diff[1]);
   }
 
-  for (size_t i = 0 ; i < 1000 ; i++) {
-    x  = -100.0f + float(i)/1000 * 200.0f;
+  for (size_t i = 0; i < 1000; i++)
+  {
+    x = -100.0f + float(i) / 1000 * 200.0f;
     vx = _mm_set1_ps(x);
-    vr = _mm_arctan2_ps(vx,_m_one_ps);
+    vr = _mm_arctan2_ps(vx, _m_one_ps);
     memcpy(vout, &vr, 16);
-    diff = fabs(vout[0]-atan2(x,1.0f));
+    diff = fabs(vout[0] - atan2(x, 1.0f));
     max_diff[2] = std::max<float>(diff, max_diff[2]);
   }
 
-  assert((max_diff[0]/2.0f < 6.7e-5) && "_mm_arcsin_ps too inaccurate");
-  assert((max_diff[1]/2.0f < 6.7e-5) && "_mm_arccos_ps too inaccurate");
-  assert((max_diff[2]/2.0f < 6.7e-5) && "_mm_arctan2_ps too inaccurate");
+  assert((max_diff[0] / 2.0f < 6.7e-5) && "_mm_arcsin_ps too inaccurate");
+  assert((max_diff[1] / 2.0f < 6.7e-5) && "_mm_arccos_ps too inaccurate");
+  assert((max_diff[2] / 2.0f < 6.7e-5) && "_mm_arctan2_ps too inaccurate");
 
-  ASSERT_LT( max_diff[0]/2.0f, 6.7e-5);
-  ASSERT_LT( max_diff[1]/2.0f, 6.7e-5);
-  ASSERT_LT( max_diff[2]/2.0f, 6.7e-5);
+  ASSERT_LT(max_diff[0] / 2.0f, 6.7e-5);
+  ASSERT_LT(max_diff[1] / 2.0f, 6.7e-5);
+  ASSERT_LT(max_diff[2] / 2.0f, 6.7e-5);
 
   //  printf("arccos error: %f\n",max_diff[0]);
   //  printf("arcsin error: %f\n",max_diff[1]);
   //  printf("arctan error: %f\n",max_diff[2]);
 }
 
-TEST(trigintrin_test, test_exp) {
+TEST(trigintrin_test, test_exp)
+{
   ALIGN16_BEGIN float vout[4] ALIGN16_END;
 
-  float max_diff[] = {0.0f};
-  float x,diff;
-  __m128 vx,vr;
+  float max_diff[] = { 0.0f };
+  float x, diff;
+  __m128 vx, vr;
 
-  for (size_t i = 0 ; i < 1000 ; i++) {
-    x = float(i+1)/100.0f;
+  for (size_t i = 0; i < 1000; i++)
+  {
+    x = float(i + 1) / 100.0f;
     vx = _mm_set1_ps(x);
     vr = _mm_exp_ps(vx);
     memcpy(vout, &vr, 16);
-    diff = fabs(vout[0]-exp(x));
+    diff = fabs(vout[0] - exp(x));
     max_diff[0] = std::max<float>(diff, max_diff[0]);
   }
   assert((max_diff[0] < 2.1e-3) && "_mm_exp_ps too inaccurate");
 
-  ASSERT_LT( max_diff[0], 2.1e-3);
+  ASSERT_LT(max_diff[0], 2.1e-3);
 
   //  printf("exp error: %f\n",max_diff[0]);
 }
 
-TEST(trigintrin_test, test_trig_traits) {
+TEST(trigintrin_test, test_trig_traits)
+{
   using traits = sps::trig_traits<float>;
   ASSERT_EQ(traits::sin(2.0f), sinf(2.0f));
 }

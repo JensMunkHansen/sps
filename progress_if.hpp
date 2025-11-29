@@ -27,13 +27,15 @@
 
 #include <sps/sps_export.h>
 
-namespace sps {
-class SPS_EXPORT ProgressBarInterface {
- public:
+namespace sps
+{
+class SPS_EXPORT ProgressBarInterface
+{
+public:
   virtual void show(float percent) = 0;
   virtual ~ProgressBarInterface() = default;
 
   template <typename P>
   void wait(const P& period);
 };
-}  // namespace sps
+} // namespace sps

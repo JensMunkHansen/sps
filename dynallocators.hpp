@@ -1,8 +1,8 @@
-#include <sps/cenv.h>
-#include <sps/debug.h>
-#include <cstdlib>
 #include <cstdint>
+#include <cstdlib>
+#include <sps/cenv.h>
 #include <sps/crtp_helper.hpp>
+#include <sps/debug.h>
 
 #include <new>
 
@@ -10,45 +10,49 @@
 #include <sps/mm_malloc.h>
 //#include <features.h>
 
-namespace sps {
+namespace sps
+{
 template <typename T>
-class DynAllocators : public sps::CRTP<T, DynAllocators> {
- public:
-  DynAllocators() {
-    debug_print("\n");
-  }
-  ~DynAllocators() {
-    debug_print("\n");
-  }
-  void* operator new(std::size_t count) throw() {
+class DynAllocators : public sps::CRTP<T, DynAllocators>
+{
+public:
+  DynAllocators() { debug_print("\n"); }
+  ~DynAllocators() { debug_print("\n"); }
+  void* operator new(std::size_t count) throw()
+  {
     debug_print("\n");
     return ::operator new(count); // May throw std::bad_alloc, call T::T()
   }
-  void operator delete(void* p) {
+  void operator delete(void* p)
+  {
     debug_print("\n");
     T* pObject = reinterpret_cast<T*>(p);
     ::operator delete(pObject); // Calls destructor, T::~T(), free
   }
 
-  void* operator new[]( std::size_t count ) {
+  void* operator new[](std::size_t count)
+  {
     debug_print("\n");
     return ::operator new[](count);
   }
-  void operator delete[](void* p, size_t count) {
+  void operator delete[](void* p, size_t count)
+  {
     SPS_UNREFERENCED_PARAMETER(count);
     debug_print("\n");
     return ::operator delete[](p); // Calls many dtors, free
   }
 
   // Placement
-  static void* operator new(std::size_t /*count*/, void* /*pUser*/) throw() {
+  static void* operator new(std::size_t /*count*/, void* /*pUser*/) throw()
+  {
     debug_print("Placement\n");
     // count is size of object, pUser is address
     // TEST
     // SHOULD CALL CTOR HERE
     return nullptr;
   }
-  static void* operator new[]( std::size_t /*count*/, void* /*pUser*/) throw() {
+  static void* operator new[](std::size_t /*count*/, void* /*pUser*/) throw()
+  {
     // count - alignment is size of objects, pUser address of first element
     debug_print("Placement\n");
     // SHOULD CALL CTORS HERE
@@ -56,10 +60,12 @@ class DynAllocators : public sps::CRTP<T, DynAllocators> {
   }
 
   // User-defined placement deallocation (must be called explicit)
-  static void operator delete(void* /*ptr*/, int /*first*/, int /*second*/) {
+  static void operator delete(void* /*ptr*/, int /*first*/, int /*second*/)
+  {
     debug_print("Placement\n");
   }
-  static void operator delete[](void* /*ptr*/, int /*first*/, int /*second*/) {
+  static void operator delete[](void* /*ptr*/, int /*first*/, int /*second*/)
+  {
     debug_print("Placement\n");
   }
 
@@ -69,18 +75,20 @@ class DynAllocators : public sps::CRTP<T, DynAllocators> {
   // __cplusplus
   // _HAS_CXX17
 
-  void* operator new( std::size_t size, std::align_val_t al) {
+  void* operator new(std::size_t size, std::align_val_t al)
+  {
     debug_print("aligned\n");
 #ifdef _MSC_VER
     T* ptr = static_cast<T*>(_aligned_malloc(size, static_cast<std::size_t>(al)));
-    new (ptr) T();  // Calls placement new
+    new (ptr) T(); // Calls placement new
     return ptr ? ptr : throw std::bad_alloc{};
 #else
     T* ptr = static_cast<T*>(_mm_malloc(size, static_cast<std::size_t>(al)));
     return ptr ? ptr : throw std::bad_alloc{};
 #endif
   }
-  void operator delete(void* ptr, std::size_t /*size*/, std::align_val_t /*align*/) {
+  void operator delete(void* ptr, std::size_t /*size*/, std::align_val_t /*align*/)
+  {
     debug_print("aligned\n");
     T* pObject = reinterpret_cast<T*>(ptr);
     pObject->~T();
@@ -90,7 +98,8 @@ class DynAllocators : public sps::CRTP<T, DynAllocators> {
     _mm_free(ptr);
 #endif
   }
-  void operator delete(void* ptr, std::align_val_t /*align*/) {
+  void operator delete(void* ptr, std::align_val_t /*align*/)
+  {
     debug_print("aligned\n");
 #ifdef _MSC_VER
     _aligned_free(ptr);
@@ -98,7 +107,8 @@ class DynAllocators : public sps::CRTP<T, DynAllocators> {
     _mm_free(ptr);
 #endif
   }
-  void* operator new[]( std::size_t count, std::align_val_t al) {
+  void* operator new[](std::size_t count, std::align_val_t al)
+  {
     debug_print("aligned\n");
 #if 1
     // Why is this wrong
@@ -113,13 +123,16 @@ class DynAllocators : public sps::CRTP<T, DynAllocators> {
 #endif
   }
 
-  void operator delete[](void* ptr, std::size_t count, std::align_val_t al) {
+  void operator delete[](void* ptr, std::size_t count, std::align_val_t al)
+  {
     debug_print("aligned\n");
 #if 1
     // Why is this wrong
     size_t nObjects = (count - static_cast<std::size_t>(al)) / sizeof(T);
-    T* pObject = reinterpret_cast<T*>(reinterpret_cast<uintptr_t>(ptr) + static_cast<std::size_t>(al));
-    for (size_t i = 0; i < nObjects; ++i) {
+    T* pObject =
+      reinterpret_cast<T*>(reinterpret_cast<uintptr_t>(ptr) + static_cast<std::size_t>(al));
+    for (size_t i = 0; i < nObjects; ++i)
+    {
       // pObject->~T(); // Calls dtors twice???
       pObject++;
     }
@@ -132,4 +145,4 @@ class DynAllocators : public sps::CRTP<T, DynAllocators> {
 
 #endif
 };
-}  // namespace sps
+} // namespace sps

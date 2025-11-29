@@ -27,24 +27,25 @@
 #pragma once
 
 #ifdef _MSC_VER
-# include <malloc.h>
+#include <malloc.h>
 #else
-# include <mm_malloc.h>
+#include <mm_malloc.h>
 #endif
 
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
-#define SPS_MM_MALLOC(theSize, theAlignment) \
+#define SPS_MM_MALLOC(theSize, theAlignment)                                                       \
   sps_mm_malloc(__FILE__, __LINE__, theSize, theAlignment)
 
 #define SPS_MM_FREE(ptr) _mm_free(ptr)
 
-static inline
-void *sps_mm_malloc(const char *file, int line, size_t size, int alignment) {
-  void *ptr = _mm_malloc(size, alignment);
+static inline void* sps_mm_malloc(const char* file, int line, size_t size, int alignment)
+{
+  void* ptr = _mm_malloc(size, alignment);
 
-  if(!ptr) {
+  if (!ptr)
+  {
     printf("Could not allocate: %zu bytes (%s:%d)\n", size, file, line);
     exit(EXIT_FAILURE);
   }
@@ -52,13 +53,14 @@ void *sps_mm_malloc(const char *file, int line, size_t size, int alignment) {
 }
 
 // Aligned stack-allocation
-#define sps_mm_alloca(x, _theSize, _theAlignment) do {                  \
-    int _nBytes = _theSize + _theAlignment;                             \
-    void* _ptr = alloca(_nBytes);                                       \
-    _ptr = (void*) ((intptr_t) (_ptr + _theAlignment - 1) & (intptr_t) ~(_theAlignment - 1)); \
-    (x) = _ptr;                                                         \
+#define sps_mm_alloca(x, _theSize, _theAlignment)                                                  \
+  do                                                                                               \
+  {                                                                                                \
+    int _nBytes = _theSize + _theAlignment;                                                        \
+    void* _ptr = alloca(_nBytes);                                                                  \
+    _ptr = (void*)((intptr_t)(_ptr + _theAlignment - 1) & (intptr_t) ~(_theAlignment - 1));        \
+    (x) = _ptr;                                                                                    \
   } while (0)
-
 
 /* Local variables: */
 /* indent-tab-mode: nil */
@@ -66,4 +68,3 @@ void *sps_mm_malloc(const char *file, int line, size_t size, int alignment) {
 /* c-basic-offset: 2 */
 /* indent-tabs-mode: nil */
 /* End: */
-

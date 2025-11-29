@@ -11,12 +11,14 @@
 
 #include <cstdint>
 
-namespace sps {
-class Resource {
- public:
+namespace sps
+{
+class Resource
+{
+public:
   static std::uint32_t UIDCreate();
 };
-}  // namespace sps
+} // namespace sps
 
 /* Local variables: */
 /* indent-tabs-mode: nil */

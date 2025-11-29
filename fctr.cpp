@@ -1,24 +1,27 @@
 #include <cstdlib>
 
-
-#include <iostream>
-#include <vector>
-#include <string>
-#include <set>
 #include <algorithm>
+#include <iostream>
+#include <set>
+#include <string>
 #include <utility>
+#include <vector>
 
-void f(int& i) {
+void f(int& i)
+{
   ++i;
 }
 
 void f(std::string& s);
 
-
 // C++ requires you to type out the same function body three times to
 // obtain SFINAE-friendliness and noexcept-correctness. That's
 // unacceptable.
-#define RETURNS(...) noexcept(noexcept(__VA_ARGS__)) -> decltype(__VA_ARGS__){ return __VA_ARGS__; }
+#define RETURNS(...)                                                                               \
+  noexcept(noexcept(__VA_ARGS__))->decltype(__VA_ARGS__)                                           \
+  {                                                                                                \
+    return __VA_ARGS__;                                                                            \
+  }
 
 // Second, this solution maintains the noexcept quality of each
 // overload of f, be it true or false:
@@ -35,7 +38,6 @@ void f(std::string& s);
 // template function to determine what decltype(auto) resolves
 // to. This is useful in SFINAE contexts for example.
 
-
 // The name of overload sets can be legally used as part of a function
 // call - we can use a macro to create a lambda for us that "lifts"
 // the overload set into a function object.
@@ -43,34 +45,36 @@ void f(std::string& s);
 
 /*  Double functor trick */
 
-class Employee {
- public:
-  explicit Employee(int i) : id_(i) {}
-  int getId() const {
-    return id_;
+class Employee
+{
+public:
+  explicit Employee(int i)
+    : id_(i)
+  {
   }
-  bool operator<(const Employee& other) const {
-    return this->id_ < other.getId();
-  }
- private:
+  int getId() const { return id_; }
+  bool operator<(const Employee& other) const { return this->id_ < other.getId(); }
+
+private:
   int id_;
 };
 
-struct CompareWithId {
-  bool operator()(Employee const& employee, int id)
-  {
-    return employee.getId() < id;
-  }
-  bool operator()(int id, Employee const& employee)
-  {
-    return id < employee.getId();
-  }
+struct CompareWithId
+{
+  bool operator()(Employee const& employee, int id) { return employee.getId() < id; }
+  bool operator()(int id, Employee const& employee) { return id < employee.getId(); }
 };
 
-
 template <typename B1, typename B2>
-struct Merged : B1, B2 {
-  Merged(B1 b1, B2 b2) : B1(std::move(b1)), B2(std::move(b2)) {}
+struct Merged
+  : B1
+  , B2
+{
+  Merged(B1 b1, B2 b2)
+    : B1(std::move(b1))
+    , B2(std::move(b2))
+  {
+  }
 
   // Needed here
   using B1::operator();
@@ -94,11 +98,12 @@ template<typename ... >
 Merged2(T...) -> Merged2<std::decay_t<T>...>;
 #endif
 
-int main() {
-  const auto l1 = []() {return 4;};
-  const auto l2 = [](const int i){return i * 10;};
+int main()
+{
+  const auto l1 = []() { return 4; };
+  const auto l2 = [](const int i) { return i * 10; };
 
-  Merged<decltype(l1), decltype(l2)> merged(l1,l2);
+  Merged<decltype(l1), decltype(l2)> merged(l1, l2);
 
   std::cout << merged(2) << std::endl;
 
@@ -106,7 +111,6 @@ int main() {
   Merged2 merged2(l1, l2, [](const double d) { return d*3.2; },
                   [i = std::make_unique<int>(5)](char c){} );
 #endif
-
 
   std::set<Employee> employees;
   employees.insert(Employee(2));
@@ -121,14 +125,12 @@ int main() {
 
   std::vector<int> idsToClean = std::vector<int>();
 
-  std::set_difference(ids.begin(), ids.end(),
-                      employees.begin(), employees.end(),
-                      std::back_inserter(idsToClean),
-                      CompareWithId());
+  std::set_difference(ids.begin(), ids.end(), employees.begin(), employees.end(),
+    std::back_inserter(idsToClean), CompareWithId());
 
   std::cout << idsToClean.size() << std::endl;
 
-  std::vector<int> numbers = {1, 2, 3, 4, 5};
+  std::vector<int> numbers = { 1, 2, 3, 4, 5 };
   //  std::for_each(begin(numbers), end(numbers), f);
   std::for_each(begin(numbers), end(numbers), LIFT(f));
   return 0;

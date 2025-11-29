@@ -9,20 +9,23 @@
  *
  */
 
-#include <sps/resource.hpp>
-#include <cstdlib>
 #include <atomic>
+#include <cstdlib>
+#include <sps/resource.hpp>
 
-namespace sps {
-std::uint32_t Resource::UIDCreate() {
-  static std::atomic<std::uint32_t> g_uid = {0};
+namespace sps
+{
+std::uint32_t Resource::UIDCreate()
+{
+  static std::atomic<std::uint32_t> g_uid = { 0 };
   std::uint32_t retval = std::atomic_fetch_add(&g_uid, 1U);
-  if (retval + 1 == 0) {
+  if (retval + 1 == 0)
+  {
     exit(-1);
   }
   return retval;
 }
-}  // namespace sps
+} // namespace sps
 
 /* Local variables: */
 /* indent-tabs-mode: nil */

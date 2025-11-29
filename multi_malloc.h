@@ -10,24 +10,23 @@
 #pragma once
 
 #include <sps/cenv.h>
-#include <stdlib.h>
-#include <stddef.h>
 #include <stdarg.h>
+#include <stddef.h>
+#include <stdlib.h>
 #include <string.h>
 
 /* C/C++ compatible cast macros */
 #ifdef __cplusplus
-# define SPS_STATIC_CAST(type, expr) static_cast<type>(expr)
-# define SPS_REINTERPRET_CAST(type, expr) reinterpret_cast<type>(expr)
+#define SPS_STATIC_CAST(type, expr) static_cast<type>(expr)
+#define SPS_REINTERPRET_CAST(type, expr) reinterpret_cast<type>(expr)
 #else
-# define SPS_STATIC_CAST(type, expr) ((type)(expr))
-# define SPS_REINTERPRET_CAST(type, expr) ((type)(expr))
+#define SPS_STATIC_CAST(type, expr) ((type)(expr))
+#define SPS_REINTERPRET_CAST(type, expr) ((type)(expr))
 #endif
 
 STATIC_INLINE_BEGIN void* multi_malloc(size_t s, size_t d, ...) STATIC_INLINE_END;
 
-STATIC_INLINE_BEGIN void multi_free(void *r, size_t d) STATIC_INLINE_END;
-
+STATIC_INLINE_BEGIN void multi_free(void* r, size_t d) STATIC_INLINE_END;
 
 /**
  * Allocate multi-dimensional array and establish row pointers
@@ -37,32 +36,34 @@ STATIC_INLINE_BEGIN void multi_free(void *r, size_t d) STATIC_INLINE_END;
  *
  * @return
  */
-STATIC_INLINE_BEGIN void* multi_malloc(size_t s, size_t d, ...) {
+STATIC_INLINE_BEGIN void* multi_malloc(size_t s, size_t d, ...)
+{
 
   char* tree;
 
-  va_list ap;             /* varargs list traverser */
-  size_t max,             /* size of array to be declared */
-         *q;                   /* pointer to dimension list */
-  char **r,               /* pointer to beginning of the array of the
-                           * pointers for a dimension */
-       **s1, *t;             /* base pointer to beginning of first array */
-  size_t i, j;            /* loop counters */
-  size_t *d1;             /* dimension list */
+  va_list ap;  /* varargs list traverser */
+  size_t max,  /* size of array to be declared */
+    *q;        /* pointer to dimension list */
+  char **r,    /* pointer to beginning of the array of the
+                * pointers for a dimension */
+    **s1, *t;  /* base pointer to beginning of first array */
+  size_t i, j; /* loop counters */
+  size_t* d1;  /* dimension list */
 
-  va_start(ap,d);
-  d1 = SPS_STATIC_CAST(size_t*, malloc(d*sizeof(size_t)));
+  va_start(ap, d);
+  d1 = SPS_STATIC_CAST(size_t*, malloc(d * sizeof(size_t)));
 
   if (d1 == NULL)
     return NULL;
 
-  for(i=0; i<d; i++)
-    d1[i] = va_arg(ap,size_t);
+  for (i = 0; i < d; i++)
+    d1[i] = va_arg(ap, size_t);
 
   r = &tree;
-  q = d1;                 /* first dimension */
+  q = d1; /* first dimension */
 
-  if (d==1) {
+  if (d == 1)
+  {
     max = s * (*q);
     va_end(ap);
     free(d1);
@@ -70,15 +71,16 @@ STATIC_INLINE_BEGIN void* multi_malloc(size_t s, size_t d, ...) {
   }
 
   max = 1;
-  for (i = 0; i < d - 1; i++, q++) {
+  for (i = 0; i < d - 1; i++, q++)
+  {
     /* for each of the dimensions
-                                             * but the last */
+     * but the last */
     max *= (*q);
-    r[0] = SPS_STATIC_CAST(char*, malloc(max * sizeof(char **)));
-    r = SPS_REINTERPRET_CAST(char**, r[0]);     /* step through to beginning of next
-                             * dimension array */
+    r[0] = SPS_STATIC_CAST(char*, malloc(max * sizeof(char**)));
+    r = SPS_REINTERPRET_CAST(char**, r[0]); /* step through to beginning of next
+                                             * dimension array */
   }
-  max *= s * SPS_STATIC_CAST(size_t, *q);        /* grab actual array memory */
+  max *= s * SPS_STATIC_CAST(size_t, *q); /* grab actual array memory */
   r[0] = SPS_STATIC_CAST(char*, malloc(max * sizeof(char)));
 
   /*
@@ -86,17 +88,19 @@ STATIC_INLINE_BEGIN void* multi_malloc(size_t s, size_t d, ...) {
    * use it to scan down each array rather than having to go across and
    * then down
    */
-  r = SPS_REINTERPRET_CAST(char**, tree);     /* back to the beginning of list of arrays */
-  q = d1;                 /* back to the first dimension */
+  r = SPS_REINTERPRET_CAST(char**, tree); /* back to the beginning of list of arrays */
+  q = d1;                                 /* back to the first dimension */
   max = 1;
-  for (i = 0; i < d - 2; i++, q++) {
+  for (i = 0; i < d - 2; i++, q++)
+  {
     /* we deal with the last
-                                           * array of pointers later on */
-    max *= (*q);                        /* number of elements in this dimension */
-    for (j=1, s1=r+1, t=r[0]; j<max; j++) {
+     * array of pointers later on */
+    max *= (*q); /* number of elements in this dimension */
+    for (j = 1, s1 = r + 1, t = r[0]; j < max; j++)
+    {
       /* scans down array for
-                                               * first and subsequent
-                                               * elements */
+       * first and subsequent
+       * elements */
 
       /*  modify each of the pointers so that it points to
        * the correct position (sub-array) of the next
@@ -106,23 +110,23 @@ STATIC_INLINE_BEGIN void* multi_malloc(size_t s, size_t d, ...) {
        * starts off one behind. *(q+1) is the dimension of
        * the next array. */
 
-      *s1 = (t += sizeof (char **) **(q + 1));
+      *s1 = (t += sizeof(char**) * *(q + 1));
       s1++;
     }
-    r = SPS_REINTERPRET_CAST(char**, r[0]);     /* step through to begining of next
-                             * dimension array */
+    r = SPS_REINTERPRET_CAST(char**, r[0]); /* step through to begining of next
+                                             * dimension array */
   }
-  max *= (*q);              /* max is total number of elements in the
-                             * last pointer array */
+  max *= (*q); /* max is total number of elements in the
+                * last pointer array */
 
   /* same as previous loop, but different size factor */
   for (j = 1, s1 = r + 1, t = r[0]; j < max; j++)
-    *s1++ = (t += s **(q + 1));
+    *s1++ = (t += s * *(q + 1));
 
   va_end(ap);
   free(d1);
 
-  return SPS_STATIC_CAST(void*, tree);              /* return base pointer */
+  return SPS_STATIC_CAST(void*, tree); /* return base pointer */
 }
 
 /**
@@ -131,14 +135,16 @@ STATIC_INLINE_BEGIN void* multi_malloc(size_t s, size_t d, ...) {
  * @param r data
  * @param d number of dimensions
  */
-STATIC_INLINE_BEGIN void multi_free(void *r, size_t d) {
+STATIC_INLINE_BEGIN void multi_free(void* r, size_t d)
+{
 
-  void **p;
-  void *next=NULL;
+  void** p;
+  void* next = NULL;
   size_t i;
 
   for (p = SPS_STATIC_CAST(void**, r), i = 0; i < d; p = SPS_STATIC_CAST(void**, next), i++)
-    if (p != NULL) {
+    if (p != NULL)
+    {
       next = *p;
       free(p);
       p = NULL;

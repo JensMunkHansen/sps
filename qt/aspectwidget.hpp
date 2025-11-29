@@ -4,15 +4,15 @@
 #include <QWidget>
 
 // header
-class AspectRatioWidget : public QWidget {
- public:
-  AspectRatioWidget(QWidget *widget,
-                    float width, float height, QWidget *parent = 0);
-  void resizeEvent(QResizeEvent *event);
+class AspectRatioWidget : public QWidget
+{
+public:
+  AspectRatioWidget(QWidget* widget, float width, float height, QWidget* parent = 0);
+  void resizeEvent(QResizeEvent* event);
 
- private:
-  QBoxLayout *layout;
+private:
+  QBoxLayout* layout;
   float arWidth;  // aspect ratio width
-  float arHeight;  // aspect ratio height
+  float arHeight; // aspect ratio height
 };
 #endif

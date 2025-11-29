@@ -11,40 +11,47 @@
 // will be passed to the given functions.
 
 template <typename... Args>
-class Signal {
+class Signal
+{
 
- public:
-  Signal()  = default;
+public:
+  Signal() = default;
   ~Signal() = default;
 
   // Copy constructor and assignment create a new signal.
   Signal(Signal const& /*unused*/) {}
 
-  Signal& operator=(Signal const& other) {
-    if (this != &other) {
+  Signal& operator=(Signal const& other)
+  {
+    if (this != &other)
+    {
       disconnect_all();
     }
     return *this;
   }
 
   // Move constructor and assignment operator work as expected.
-  Signal(Signal&& other) noexcept:
-    _slots(std::move(other._slots)),
-    _current_id(other._current_id) {}
+  Signal(Signal&& other) noexcept
+    : _slots(std::move(other._slots))
+    , _current_id(other._current_id)
+  {
+  }
 
-  Signal& operator=(Signal&& other) noexcept {
-    if (this != &other) {
-      _slots     = std::move(other._slots);
+  Signal& operator=(Signal&& other) noexcept
+  {
+    if (this != &other)
+    {
+      _slots = std::move(other._slots);
       _current_id = other._current_id;
     }
 
     return *this;
   }
 
-
   // Connects a std::function to the signal. The returned
   // value can be used to disconnect the function again.
-  int connect(std::function<void(Args...)> const& slot) const {
+  int connect(std::function<void(Args...)> const& slot) const
+  {
     _slots.insert(std::make_pair(++_current_id, slot));
     return _current_id;
   }
@@ -52,58 +59,59 @@ class Signal {
   // Convenience method to connect a member function of an
   // object to this Signal.
   template <typename T>
-  int connect_member(T *inst, void (T::*func)(Args...)) {
-    return connect([=](Args... args) {
-      (inst->*func)(args...);
-    });
+  int connect_member(T* inst, void (T::*func)(Args...))
+  {
+    return connect([=](Args... args) { (inst->*func)(args...); });
   }
 
   // Convenience method to connect a const member function
   // of an object to this Signal.
   template <typename T>
-  int connect_member(T *inst, void (T::*func)(Args...) const) {
-    return connect([=](Args... args) {
-      (inst->*func)(args...);
-    });
+  int connect_member(T* inst, void (T::*func)(Args...) const)
+  {
+    return connect([=](Args... args) { (inst->*func)(args...); });
   }
 
   // Disconnects a previously connected function.
-  void disconnect(int id) const {
-    _slots.erase(id);
-  }
+  void disconnect(int id) const { _slots.erase(id); }
 
   // Disconnects all previously connected functions.
-  void disconnect_all() const {
-    _slots.clear();
-  }
+  void disconnect_all() const { _slots.clear(); }
 
   // Calls all connected functions.
-  void emit(Args... p) {
-    for (auto const& it : _slots) {
+  void emit(Args... p)
+  {
+    for (auto const& it : _slots)
+    {
       it.second(p...);
     }
   }
 
   // Calls all connected functions except for one.
-  void emit_for_all_but_one(int excludedConnectionID, Args... p) {
-    for (auto const& it : _slots) {
-      if (it.first != excludedConnectionID) {
+  void emit_for_all_but_one(int excludedConnectionID, Args... p)
+  {
+    for (auto const& it : _slots)
+    {
+      if (it.first != excludedConnectionID)
+      {
         it.second(p...);
       }
     }
   }
 
   // Calls only one connected function.
-  void emit_for(int connectionID, Args... p) {
+  void emit_for(int connectionID, Args... p)
+  {
     auto const& it = _slots.find(connectionID);
-    if (it != _slots.end()) {
+    if (it != _slots.end())
+    {
       it->second(p...);
     }
   }
 
- private:
+private:
   mutable std::map<int, std::function<void(Args...)>> _slots;
-  mutable int                                         _current_id{0};
+  mutable int _current_id{ 0 };
 };
 
 #endif /* SIGNAL_HPP */

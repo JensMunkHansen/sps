@@ -12,39 +12,36 @@
 
 using vdk::signal;
 
-namespace {
-void function(int arg) {
+namespace
+{
+void function(int arg)
+{
   std::cout << "function(" << arg << ")" << std::endl;
 }
 
-struct functor {
+struct functor
+{
   explicit functor(int data) noexcept
-    : data_ {
-    data
+    : data_{ data }
+  {
   }
-  {}
-  void operator()(int arg) {
-    std::cout << "functor(" << arg << ")" << std::endl;
-  }
-  bool operator==(const functor & other) const noexcept {
-    return data_ == other.data_;
-  }
+  void operator()(int arg) { std::cout << "functor(" << arg << ")" << std::endl; }
+  bool operator==(const functor& other) const noexcept { return data_ == other.data_; }
   int data_;
 };
 
-class demo_class {
- public:
-
+class demo_class
+{
+public:
   demo_class() = default;
 
-  void method(int arg) {
-    std::cout << "demo_class::method(" << arg << ")" << std::endl;
-  }
+  void method(int arg) { std::cout << "demo_class::method(" << arg << ")" << std::endl; }
 };
 
 } // namespace
 
-void signals_basic_demo() {
+void signals_basic_demo()
+{
   // Create a signal with no connected slots
   signal<void(int)> sig;
 
@@ -58,9 +55,7 @@ void signals_basic_demo() {
   // Connect the signal to a method
   sig.connect(&object, &demo_class::method);
 
-  auto lambda = [](int arg) {
-    std::cout << "I am lambda(" << arg << ")" << std::endl;
-  };
+  auto lambda = [](int arg) { std::cout << "I am lambda(" << arg << ")" << std::endl; };
 
   // Connect the signal to the lambda
   // 'connect()' method returns connection 'id' to disconnect it later

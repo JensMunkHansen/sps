@@ -1,41 +1,45 @@
 #include <cstdio>
 
-#include <sps/aligned.hpp>
 #include <sps/align.hpp>
+#include <sps/aligned.hpp>
 #include <sps/aligned_allocator.hpp>
 
-struct A : public sps::dynaligned<A> {
+struct A : public sps::dynaligned<A>
+{
   A() {}
-  ~A() {
+  ~A()
+  {
     //    printf(".\n");
   }
   int k = 2;
-
 };
 
-template <class T> class Float : public sps::dynaligned<Float<T>, 16> {
- public:
+template <class T>
+class Float : public sps::dynaligned<Float<T>, 16>
+{
+public:
   T value;
 };
 
-
-struct Foo : public sps::aligned<32> {
-  Foo(int x, int y) : x(x), y(y) {
+struct Foo : public sps::aligned<32>
+{
+  Foo(int x, int y)
+    : x(x)
+    , y(y)
+  {
     printf(".\n");
   };
   int x;
   int y;
-  ~Foo() {
-    printf("x\n");
-  }
+  ~Foo() { printf("x\n"); }
 };
 
-
-int main() {
+int main()
+{
 
   Float<double> f;
   // Single object
-  auto x = aligned::make_unique<double,16>(16.0);
+  auto x = aligned::make_unique<double, 16>(16.0);
   printf("0x%lx\n", reinterpret_cast<uintptr_t>(x.get()));
   printf("%ld\n", (uintptr_t)x.get() % 16);
 
@@ -45,19 +49,16 @@ int main() {
   // Not working
   // auto z0 = aligned::make_unique<A>();
 
-
   // Works
   auto z = make_unique_array(std::allocator<Foo>(), 2, 3, 4);
 
-  printf("0x%lx\n", (uintptr_t) &(z.get()[0]));
-  printf("%ld\n", (uintptr_t) &(z.get()[1]) % 16);
-
+  printf("0x%lx\n", (uintptr_t) & (z.get()[0]));
+  printf("%ld\n", (uintptr_t) & (z.get()[1]) % 16);
 
   auto z0 = make_unique_aligned_array<Foo, 32, int, int>(aligned_allocator<Foo, 32>(), 2, 3, 4);
 
-  printf("0x%x\n", (uintptr_t) &(z0.get()[1]));
-  printf("%d\n", (uintptr_t) &(z0.get()[1]) % 32);
-
+  printf("0x%x\n", (uintptr_t) & (z0.get()[1]));
+  printf("%d\n", (uintptr_t) & (z0.get()[1]) % 32);
 
   // Disabled for arrays of known bounds:
   // auto = aligned::make_unique<double[16]>(16);

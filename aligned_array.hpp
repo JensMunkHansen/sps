@@ -28,43 +28,45 @@
 #pragma once
 
 #include <sps/cenv.h>
-#include <sps/sps_export.h>
 #include <sps/memory>
+#include <sps/sps_export.h>
 
 #include <cstddef>
 #include <stdexcept>
 
-#include <iterator>
 #include <algorithm>
 #include <cassert>
-#include <utility>  // std::swap
-namespace sps {
+#include <iterator>
+#include <utility> // std::swap
+namespace sps
+{
 
 template <typename T, std::size_t N>
-class SPS_EXPORT aligned_array {
+class SPS_EXPORT aligned_array
+{
 public:
 #ifdef __GNUG__
-  T elems[N] __attribute__((aligned(4*sizeof(T))));  ///< fixed-size array of elements
+  T elems[N] __attribute__((aligned(4 * sizeof(T)))); ///< fixed-size array of elements
 #elif defined(_MSC_VER) && (_MSC_VER >= 1900)
-  __declspec(align(4*sizeof(T))) T elems[N];  ///< fixed-size array of elements
+  __declspec(align(4 * sizeof(T))) T elems[N]; ///< fixed-size array of elements
 #elif defined(_MSC_VER)
   // Workaround - aligned enough for double precision
-  ALIGN32_BEGIN T elems[N] ALIGN32_END;  ///< fixed-size array of elements
+  ALIGN32_BEGIN T elems[N] ALIGN32_END; ///< fixed-size array of elements
 #else
-# error Unsupported Compiler
+#error Unsupported Compiler
 #endif
 
- public:
+public:
   /** @name Type definitions
    *
    */
   ///@{
-  typedef T              value_type;
-  typedef T*             iterator;
-  typedef const T*       const_iterator;
-  typedef T&             reference;
-  typedef const T&       const_reference;
-  typedef std::size_t    size_type;
+  typedef T value_type;
+  typedef T* iterator;
+  typedef const T* const_iterator;
+  typedef T& reference;
+  typedef const T& const_reference;
+  typedef std::size_t size_type;
   typedef std::ptrdiff_t difference_type;
   ///@}
 
@@ -73,40 +75,50 @@ public:
    */
   ///@{
 
-  iterator begin() {
+  iterator begin()
+  {
     return elems;
   }
-  const_iterator begin() const {
+  const_iterator begin() const
+  {
     return elems;
   }
-  iterator end() {
-    return elems+N;
+  iterator end()
+  {
+    return elems + N;
   }
-  const_iterator end() const {
-    return elems+N;
+  const_iterator end() const
+  {
+    return elems + N;
   }
 
   typedef std::reverse_iterator<iterator> reverse_iterator;
   typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
 
-  reverse_iterator rbegin() {
+  reverse_iterator rbegin()
+  {
     return reverse_iterator(end());
   }
-  const_reverse_iterator rbegin() const {
+  const_reverse_iterator rbegin() const
+  {
     return const_reverse_iterator(end());
   }
-  reverse_iterator rend() {
+  reverse_iterator rend()
+  {
     return reverse_iterator(begin());
   }
-  const_reverse_iterator rend() const {
+  const_reverse_iterator rend() const
+  {
     return const_reverse_iterator(begin());
   }
   ///@}
 
-  reference operator[](size_type i) {
+  reference operator[](size_type i)
+  {
     return elems[i];
   }
-  const_reference operator[](size_type i) const {
+  const_reference operator[](size_type i) const
+  {
     return elems[i];
   }
 
@@ -114,11 +126,13 @@ public:
    *
    */
   ///@{
-  reference at(size_type i) {
+  reference at(size_type i)
+  {
     rangecheck(i);
     return elems[i];
   }
-  const_reference at(size_type i) const {
+  const_reference at(size_type i) const
+  {
     rangecheck(i);
     return elems[i];
   }
@@ -128,34 +142,44 @@ public:
    *
    */
   ///@{
-  reference front() {
+  reference front()
+  {
     return elems[0];
   }
-  const_reference front() const {
+  const_reference front() const
+  {
     return elems[0];
   }
 
-  reference back() {
-    return elems[N-1];
+  reference back()
+  {
+    return elems[N - 1];
   }
 
-  const_reference back() const {
-    return elems[N-1];
+  const_reference back() const
+  {
+    return elems[N - 1];
   }
   ///@}
 
   // size is constant
-  static size_type size() {
+  static size_type size()
+  {
     return N;
   }
-  static bool empty() {
+  static bool empty()
+  {
     return false;
   }
-  static size_type max_size() {
+  static size_type max_size()
+  {
     return N;
   }
 
-  enum { static_size = N };
+  enum
+  {
+    static_size = N
+  };
 
   /**
    * swap (note: linear complexity in N, constant for given instantiation)
@@ -163,15 +187,12 @@ public:
    * @param T
    * @param y
    */
-  void swap(aligned_array<T, N>& y) {
+  void swap(aligned_array<T, N>& y)
+  {
 #if (defined(_MSC_VER) && (_MSC_VER > 1900)) || (defined(_MSC_VER) && !defined(_DEBUG))
     // Gives no warnings, but linker errors in debug mode (older visual studio)
-    std::swap_ranges(
-        begin(),
-        end(),
-        stdext::make_checked_array_iterator(
-            y.begin(),
-            std::distance(begin(), end())));
+    std::swap_ranges(begin(), end(),
+      stdext::make_checked_array_iterator(y.begin(), std::distance(begin(), end())));
 #else
     std::swap_ranges(begin(), end(), y.begin());
 #endif
@@ -183,7 +204,8 @@ public:
    *
    * @return
    */
-  const T* data() const {
+  const T* data() const
+  {
     return elems;
   }
 
@@ -193,7 +215,8 @@ public:
    *
    * @return
    */
-  T* data() {
+  T* data()
+  {
     return elems;
   }
 
@@ -206,7 +229,8 @@ public:
    * @return
    */
   template <typename T2>
-  aligned_array<T, N>& operator= (const aligned_array<T2, N>& rhs) {
+  aligned_array<T, N>& operator=(const aligned_array<T2, N>& rhs)
+  {
     std::copy(rhs.begin(), rhs.end(), begin());
     return *this;
   }
@@ -216,58 +240,52 @@ public:
    *
    * @param value
    */
-  void assign(const T& value) {
+  void assign(const T& value)
+  {
 #if defined(_MSC_VER) && defined(NDEBUG)
     std::fill_n(
-        stdext::make_checked_array_iterator(
-            begin(),
-            std::distance(begin(), end())), size(), value);
+      stdext::make_checked_array_iterator(begin(), std::distance(begin(), end())), size(), value);
 #else
     std::fill_n(begin(), size(), value);
 #endif
   }
 
- private:
+private:
   /**
    * check range (may be private because it is static)
    *
    * @param i
    */
-  static void rangecheck(size_type i) {
-    if (i >= size()) {
+  static void rangecheck(size_type i)
+  {
+    if (i >= size())
+    {
       throw std::out_of_range("aligned_array<>: index out of range");
     }
   }
 };
 
 template <typename T>
-class aligned_array<T, 0> {
- public:
-  char c;  // to ensure different array intances return unique values for begin/end
+class aligned_array<T, 0>
+{
+public:
+  char c; // to ensure different array intances return unique values for begin/end
 
- public:
+public:
   // type definitions
-  typedef T              value_type;
-  typedef T*             iterator;
-  typedef const T*       const_iterator;
-  typedef T&             reference;
-  typedef const T&       const_reference;
-  typedef std::size_t    size_type;
+  typedef T value_type;
+  typedef T* iterator;
+  typedef const T* const_iterator;
+  typedef T& reference;
+  typedef const T& const_reference;
+  typedef std::size_t size_type;
   typedef std::ptrdiff_t difference_type;
 
   // iterator support
-  iterator begin() {
-    return reinterpret_cast< iterator >( &c );
-  }
-  const_iterator begin() const {
-    return reinterpret_cast< const_iterator >( &c );
-  }
-  iterator end() {
-    return reinterpret_cast< iterator >( &c );
-  }
-  const_iterator end() const {
-    return reinterpret_cast< const_iterator >( &c );
-  }
+  iterator begin() { return reinterpret_cast<iterator>(&c); }
+  const_iterator begin() const { return reinterpret_cast<const_iterator>(&c); }
+  iterator end() { return reinterpret_cast<iterator>(&c); }
+  const_iterator end() const { return reinterpret_cast<const_iterator>(&c); }
 
   // reverse iterator support
 #if 1
@@ -279,133 +297,158 @@ class aligned_array<T, 0> {
   typedef std::reverse_iterator<const_iterator, T> const_reverse_iterator;
 #endif
 
-  reverse_iterator rbegin() {
+  reverse_iterator rbegin()
+  {
     return reverse_iterator(end());
   }
-  const_reverse_iterator rbegin() const {
+  const_reverse_iterator rbegin() const
+  {
     return const_reverse_iterator(end());
   }
-  reverse_iterator rend() {
+  reverse_iterator rend()
+  {
     return reverse_iterator(begin());
   }
-  const_reverse_iterator rend() const {
+  const_reverse_iterator rend() const
+  {
     return const_reverse_iterator(begin());
   }
 
   // at() with range check
-  reference at(size_type /*i*/) {
+  reference at(size_type /*i*/)
+  {
     throw std::out_of_range("aligned_array<0>: index out of range");
   }
-  const_reference at(size_type /*i*/) const {
+  const_reference at(size_type /*i*/) const
+  {
     throw std::out_of_range("<0>: index out of range");
   }
 
   // size is constant
-  static size_type size() {
+  static size_type size()
+  {
     return 0;
   }
-  static bool empty() {
+  static bool empty()
+  {
     return true;
   }
-  static size_type max_size() {
+  static size_type max_size()
+  {
     return 0;
   }
-  enum { static_size = 0 };
+  enum
+  {
+    static_size = 0
+  };
 
   // swap
-  void swap(aligned_array<T, 0>& /*y*/) {
+  void swap(aligned_array<T, 0>& /*y*/)
+  {
     //  could swap value of c, but value is not part of documented array state
   }
 
   // direct access to data
-  const T* data() const {
+  const T* data() const
+  {
     return NULL;
   }
-  T* data() {
+  T* data()
+  {
     return NULL;
   }
 
   // assignment with type conversion
-  template < typename T2 >
-  aligned_array<T, 0>& operator= (const aligned_array<T2, 0>& /*rhs*/) {
+  template <typename T2>
+  aligned_array<T, 0>& operator=(const aligned_array<T2, 0>& /*rhs*/)
+  {
     return *this;
   }
 
   //  Calling these operations are undefined behaviour for 0-size arrays,
   //  but Library TR1 requires their presence.
   // operator[]
-  reference operator[](size_type /*i*/) {
+  reference operator[](size_type /*i*/)
+  {
     makes_no_sense();
   }
-  const_reference operator[](size_type /*i*/) const {
+  const_reference operator[](size_type /*i*/) const
+  {
     makes_no_sense();
   }
 
   // front() and back()
-  reference front() {
+  reference front()
+  {
     makes_no_sense();
   }
-  const_reference front() const {
+  const_reference front() const
+  {
     makes_no_sense();
   }
-  reference back() {
+  reference back()
+  {
     makes_no_sense();
   }
-  const_reference back() const {
+  const_reference back() const
+  {
     makes_no_sense();
   }
 
- private:
+private:
   // helper for operations that have undefined behaviour for 0-size arrays,
   //  assert( false ); added to make lack of support clear
-  static void makes_no_sense() {
+  static void makes_no_sense()
+  {
     assert(true);
     throw std::out_of_range("aligned_array<0>: index out of range");
   }
 };
 
 // comparisons
-  template<class T, std::size_t N>
-  bool operator== (const aligned_array<T, N>& x, const aligned_array<T, N>& y) {
-    return std::equal(x.begin(), x.end(), y.begin());
-  }
-  template<class T, std::size_t N>
-  bool operator< (const aligned_array<T, N>& x, const aligned_array<T, N>& y) {
-    return std::lexicographical_compare(
-        x.begin(),
-        x.end(),
-        y.begin(),
-        y.end());
-  }
-  template<class T, std::size_t N>
-  bool operator!= (const aligned_array<T, N>& x, const aligned_array<T, N>& y) {
-    return !(x == y);
-  }
-  template<class T, std::size_t N>
-  bool operator> (const aligned_array<T, N>& x, const aligned_array<T, N>& y) {
-    return y < x;
-  }
-  template<class T, std::size_t N>
-  bool operator<= (const aligned_array<T, N>& x, const aligned_array<T, N>& y) {
-    return !(y < x);
-  }
-  template<class T, std::size_t N>
-  bool operator>= (const aligned_array<T, N>& x, const aligned_array<T, N>& y) {
-    return !(x < y);
-  }
+template <class T, std::size_t N>
+bool operator==(const aligned_array<T, N>& x, const aligned_array<T, N>& y)
+{
+  return std::equal(x.begin(), x.end(), y.begin());
+}
+template <class T, std::size_t N>
+bool operator<(const aligned_array<T, N>& x, const aligned_array<T, N>& y)
+{
+  return std::lexicographical_compare(x.begin(), x.end(), y.begin(), y.end());
+}
+template <class T, std::size_t N>
+bool operator!=(const aligned_array<T, N>& x, const aligned_array<T, N>& y)
+{
+  return !(x == y);
+}
+template <class T, std::size_t N>
+bool operator>(const aligned_array<T, N>& x, const aligned_array<T, N>& y)
+{
+  return y < x;
+}
+template <class T, std::size_t N>
+bool operator<=(const aligned_array<T, N>& x, const aligned_array<T, N>& y)
+{
+  return !(y < x);
+}
+template <class T, std::size_t N>
+bool operator>=(const aligned_array<T, N>& x, const aligned_array<T, N>& y)
+{
+  return !(x < y);
+}
 
 // global swap()
-  template<class T, std::size_t N>
-  inline void swap(aligned_array<T, N>& x, aligned_array<T, N>& y) {
-    x.swap(y);
-  }
-  template class SPS_EXPORT aligned_array<float, 4>;
-  template class SPS_EXPORT aligned_array<double, 4>;
-}  // namespace sps
+template <class T, std::size_t N>
+inline void swap(aligned_array<T, N>& x, aligned_array<T, N>& y)
+{
+  x.swap(y);
+}
+template class SPS_EXPORT aligned_array<float, 4>;
+template class SPS_EXPORT aligned_array<double, 4>;
+} // namespace sps
 
 /* Local variables: */
 /* tab-width: 2 */
 /* c-basic-offset: 2 */
 /* indent-tabs-mode: nil */
 /* End: */
-

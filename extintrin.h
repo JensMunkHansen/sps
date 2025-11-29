@@ -70,7 +70,7 @@
  * @param d First element selector (bits 0-1), use 0-3 for lower lane
  * @return Immediate value suitable for shuffle intrinsics
  */
-#define _MM_SAFE_SHUFFLE(a, b, c, d) _MM_SHUFFLE((a) & 3, (b) & 3, (c) & 3, (d) & 3)
+#define _MM_SAFE_SHUFFLE(a, b, c, d) _MM_SHUFFLE((a)&3, (b)&3, (c)&3, (d)&3)
 
 #ifdef HAVE_EMMINTRIN_H
 #include <emmintrin.h> // SSE2
@@ -157,8 +157,9 @@ const __m128 signmask =
   const __m128 mantmask =
     _mm_castsi128_ps(_mm_set1_epi32(0x7FFFFFFFL)); ///< mantissa + exp mask for ps
 
-  const ALIGN16_BEGIN int _neg_signmask[4] ALIGN16_END = { static_cast<int>(0x80000000L), static_cast<int>(0x80000000L),
-    static_cast<int>(0x80000000L), static_cast<int>(0x80000000L) }; ///< negative sign mask for ps
+  const ALIGN16_BEGIN int _neg_signmask[4] ALIGN16_END = { static_cast<int>(0x80000000L),
+    static_cast<int>(0x80000000L), static_cast<int>(0x80000000L),
+    static_cast<int>(0x80000000L) }; ///< negative sign mask for ps
 
   const ALIGN16_BEGIN long long int _neg_signmaskd[2] ALIGN16_END = {
     static_cast<long long int>(0x8000000000000000), static_cast<long long int>(0x8000000000000000)
@@ -1749,13 +1750,12 @@ inline std::ostream& operator<<(std::ostream& out, const __m128& vf)
 {
 #if (defined(_MSC_VER) && defined(_WIN32) && !defined(__ICC))
   out << "__m128[3]: " << vf.m128_f32[3] << " __m128[2]: " << vf.m128_f32[2]
-      << " __m128[1]: " << vf.m128_f32[1] << " __m128[0]: " << vf.m128_f32[0]
-      << std::endl;
+      << " __m128[1]: " << vf.m128_f32[1] << " __m128[0]: " << vf.m128_f32[0] << std::endl;
 #else
   ALIGN16_BEGIN float output[4] ALIGN16_END;
   _mm_store_ps(output, vf);
-  out << "__m128[3]: " << output[3] << " __m128[2]: " << output[2]
-      << " __m128[1]: " << output[1] << " __m128[0]: " << output[0] << std::endl;
+  out << "__m128[3]: " << output[3] << " __m128[2]: " << output[2] << " __m128[1]: " << output[1]
+      << " __m128[0]: " << output[0] << std::endl;
 #endif
   return out;
 }
@@ -1764,8 +1764,8 @@ inline std::ostream& operator<<(std::ostream& out, __m128i vi)
 {
   ALIGN16_BEGIN int output[4] ALIGN16_END;
   _mm_store_si128(reinterpret_cast<__m128i*>(output), vi);
-  out << "__m128[3]: " << output[3] << " __m128[2]: " << output[2]
-      << " __m128[1]: " << output[1] << " __m128[0]: " << output[0] << " " << std::endl;
+  out << "__m128[3]: " << output[3] << " __m128[2]: " << output[2] << " __m128[1]: " << output[1]
+      << " __m128[0]: " << output[0] << " " << std::endl;
   return out;
 }
 

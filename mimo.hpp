@@ -33,9 +33,9 @@
 // Suppress warning about overloaded virtual functions being hidden.
 // The interface classes use intentional design with different push() overloads.
 #ifdef __GNUC__
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Woverloaded-virtual"
-# pragma GCC diagnostic ignored "-Wsuggest-override"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#pragma GCC diagnostic ignored "-Wsuggest-override"
 #endif
 
 #include <sps/cenv.h>
@@ -43,10 +43,10 @@
 
 #include <atomic>
 #include <condition_variable>
-#include <mutex>
-#include <utility>
-#include <queue>
 #include <memory>
+#include <mutex>
+#include <queue>
+#include <utility>
 
 // TODO(JMH): Create instead an interface for a threadpool to be used
 // with a fixed signature. Crazy difficult to instantiate all well-formed functions needed
@@ -72,12 +72,13 @@
 
 */
 
-namespace sps {
+namespace sps
+{
 
 #ifdef CXX11
 using std::is_copy_constructible;
 #else
-# include <sps/c98.hpp>
+#include <sps/c98.hpp>
 using sps::is_copy_constructible;
 #endif
 
@@ -93,8 +94,9 @@ using sps::is_copy_constructible;
  *
  */
 template <typename T, bool = is_copy_constructible<T>::value>
-class IMRMWQueue {
- public:
+class IMRMWQueue
+{
+public:
   /**
    * Destructor.
    *
@@ -175,10 +177,10 @@ class IMRMWQueue {
    */
   virtual bool empty() const = 0;
 
- protected:
+protected:
   IMRMWQueue() = default;
 
- private:
+private:
   /**
      Inner interface. Prevent descendants from implementing
      copy ctor or assignment
@@ -188,15 +190,16 @@ class IMRMWQueue {
 };
 
 template <typename T>
-class IMRMWQueue<T, true> : IMRMWQueue<T, false> {
- public:
+class IMRMWQueue<T, true> : IMRMWQueue<T, false>
+{
+public:
   virtual bool push(const T& souce) = 0;
 };
 
-
-template <typename T, bool = is_copy_constructible<T>::value >
-class MRMWQueue : public IMRMWQueue<T, is_copy_constructible<T>::value> {
- public:
+template <typename T, bool = is_copy_constructible<T>::value>
+class MRMWQueue : public IMRMWQueue<T, is_copy_constructible<T>::value>
+{
+public:
   /**
    * Ctor
    *
@@ -209,7 +212,8 @@ class MRMWQueue : public IMRMWQueue<T, is_copy_constructible<T>::value> {
    * Destructor. Invalidate and empty queue
    *
    */
-  ~MRMWQueue() override {
+  ~MRMWQueue() override
+  {
     invalidate();
     clear();
   }
@@ -221,11 +225,15 @@ class MRMWQueue : public IMRMWQueue<T, is_copy_constructible<T>::value> {
    *
    * @return True if a value is written to destination, false otherwise
    */
-  bool try_pop(T& destination) SPS_OVERRIDE {
+  bool try_pop(T& destination) SPS_OVERRIDE
+  {
     std::lock_guard<std::mutex> guard(m_mutex);
-    if (m_queue.empty()) {
+    if (m_queue.empty())
+    {
       return false;
-    } else {
+    }
+    else
+    {
       destination = std::move(m_queue.front());
       m_queue.pop();
       return true;
@@ -243,16 +251,16 @@ class MRMWQueue : public IMRMWQueue<T, is_copy_constructible<T>::value> {
    * @return True if a value is written to destination, false
    * otherwise
    */
-  bool pop(T& destination) SPS_OVERRIDE {
-    std::unique_lock<std::mutex> lock{m_mutex}; // m_mutex.lock()
+  bool pop(T& destination) SPS_OVERRIDE
+  {
+    std::unique_lock<std::mutex> lock{ m_mutex }; // m_mutex.lock()
     // Equivalent to:
     // while ( !(!m_queue.empty() || !m_valid) ) {m_condition.wait(lock);}
-    m_condition.wait(lock, [this]() {
-      return !m_queue.empty() || !m_valid;
-    });
+    m_condition.wait(lock, [this]() { return !m_queue.empty() || !m_valid; });
     // Lock is reacquired
 
-    if (!m_valid) {
+    if (!m_valid)
+    {
       return false;
     }
     destination = std::move(m_queue.front());
@@ -266,16 +274,18 @@ class MRMWQueue : public IMRMWQueue<T, is_copy_constructible<T>::value> {
    *
    * @param source
    */
-  bool push(T&& source) SPS_OVERRIDE {
+  bool push(T&& source) SPS_OVERRIDE
+  {
     std::lock_guard<std::mutex> guard(m_mutex);
     m_queue.push(std::move(source));
     m_condition.notify_one();
     return true;
   }
 #else
-  bool push(T source) SPS_OVERRIDE {
+  bool push(T source) SPS_OVERRIDE
+  {
     // Scoped lock
-    std::lock_guard<std::mutex> guard{m_mutex};
+    std::lock_guard<std::mutex> guard{ m_mutex };
     m_queue.push(std::move(source));
     m_condition.notify_one();
     return true;
@@ -290,8 +300,9 @@ class MRMWQueue : public IMRMWQueue<T, is_copy_constructible<T>::value> {
    * queue after this method has been called.
    *
    */
-  void invalidate() SPS_OVERRIDE {
-    std::lock_guard<std::mutex> guard{m_mutex};
+  void invalidate() SPS_OVERRIDE
+  {
+    std::lock_guard<std::mutex> guard{ m_mutex };
     m_valid = false;
     m_condition.notify_all();
   }
@@ -302,8 +313,9 @@ class MRMWQueue : public IMRMWQueue<T, is_copy_constructible<T>::value> {
    *
    * @return
    */
-  bool valid() const SPS_OVERRIDE {
-    std::lock_guard<std::mutex> guard{m_mutex};
+  bool valid() const SPS_OVERRIDE
+  {
+    std::lock_guard<std::mutex> guard{ m_mutex };
     return m_valid;
   }
 
@@ -311,9 +323,11 @@ class MRMWQueue : public IMRMWQueue<T, is_copy_constructible<T>::value> {
    * Clear the queue. All readers are notified
    *
    */
-  void clear() SPS_OVERRIDE {
-    std::lock_guard<std::mutex> guard{m_mutex};
-    while (!m_queue.empty()) {
+  void clear() SPS_OVERRIDE
+  {
+    std::lock_guard<std::mutex> guard{ m_mutex };
+    while (!m_queue.empty())
+    {
       m_queue.pop();
     }
     m_condition.notify_all();
@@ -325,29 +339,32 @@ class MRMWQueue : public IMRMWQueue<T, is_copy_constructible<T>::value> {
    *
    * @return
    */
-  bool empty() const SPS_OVERRIDE {
+  bool empty() const SPS_OVERRIDE
+  {
     // Scoped lock
-    std::lock_guard<std::mutex> guard{m_mutex};
+    std::lock_guard<std::mutex> guard{ m_mutex };
     return m_queue.empty();
   }
 
- protected:
-  std::queue<T> m_queue;                ///< Queue with callables
-  mutable std::mutex m_mutex;           ///< Mutex for locking
+protected:
+  std::queue<T> m_queue;      ///< Queue with callables
+  mutable std::mutex m_mutex; ///< Mutex for locking
 
-  std::atomic<bool> m_valid{true};      ///< State for invalidation
-  std::condition_variable m_condition;  ///< Condition for signal not empty
+  std::atomic<bool> m_valid{ true };   ///< State for invalidation
+  std::condition_variable m_condition; ///< Condition for signal not empty
 };
 
 template <typename T>
-class MRMWQueue <T, true> : public MRMWQueue<T, false> {
- public:
+class MRMWQueue<T, true> : public MRMWQueue<T, false>
+{
+public:
   /**
    * Push element onto queue
    *
    * @param source
    */
-  bool push(const T& source) {
+  bool push(const T& source)
+  {
     std::lock_guard<std::mutex> guard(this->m_mutex);
     this->m_queue.push(source);
     this->m_condition.notify_one();
@@ -373,10 +390,10 @@ class MRMWQueue <T, true> : public MRMWQueue<T, false> {
  * the oldest argument is discarded and replaced by new one...
  *
  */
-template <typename T, size_t Size, bool overwrite = false,
-          bool = is_copy_constructible<T>::value>
-class IMRMWCircularBuffer {
- public:
+template <typename T, size_t Size, bool overwrite = false, bool = is_copy_constructible<T>::value>
+class IMRMWCircularBuffer
+{
+public:
   /**
    * Destructor.
    *
@@ -446,10 +463,10 @@ class IMRMWCircularBuffer {
    */
   virtual bool empty() const = 0;
 
- protected:
+protected:
   IMRMWCircularBuffer() = default;
 
- private:
+private:
   /**
      Inner interface. Prevent descendants from implementing
      copy ctor or assignment
@@ -459,19 +476,17 @@ class IMRMWCircularBuffer {
 };
 
 template <typename T, size_t Size, bool overwrite>
-class IMRMWCircularBuffer<T, Size, overwrite, true> :
-  IMRMWCircularBuffer<T, Size, overwrite, false> {
- public:
+class IMRMWCircularBuffer<T, Size, overwrite, true> : IMRMWCircularBuffer<T, Size, overwrite, false>
+{
+public:
   virtual bool push(const T& souce) = 0;
 };
 
-
-template <typename T, size_t Size,
-          bool overwrite = false, bool = is_copy_constructible<T>::value>
-class MRMWCircularBuffer :
-  public IMRMWCircularBuffer<T, Size, overwrite,
-  is_copy_constructible<T>::value> {
- protected:
+template <typename T, size_t Size, bool overwrite = false, bool = is_copy_constructible<T>::value>
+class MRMWCircularBuffer
+  : public IMRMWCircularBuffer<T, Size, overwrite, is_copy_constructible<T>::value>
+{
+protected:
   typedef std::queue<T> container_type;
   typedef typename container_type::size_type size_type;
   typedef typename container_type::value_type value_type;
@@ -482,28 +497,26 @@ class MRMWCircularBuffer :
   mutable std::mutex m_mutex;
   std::condition_variable m_cond_not_empty;
   std::condition_variable m_cond_not_full;
-  std::atomic<bool> m_valid{true};           ///< State for invalidation
+  std::atomic<bool> m_valid{ true }; ///< State for invalidation
 
-  size_type capacity() const {
-    return m_capacity;
-  }
+  size_type capacity() const { return m_capacity; }
 
-  bool is_not_empty() const {
-    return m_unread > 0;
-  }
+  bool is_not_empty() const { return m_unread > 0; }
 
-  bool is_not_full() const {
-    return m_unread < m_capacity;
-  }
+  bool is_not_full() const { return m_unread < m_capacity; }
 
- public:
+public:
   /**
    * Ctor
    *
    *
    * @return
    */
-  MRMWCircularBuffer() : m_unread(0), m_capacity(Size) {}
+  MRMWCircularBuffer()
+    : m_unread(0)
+    , m_capacity(Size)
+  {
+  }
 
 #ifdef CXX11
   /**
@@ -511,13 +524,13 @@ class MRMWCircularBuffer :
    *
    * @param source
    */
-  bool push(value_type&& source) override {
-    std::unique_lock<std::mutex> lock{m_mutex};
-    m_cond_not_full.wait(lock, [&]() {
-      return this->is_not_full() || !m_valid;
-    });
+  bool push(value_type&& source) override
+  {
+    std::unique_lock<std::mutex> lock{ m_mutex };
+    m_cond_not_full.wait(lock, [&]() { return this->is_not_full() || !m_valid; });
 
-    if (!m_valid) {
+    if (!m_valid)
+    {
       return false;
     }
 
@@ -532,13 +545,13 @@ class MRMWCircularBuffer :
    *
    * @param source
    */
-  bool push(T source) {
-    std::unique_lock<std::mutex> lock{m_mutex};
-    m_cond_not_full.wait(lock, [&]() {
-      return this->is_not_full() || !m_valid;
-    });
+  bool push(T source)
+  {
+    std::unique_lock<std::mutex> lock{ m_mutex };
+    m_cond_not_full.wait(lock, [&]() { return this->is_not_full() || !m_valid; });
 
-    if (!m_valid) {
+    if (!m_valid)
+    {
       return false;
     }
     m_container.push(source);
@@ -555,15 +568,19 @@ class MRMWCircularBuffer :
    *
    * @return
    */
-  bool pop(T& destination) SPS_OVERRIDE {
-    std::unique_lock<std::mutex> lock{m_mutex};
+  bool pop(T& destination) SPS_OVERRIDE
+  {
+    std::unique_lock<std::mutex> lock{ m_mutex };
 
-    m_cond_not_empty.wait(lock, [this]() {
-      // Lock is acquired for evaluating predicate
-      return this->is_not_empty() || !m_valid;
-    });
+    m_cond_not_empty.wait(lock,
+      [this]()
+      {
+        // Lock is acquired for evaluating predicate
+        return this->is_not_empty() || !m_valid;
+      });
     // Lock is now reacquired
-    if (!m_valid) {
+    if (!m_valid)
+    {
       return false;
     }
     destination = std::move(m_container.front());
@@ -573,47 +590,53 @@ class MRMWCircularBuffer :
     return true;
   }
 
-  bool try_pop(T& destination) SPS_OVERRIDE {
+  bool try_pop(T& destination) SPS_OVERRIDE
+  {
     std::lock_guard<std::mutex> guard(m_mutex);
     // Lock is now reacquired
-    if (!m_valid) {
+    if (!m_valid)
+    {
       return false;
-    } else if (this->is_not_empty()) {
+    }
+    else if (this->is_not_empty())
+    {
       destination = std::move(m_container.front());
       m_container.pop();
       m_unread--;
       m_cond_not_full.notify_one();
       return true;
-    } else {
+    }
+    else
+    {
       return false;
     }
   }
-
-
 
   /**
    * Destructor. Invalidate and empty queue
    *
    */
-  ~MRMWCircularBuffer() override {
+  ~MRMWCircularBuffer() override
+  {
     invalidate();
   }
 
-  void invalidate() override {
-    std::lock_guard<std::mutex> guard{m_mutex};
+  void invalidate() override
+  {
+    std::lock_guard<std::mutex> guard{ m_mutex };
     m_valid.store(false);
     m_cond_not_empty.notify_all();
     m_cond_not_full.notify_all();
   }
-
 
   /**
    * Is the ring buffer empty
    *
    * @return
    */
-  bool empty() const SPS_OVERRIDE {
-    std::lock_guard<std::mutex> guard{m_mutex};
+  bool empty() const SPS_OVERRIDE
+  {
+    std::lock_guard<std::mutex> guard{ m_mutex };
     return m_unread == 0;
   }
 
@@ -622,26 +645,29 @@ class MRMWCircularBuffer :
    *
    * @return
    */
-  bool valid() const SPS_OVERRIDE {
+  bool valid() const SPS_OVERRIDE
+  {
     return m_valid;
   }
 };
 
 template <typename T, size_t Size, bool overwrite>
-class MRMWCircularBuffer <T, Size, overwrite, true> : public MRMWCircularBuffer<T, Size, overwrite, false> {
- public:
+class MRMWCircularBuffer<T, Size, overwrite, true>
+  : public MRMWCircularBuffer<T, Size, overwrite, false>
+{
+public:
   /**
    * Push element onto queue
    *
    * @param source
    */
-  bool push(const T& source) {
-    std::unique_lock<std::mutex> lock{this->m_mutex};
-    this->m_cond_not_full.wait(lock, [&]() {
-      return this->is_not_full() || !this->m_valid;
-    });
+  bool push(const T& source)
+  {
+    std::unique_lock<std::mutex> lock{ this->m_mutex };
+    this->m_cond_not_full.wait(lock, [&]() { return this->is_not_full() || !this->m_valid; });
 
-    if (!this->m_valid) {
+    if (!this->m_valid)
+    {
       return false;
     }
     this->m_container.push(source);
@@ -651,12 +677,10 @@ class MRMWCircularBuffer <T, Size, overwrite, true> : public MRMWCircularBuffer<
   }
 };
 
-
-
-}  // namespace sps
+} // namespace sps
 
 #ifdef __GNUC__
-# pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
 #endif
 
 /* Local variables: */

@@ -30,18 +30,19 @@
 #pragma once
 
 // C headers
-#include <sps/cstdio>
-#include <sps/cstdlib>
 #include <cstdint>
 #include <cstring>
+#include <sps/cstdio>
+#include <sps/cstdlib>
 
 // C++ headers
-#include <vector>
 #include <algorithm>
-#include <stdexcept>
 #include <sps/typeinfo>
+#include <stdexcept>
+#include <vector>
 
-namespace sps {
+namespace sps
+{
 
 /**
  * Indexed types by means of custom auto-pointer and garbage
@@ -89,7 +90,8 @@ namespace sps {
 typedef uint64_t indexed_type_index;
 
 /// Forward declaration of indexed_auto_ptr_collector
-template<typename T> class indexed_auto_ptr_collector;
+template <typename T>
+class indexed_auto_ptr_collector;
 
 /**
  * Indexed auto pointer, which take ownership and delete the object
@@ -98,17 +100,24 @@ template<typename T> class indexed_auto_ptr_collector;
  *
  */
 template <typename T>
-class indexed_auto_ptr {
- public:
+class indexed_auto_ptr
+{
+public:
   /**
    * Ctor, note the ownership cannot be taken instantly
    *
    * @param ptr
    */
 #ifdef SPS_TYPE_ID_NAME
-  explicit indexed_auto_ptr(T*& ptr) : type(typeid(T).name()), t(ptr) {
+  explicit indexed_auto_ptr(T*& ptr)
+    : type(typeid(T).name())
+    , t(ptr)
+  {
 #else
-  explicit indexed_auto_ptr(T*& ptr) : type(&typeid(T)), t(ptr) {
+  explicit indexed_auto_ptr(T*& ptr)
+    : type(&typeid(T))
+    , t(ptr)
+  {
 #endif
     signature = this;
     indexed_auto_ptr_collector<T>::register_handle(this);
@@ -119,9 +128,10 @@ class indexed_auto_ptr {
    * Dtor
    *
    */
-  ~indexed_auto_ptr() {
-    delete t;        // destroy object
-    signature = NULL;  // destroy signature
+  ~indexed_auto_ptr()
+  {
+    delete t;         // destroy object
+    signature = NULL; // destroy signature
   }
 
   /**
@@ -133,7 +143,7 @@ class indexed_auto_ptr {
    *
    * @throw std::runtime_error
    */
-  static indexed_auto_ptr* from_index(const indexed_type_index index );
+  static indexed_auto_ptr* from_index(const indexed_type_index index);
 
   /**
    * Convert indexed_auto_ptr<T> to an index.
@@ -149,23 +159,25 @@ class indexed_auto_ptr {
    *
    * @return
    */
-  T& get_object() const {
+  T& get_object() const
+  {
     return *t;
   }
 
- private:
+private:
   /// used as a unique object signature
   indexed_auto_ptr* signature;
   /// type checkig information
   base_id_t type;
   /// object pointer
-  T *t;
+  T* t;
 
   /// Collector
   friend class indexed_auto_ptr_collector<T>;
 };
 
-namespace types {
+namespace types
+{
 /**
    \defgroup IndexedAutoPtr helper functions
    @{
@@ -178,7 +190,9 @@ namespace types {
  *
  * @return
  */
-template <typename T> indexed_type_index create_handle(T* t) {
+template <typename T>
+indexed_type_index create_handle(T* t)
+{
   indexed_auto_ptr<T>* handle = new indexed_auto_ptr<T>(t);
   return handle->to_index();
 }
@@ -192,7 +206,9 @@ template <typename T> indexed_type_index create_handle(T* t) {
  *
  * @return
  */
-template <typename T> T& get_object(const indexed_type_index index) {
+template <typename T>
+T& get_object(const indexed_type_index index)
+{
   indexed_auto_ptr<T>* handle = indexed_auto_ptr<T>::from_index(index);
   return handle->get_object();
 }
@@ -206,7 +222,9 @@ template <typename T> T& get_object(const indexed_type_index index) {
  *
  * @throw std::runtime_error
  */
-template <typename T> void destroy_object(const indexed_type_index index) {
+template <typename T>
+void destroy_object(const indexed_type_index index)
+{
   indexed_auto_ptr<T>* handle = indexed_auto_ptr<T>::from_index(index);
   // If no exception is thrown using from_index at index, it is okay to
   // reset the pointer
@@ -229,7 +247,8 @@ template <typename T> void destroy_object(const indexed_type_index index) {
  * @throw std::runtime_error
  */
 template <typename T>
-indexed_type_index clone_object(const indexed_type_index index) {
+indexed_type_index clone_object(const indexed_type_index index)
+{
   indexed_auto_ptr<T>* curHandle = indexed_auto_ptr<T>::from_index(index);
   T* clone = curHandle->get_object().clone();
   indexed_auto_ptr<T>* newHandle = new indexed_auto_ptr<T>(clone);
@@ -237,7 +256,7 @@ indexed_type_index clone_object(const indexed_type_index index) {
 }
 #endif
 //@}
-}  // namespace types
+} // namespace types
 
 /**
  * Name:
@@ -251,33 +270,38 @@ indexed_type_index clone_object(const indexed_type_index index) {
  *
  */
 template <typename T>
-class indexed_auto_ptr_collector {
- public:
+class indexed_auto_ptr_collector
+{
+public:
   static std::vector<indexed_auto_ptr<T>*> objvector;
 
   /**
    * Destructor
    *
    */
-  ~indexed_auto_ptr_collector() {
+  ~indexed_auto_ptr_collector()
+  {
     size_t nObjectsCleared = 0;
 
     typename std::vector<indexed_auto_ptr<T>*>::iterator i;
     typename std::vector<indexed_auto_ptr<T>*>::iterator end = objvector.end();
-    for (i = objvector.begin(); i != end ; ++i) {
-      if (*i) {
+    for (i = objvector.begin(); i != end; ++i)
+    {
+      if (*i)
+      {
         // check for valid signature
-        if ((*i)->signature == *i) {
+        if ((*i)->signature == *i)
+        {
           delete *i;
           nObjectsCleared++;
         }
       }
     }
 #ifdef DEBUG
-    if (nObjectsCleared) {
+    if (nObjectsCleared)
+    {
       fprintf(stdout, "Garbage collector: ");
-      fprintf(stdout, "Cleared %zu %s item(s)\n",
-              nObjectsCleared, this->objname);
+      fprintf(stdout, "Cleared %zu %s item(s)\n", nObjectsCleared, this->objname);
     }
 #else
     (void)nObjectsCleared;
@@ -289,7 +313,8 @@ class indexed_auto_ptr_collector {
    *
    * @param obj
    */
-  static void register_handle(indexed_auto_ptr<T>* obj) {
+  static void register_handle(indexed_auto_ptr<T>* obj)
+  {
     // Singleton - one for each type
     static indexed_auto_ptr_collector singleton(obj);
 
@@ -297,14 +322,17 @@ class indexed_auto_ptr_collector {
     typename std::vector<indexed_auto_ptr<T>*>::iterator end = objvector.end();
 
     i = std::find(objvector.begin(), objvector.end(), nullptr);
-    if (i != end) {
+    if (i != end)
+    {
       (*i) = obj;
-    } else {
+    }
+    else
+    {
       singleton.objvector.push_back(obj);
     }
   }
 
- private:
+private:
   /// Name
   char objname[256];
 
@@ -313,7 +341,8 @@ class indexed_auto_ptr_collector {
    *
    * @param obj
    */
-  explicit indexed_auto_ptr_collector(indexed_auto_ptr<T>* obj) {
+  explicit indexed_auto_ptr_collector(indexed_auto_ptr<T>* obj)
+  {
     char buffer[128];
     // buffer is always terminated
 #ifdef SPS_TYPE_ID_NAME
@@ -330,7 +359,7 @@ class indexed_auto_ptr_collector {
     strncpy(objname, obj->type + 6, sizeof(objname));
 #endif
     // strncpy does not terminate if source is larger than destination
-    objname[sizeof(objname)-1] = '\0';
+    objname[sizeof(objname) - 1] = '\0';
   }
 
   /**
@@ -345,47 +374,50 @@ template <typename T>
 std::vector<indexed_auto_ptr<T>*> indexed_auto_ptr_collector<T>::objvector;
 
 template <typename T>
-indexed_auto_ptr<T>*
-indexed_auto_ptr<T>::from_index(const indexed_type_index index) {
+indexed_auto_ptr<T>* indexed_auto_ptr<T>::from_index(const indexed_type_index index)
+{
   // Find object in static vector
   indexed_auto_ptr* obj = NULL;
 
-  if (index < indexed_auto_ptr_collector<T>::objvector.size()) {
-    if (indexed_auto_ptr_collector<T>::objvector[index] != nullptr) {
+  if (index < indexed_auto_ptr_collector<T>::objvector.size())
+  {
+    if (indexed_auto_ptr_collector<T>::objvector[index] != nullptr)
+    {
       obj = indexed_auto_ptr_collector<T>::objvector[index];
     }
   }
 
-  if (!obj) {
+  if (!obj)
+  {
     // Check to see we don"t have an invalid pointer
     fprintf(stderr,
-            "Parameter is NULL. It does not represent an "      \
-            "indexed_auto_ptr object.\n");
+      "Parameter is NULL. It does not represent an "
+      "indexed_auto_ptr object.\n");
     throw std::runtime_error("indexed_auto_ptr<T>::from_index");
   }
 
-  if ( !(reinterpret_cast<uintptr_t>(obj) < UINTPTR_MAX) ) {
+  if (!(reinterpret_cast<uintptr_t>(obj) < UINTPTR_MAX))
+  {
     fprintf(stderr, "Pointer value of of range");
     throw std::runtime_error("indexed_auto_ptr<T>::from_index");
   }
   // Check memory has correct signature
-  if (obj->signature != obj) {
-    fprintf(stderr,
-            "Parameter does not represent an indexed_auto_ptr object.\n");
+  if (obj->signature != obj)
+  {
+    fprintf(stderr, "Parameter does not represent an indexed_auto_ptr object.\n");
     throw std::runtime_error("indexed_auto_ptr<T>::from_index");
   }
 
 #ifdef SPS_TYPE_ID_NAME
-  if (strcmp(obj->type, typeid(T).name()) != 0) {
-    fprintf(stderr, "Given: <%s>, Required: <%s>.\n", obj->type,
-            typeid(T).name());
+  if (strcmp(obj->type, typeid(T).name()) != 0)
+  {
+    fprintf(stderr, "Given: <%s>, Required: <%s>.\n", obj->type, typeid(T).name());
 #else
-  if (*(obj->type) != typeid(T)) {
-    fprintf(stderr, "Given: <%s>, Required: <%s>.\n", obj->type->name(),
-            typeid(T).name());
+  if (*(obj->type) != typeid(T))
+  {
+    fprintf(stderr, "Given: <%s>, Required: <%s>.\n", obj->type->name(), typeid(T).name());
 #endif
-    fprintf(stderr,
-            "Given indexed_auto_ptr does not represent the correct type.\n");
+    fprintf(stderr, "Given indexed_auto_ptr does not represent the correct type.\n");
     throw std::runtime_error("indexed_auto_ptr<T>::from_index");
 #ifdef SPS_TYPE_ID_NAME
   }
@@ -396,18 +428,19 @@ indexed_auto_ptr<T>::from_index(const indexed_type_index index) {
 }
 
 template <typename T>
-indexed_type_index indexed_auto_ptr<T>::to_index() {
+indexed_type_index indexed_auto_ptr<T>::to_index()
+{
   // Find pointer in vector
   auto it = find(indexed_auto_ptr_collector<T>::objvector.begin(),
-                 indexed_auto_ptr_collector<T>::objvector.end(), this);
-  if (it != indexed_auto_ptr_collector<T>::objvector.end()) {
-    return indexed_type_index(
-             std::distance(
-               indexed_auto_ptr_collector<T>::objvector.begin(),
-               it));
-  } else {
+    indexed_auto_ptr_collector<T>::objvector.end(), this);
+  if (it != indexed_auto_ptr_collector<T>::objvector.end())
+  {
+    return indexed_type_index(std::distance(indexed_auto_ptr_collector<T>::objvector.begin(), it));
+  }
+  else
+  {
     fprintf(stderr, "Invalid index.\n");
     throw std::runtime_error("indexed_auto_ptr<T>::to_index");
   }
 }
-}  // namespace sps
+} // namespace sps

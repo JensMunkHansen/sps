@@ -13,82 +13,82 @@
 
 #include <iostream>
 
-
 #ifdef _MSC_VER
-# include <string_view>
-using string_view    = std::basic_string_view<char>;
+#include <string_view>
+using string_view = std::basic_string_view<char>;
 #else
-# if __cplusplus >= 201402
-#  include <experimental/string_view>
+#if __cplusplus >= 201402
+#include <experimental/string_view>
 using std::experimental::string_view;
-# endif
+#endif
 #endif
 
-namespace sps {
+namespace sps
+{
 template <class T>
 // TODO(JMH): Make work using C++11
-constexpr string_view type_name() {
+constexpr string_view type_name()
+{
 #ifdef __clang__
   string_view p = __PRETTY_FUNCTION__;
   return experimental::string_view(p.data() + 34, p.size() - 34 - 1);
 #elif defined(__GNUC__)
   string_view p = __PRETTY_FUNCTION__;
-#  if __cplusplus <= 201402
+#if __cplusplus <= 201402
   // C++14 - TODO(JMH): Filter out encapsulating stuff
   return string_view(p.data() + 36, p.size() - 36 - 1);
-#  else
+#else
   //  return string_view(p.data() + 46, p.size() - 46 - 1);
   //  return string_view(p.data() + 46, p.size() - 46); // Kept ']'
 
   // For 6.3.0-18 using std::experimental::string_view
   return string_view(p.data() + 46 + 34, p.size() - 46 - 146);
-#  endif
+#endif
 #elif defined(_MSC_VER)
   string_view p = __FUNCSIG__;
   return string_view(p.data() + 38, p.size() - 38 - 7);
 #endif
 }
-}  // namespace sps
-
+} // namespace sps
 
 #if 0
 
 #include <cstddef>
-#include <stdexcept>
 #include <cstring>
 #include <ostream>
+#include <stdexcept>
 
 #include <iostream>
 
 #ifndef _MSC_VER
-#  if __cplusplus < 201103
-#    define CONSTEXPR11_TN
-#    define CONSTEXPR14_TN
-#    define NOEXCEPT_TN
-#  elif __cplusplus < 201402
-#    define CONSTEXPR11_TN constexpr
-#    define CONSTEXPR14_TN
-#    define NOEXCEPT_TN noexcept
-#  else
-#    define CONSTEXPR11_TN constexpr
-#    define CONSTEXPR14_TN constexpr
-#    define NOEXCEPT_TN noexcept
-#  endif
-#else  // _MSC_VER
-#  if _MSC_VER < 1900
-#    define CONSTEXPR11_TN
-#    define CONSTEXPR14_TN
-#    define NOEXCEPT_TN
-#  elif _MSC_VER < 2000
-#    define CONSTEXPR11_TN constexpr
-#    define CONSTEXPR14_TN
-#    define NOEXCEPT_TN noexcept
-#  else
-#    define CONSTEXPR11_TN constexpr
-#    define CONSTEXPR14_TN constexpr
-#    define NOEXCEPT_TN noexcept
-#  endif
-#endif  // _MSC_VER
+#if __cplusplus < 201103
+#define CONSTEXPR11_TN
+#define CONSTEXPR14_TN
+#define NOEXCEPT_TN
+#elif __cplusplus < 201402
+#define CONSTEXPR11_TN constexpr
+#define CONSTEXPR14_TN
+#define NOEXCEPT_TN noexcept
+#else
+#define CONSTEXPR11_TN constexpr
+#define CONSTEXPR14_TN constexpr
+#define NOEXCEPT_TN noexcept
+#endif
+#else // _MSC_VER
+#if _MSC_VER < 1900
+#define CONSTEXPR11_TN
+#define CONSTEXPR14_TN
+#define NOEXCEPT_TN
+#elif _MSC_VER < 2000
+#define CONSTEXPR11_TN constexpr
+#define CONSTEXPR14_TN
+#define NOEXCEPT_TN noexcept
+#else
+#define CONSTEXPR11_TN constexpr
+#define CONSTEXPR14_TN constexpr
+#define NOEXCEPT_TN noexcept
+#endif
+#endif // _MSC_VER
 
 class static_string {
   const char* const p_;
@@ -141,11 +141,11 @@ type_name() {
   // 31 should be 34 for clang supporting c++17
 #elif defined(__GNUC__)
   static_string p = __PRETTY_FUNCTION__;
-#  if __cplusplus < 201402
+#if __cplusplus < 201402
   return static_string(p.data() + 36, p.size() - 36 - 1);
-#  else
+#else
   return static_string(p.data() + 46, p.size() - 46 - 1);
-#  endif
+#endif
 #elif defined(_MSC_VER)
   static_string p = __FUNCSIG__;
   return static_string(p.data() + 38, p.size() - 38 - 7);
